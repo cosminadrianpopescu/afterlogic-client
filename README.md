@@ -44,8 +44,8 @@ to sign this file before installing, like shown
 
 ```
 cd ./app/build/outputs/apk/release/
-keytool -genkey -v -keystore my-release-key.keystore -alias cups-client -keyalg RSA -keysize 2048 -validity 10000
-mv app-release-unsigned.apk cups.client.apk
-jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore cups.client.apk cups-client
+keytool -genkey -v -keystore my-release-key.keystore -alias afterlogic-client -keyalg RSA -keysize 2048 -validity 10000
+mv app-release-unsigned.apk afterlogic.client.apk
+jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore afterlogic.client.apk afterlogic-client
 ```
 
