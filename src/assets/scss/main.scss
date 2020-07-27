@@ -1,0 +1,38 @@
+.container {
+  height: calc(100vh - 53px);
+}
+
+body {
+  margin: 0px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+
+.account {
+  width: calc(100% - 48px);
+}
+
+.name {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  font-weight: normal;
+}
+
+.email {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-weight: normal;
+}
+
+.selected .email, .selected .name{
+  font-weight: bold !important;
+}
+
+.flex {
+  display: flex;
+}

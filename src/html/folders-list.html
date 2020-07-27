@@ -1,0 +1,10 @@
+<div style="position: relative">
+  <p-blockUI [target]="folders" [blocked]="view._loading"></p-blockUI>
+  <div #folders>
+    <p-tree selectionMode="single" (onNodeSelect)="view._select($event.node?.data)" [value]="view._account?.Folders$ | async | foldersTree">
+      <ng-template let-node pTemplate="default">
+        <span [ngClass]="{selected: view._selected == node.data}">{{node.data | folderLabel | async}}</span>
+      </ng-template>
+    </p-tree>
+  </div>
+</div>

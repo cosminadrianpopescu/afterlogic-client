@@ -1,0 +1,18 @@
+al-folders-list {
+  .ui-tree {
+    width: 100%;
+    border: none;
+  }
+
+  .ui-treenode-content:focus {
+    box-shadow: none !important;
+  }
+
+  .ui-tree-wrapper {
+    border: none;
+  }
+
+  .selected {
+    font-weight: bold;
+  }
+}

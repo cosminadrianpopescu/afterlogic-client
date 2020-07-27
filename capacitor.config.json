@@ -1,5 +1,5 @@
 {
-  "appId": "io.ionic.starter",
+  "appId": "afterlogic.client",
   "appName": "afterlogic-client",
   "bundledWebRuntime": false,
   "npmClient": "npm",

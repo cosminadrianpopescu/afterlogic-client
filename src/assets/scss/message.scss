@@ -1,0 +1,87 @@
+al-message {
+  .p-grid.ui-fluid {
+    width: 100%;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .from {
+    display: flex;
+    align-items: center;
+  }
+
+  .margin {
+    margin-left: 10px;
+  }
+
+  .buttons {
+    button {
+      margin-left: 4px;
+    }
+    text-align: right;
+  }
+
+  .avatar {
+    max-width: 56px;
+    margin: 8px;
+  }
+
+  .details {
+    flex: 1;
+    margin-top: 11px;
+  }
+
+  .actions {
+    max-width: 102px;
+    margin-top: 11px;
+    .fa {
+      font-size: 30px;
+      margin-left: 20px;
+    }
+  }
+
+  .p-col-1 {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .extra {
+    color: blue;
+  }
+
+  .extra-details {
+    font-size: 0.8em;
+  }
+
+  .contact-detail {
+    margin-right: 5px;
+  }
+  
+  .menu-options i{
+    margin-right: 10px;
+  }
+
+  .max-width {
+    max-width: 150px;
+  }
+
+  .message-body {
+    overflow-x: overlay;
+  }
+
+  .hide-quote blockquote {
+    display: none;
+  }
+
+  /*.ui-overlaypanel {
+    top: 150px !important;
+    left: 370px !important;
+  }*/
+
+  .main-container {
+    padding-left: 15px;
+  }
+}

@@ -1,0 +1,95 @@
+al-messages-list {
+  .header {
+    margin-top: 0px;
+  }
+
+  .from, .subject {
+    flex-grow: 1;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .subject {
+    font-size: 18px;
+  }
+
+  .margin-top {
+    margin-top: 0px;
+  }
+
+  .date {
+    justify-content: right;
+  }
+
+  .flags {
+    justify-content: right;
+    // margin-top: 4px;
+    margin-right: 4px;
+  }
+
+  .pi-star {
+    font-size: 0.9em;
+    padding-right: 5px;
+  }
+
+  .unread {
+    font-weight: bold;
+  }
+
+  .ui-inputgroup {
+    position: relative;
+    .pi-times {
+      position: absolute;
+      right: 38px;
+      top: 9px;
+    }
+  }
+
+  .right {
+    text-align: right;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+    margin-top: 8px;
+  }
+
+  .message {
+    width: calc(100% - 48px);
+    margin-top: 8px;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  td {
+    overflow: hidden;
+  }
+
+  .ui-overlaypanel {
+    max-width: 400px;
+  }
+
+  .fix-search-form .ui-overlaypanel {
+    top: 50px !important;
+    left: 107px !important;
+  }
+
+  .ui-datepicker {
+    min-width: 300px !important;
+  }
+
+  .combined-view {
+    .ui-paginator-first, .ui-paginator-last {
+      display: none;
+    }
+  }
+
+  td.highlight {
+    border-right: 5px solid !important;
+  }
+}

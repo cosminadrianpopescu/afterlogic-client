@@ -1,0 +1,121 @@
+body {
+  overflow: hidden;
+}
+app-home {
+  #container {
+    text-align: center;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  #container strong {
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  #container p {
+    font-size: 16px;
+    line-height: 22px;
+
+    color: #8c8c8c;
+
+    margin: 0;
+  }
+
+  #container a {
+    text-decoration: none;
+  }
+
+  .folders-col {
+    width: 200px;
+    max-width: 300px;
+  }
+
+  .mails-col {
+    width: 400px;
+
+    button {
+      margin-left: 10px;
+    }
+
+    .left {
+      float: left;
+    }
+
+  }
+
+  .right {
+    float: right;
+  }
+
+  .menuWidth {
+    min-width: 300px;
+    text-align: left;
+  }
+
+  .mail-col {
+    width: calc(100% - 600px);
+  }
+
+  .top td {
+    vertical-align: top;
+    overflow-y: auto;
+  }
+
+  .messages-wrapper {
+    overflow-y: hidden;
+  }
+
+  .wrapper {
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+
+  al-messages-list .ui-table-wrapper {
+    height: calc(100vh - 97px);
+    overflow-y: auto;
+  }
+
+  al-messages-list.mobile .ui-table-wrapper {
+    width: calc(100% - 8px);
+    padding-left: 9px;
+    overflow-x: hidden;
+    height: calc(100vh - 69px);
+  }
+
+  .mobile-messages-list {
+    position: relative;
+    top: 8px;
+  }
+
+  .w100 {
+    width: 100%;
+  }
+
+  .padding-10 {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .ui-toolbar-group-left i {
+    padding-left: 20px;
+    font-size: 20px;
+  }
+
+  .ui-toolbar-group-left {
+    margin-left: -20px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .ui-sidebar {
+    height: 100vh;
+    overflow-y: auto;
+  }
+}

@@ -1,0 +1,63 @@
+<div class="content-section" *ngIf="view._model">
+  <p-panel header="Server">
+    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
+      <div class="flex">
+        <span class="ui-float-label">
+          <input type="text" id="server-url" pInputText [ngModel]="view._model?.server.url" (ngModelChange)="view._model.server.url = $event" />
+          <label for="server-url">Server url</label>
+        </span>
+        <p-message [hidden]="view._model.server && view._model.server.url" severity="error" text="Url is required"></p-message>
+      </div>
+    </div>
+  </p-panel>
+</div>
+
+<div class="content-section" *ngIf="view._model">
+  <p-panel>
+    <p-header>
+      <div class="ui-helper-clearfix">
+        <span class="ui-panel-title">Accounts</span>
+        <button (click)="view._add()" pButton style="float: right" icon="pi pi-user-plus"></button>
+      </div>
+    </p-header>
+    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
+      <div [ngClass]="{invalid: view._validate && !user.token}" class="flex users" *ngFor="let user of view._model?.server.users || []">
+        <span class="ui-float-label">
+          <input type="text" [id]="user.email" pInputText [(ngModel)]="user.email" />
+          <label [for]="user.email">Email</label>
+        </span>
+        <span class="ui-float-label right">
+          <input type="password" id="{{user.email}}-pass" pInputText [(ngModel)]="user.pass" />
+          <label for="{{user.email}}-pass">Password</label>
+        </span>
+        <button pButton icon="pi pi-times" (click)="view._remove(user)"></button>
+      </div>
+    </div>
+  </p-panel>
+</div>
+
+<div class="content-section" *ngIf="view._model">
+  <p-panel header="App settings">
+    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
+      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'checkEmailInterval', label: 'Interval to check new emails (minutes)'}}"></ng-container>
+      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'pageSize', label: 'Number of messages displayed on a page'}}"></ng-container>
+      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'composeType', label: 'Type of messages to compose'}}"></ng-container>
+    </div>
+  </p-panel>
+</div>
+
+<ng-template #settingTpl let-context>
+  <div class="flex">
+    <span class="ui-float-label">
+      <p-dropdown id="setting-{{context.field}}"
+                  [options]="view._model[context.field].options"
+                  [(ngModel)]="view._model[context.field].model"
+                  optionLabel="label"></p-dropdown>
+      <label for="setting-{{context.field}}">{{context.label}}</label>
+    </span>
+  </div>
+</ng-template>
+
+<div class="content-section" *ngIf="view._model">
+  <button [disabled]="!view._model?.server.url" pButton label="Save" (click)="view._save()"></button>
+</div>

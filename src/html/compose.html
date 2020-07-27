@@ -1,0 +1,64 @@
+<div class="form" *ngIf="view._model">
+  <div class="p-grid ui-fluid">
+    <div class="p-col-6"></div>
+    <div class="p-col-6 options">
+      <button (click)="view._save(false)" style="width: 73px" pButton icon="fa fa-floppy-o" label="Save"></button>
+      <button (click)="view._send()" style="width: 73px; margin-left: 10px;" pButton icon="fa fa-paper-plane" label="Send"></button>
+      <button (click)="view._attach()" style="width: 87px; margin-left: 10px" pButton icon="fa fa-paperclip" label="Attach"></button>
+      <input #file type="file" multiple="true" style="display: none"/>
+    </div>
+    <div class="p-col-12" *ngIf="view._combinedView">
+      <span class="ui-inputgroup ui-float-label">
+        <p-dropdown id="from-dropdown"
+          [options]="view._accounts$ | async"
+          [(ngModel)]="view._account"
+          [disabled]="view._model?.Attachments.length > 0"
+          optionLabel="Email"></p-dropdown>
+        <label for="from-dropdown">From</label>
+      </span>
+    </div>
+    <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'To'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'Cc'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'Bcc'}}"></ng-container>
+    <div class="p-col-12">
+      <span class="ui-inputgroup ui-float-label">
+        <input type="text" pInputText id="subject-id" [(ngModel)]="view._model.Subject"/>
+        <label for="subject-id">Subject</label>
+      </span>
+    </div>
+    <div class="p-col-12">
+      <al-editor [(model)]="view._model.Body" #editor *ngIf="view._type == 'HTML'"></al-editor>
+      <textarea pInputTextarea [(ngModel)]="view._model.Body" *ngIf="view._type != 'HTML'"></textarea>
+    </div>
+    <div class="p-col-12">
+      <al-attachments [account]="view._account" [attachments]="view._model.Attachments" autoResize="autoResize"></al-attachments>
+    </div>
+  </div>
+
+  <ng-template #field let-context>
+    <div class="p-col-12" [hidden]="!view._showCc && context.field != 'To'">
+      <span class="ui-inputgroup ui-float-label">
+        <p-autoComplete
+          #autocomplete
+          [(ngModel)]="view._model[context.field]"
+          [suggestions]="view._contacts"
+          [autoHighlight]="true"
+          (onBlur)="view._blur(autocomplete)"
+          (onFocus)="view._focus(autocomplete)"
+          delay="0"
+          [id]="context.field"
+          [multiple]="true"
+          field="display"
+          (completeMethod)="view._filterContact($event)"
+          >
+          <ng-template pTemplate="item" let-item>
+            <span *ngIf="item.DisplayName">{{item.DisplayName}} ({{item.Email}})</span>
+            <span *ngIf="!item.DisplayName">{{item.Email}}</span>
+          </ng-template>
+        </p-autoComplete>
+        <button (click)="view._showCc = true" pButton icon="pi pi-angle-down" *ngIf="!view._showCc && context.field == 'To'"></button>
+        <label [for]="context.field">{{context.field}}</label>
+      </span>
+    </div>
+  </ng-template>
+</div>

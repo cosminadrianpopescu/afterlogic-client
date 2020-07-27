@@ -1,0 +1,33 @@
+al-settings {
+  .flex {
+    display: flex;
+    align-items: center;
+
+    button {
+      margin-left: 5px;
+    }
+  }
+  .flex:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  .ui-float-label {
+    width: 100%;
+  }
+
+  .ui-panel {
+    margin-bottom: 15px;
+  }
+  
+  .right {
+    margin-left: 5px;
+  }
+
+  p-message {
+    width: 153px;
+  }
+
+  .invalid {
+    border: 1px solid red;
+  }
+}

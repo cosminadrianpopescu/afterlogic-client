@@ -1,0 +1,155 @@
+<ng-container [ngTemplateOutlet]="view._isMobile ? mobile : desktop"></ng-container>
+
+<ng-template #desktop>
+  <p-table [value]="view._row" [resizableColumns]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="folders-col">
+          <button (click)="view._newMessage('new')" pButton icon="fa fa-envelope-o" label="New message"></button>
+        </th>
+        <th class="mails-col">
+          <div>
+            <div class="left">
+              <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionButton}"></ng-container>
+            </div>
+            <div class="right">
+              <button (click)="view._refresh()" pButton icon="fa fa-refresh"></button>
+            </div>
+          </div>
+        </th>
+        <th class="mail-col">
+          <div class="right">
+            {{view._account | currentEmail}}
+            <p-menu #menu [popup]="true" [model]="view._userMenu" styleClass="menuWidth"></p-menu>
+            <button type="button" pButton icon="fa fa-user" (click)="menu.toggle($event)"></button>
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body">
+      <tr class="top">
+        <td>
+          <div class="wrapper">
+            <al-folders-list [account]="view._account"></al-folders-list>
+          </div>
+        </td>
+        <td>
+          <div class="messages-wrapper">
+            <al-messages-list
+              #messagesList
+              (selectionChanged)="view._selectionChanged($event)"
+              (notify)="view._messageNotify($event)"
+              [account]="view._account"
+              [folder]="view._folder"></al-messages-list>
+          </div>
+        </td>
+        <td>
+          <div class="wrapper">
+            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <p-dialog
+    (onHide)="view._hideCompose(null)"
+    [autoZIndex]="false"
+    [header]="view._composeTitle" [(visible)]="view._compose"
+    [closeOnEscape]="true" [style]="{width: '600px'}">
+    <al-compose
+      (notify)="view._hideCompose($event)"
+      *ngIf="view._composer"
+      [composeType]="view._composeType"
+      [message]="view._composeMessage"
+      [to]="view._composeTo"></al-compose>
+  </p-dialog>
+  <p-dialog header="Settings" [resizable]="true" [closeOnEscape]="true" [style]="{width: '600px'}" [(visible)]="view._showSettings">
+    <al-settings></al-settings>
+  </p-dialog>
+</ng-template>
+<ng-template #mobile>
+  <p-sidebar [style]="{width: '400px'}" [(visible)]="view._toolbarVisible" [baseZIndex]="10000">
+    <div class="p-grid ui-fluid">
+      <div class="flex p-col-12" *ngFor="let account of (view._accounts$ | async)">
+        <div class="avatar">
+          <al-avatar [contact]="account | accountToContact"></al-avatar>
+        </div>
+        <div class="account" [ngClass]="{selected: account.Email == view._account?.Email}" (click)="view._changeAccount(account.Email)">
+          <h3 class="name" *ngIf="account.FriendlyName">{{account.FriendlyName}}</h3>
+          <h4 class="email" *ngIf="!(account | isCombinedAccount)">{{account.Email}}</h4>
+          <h4 class="email" *ngIf="account | isCombinedAccount">{{(view._accounts$ | async | count) - 1}} accounts</h4>
+        </div>
+      </div>
+      <div class="p-col-12">
+        <al-folders-list [account]="view._account"></al-folders-list>
+      </div>
+      <div class="p-col-12" (click)="view._settingsClick()">
+        <i class="fa fa-cog"></i> Settings
+      </div>
+    </div>
+  </p-sidebar>
+
+  <p-toolbar>
+    <div class="ui-toolbar-group-left">
+      <i (click)="view._toolbarVisible = true"
+        [hidden]="view._mobileViewType != 'list'"
+        class="fa fa-bars"
+        style="vertical-align: middle"></i>
+      <i (click)="view._toolbarBack()" 
+        [hidden]="view._mobileViewType == 'list'"
+        class="fa fa-arrow-left"
+        style="vertical-align: middle"></i>
+      <i (click)="view._newMessage('new')" 
+        [hidden]="view._mobileViewType != 'list'"
+        class="fa fa-plus"
+        style="vertical-align: middle"></i>
+      <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionIcon}"></ng-container>
+      <i (click)="view._refresh()" 
+        [hidden]="view._mobileViewType != 'list'"
+        class="fa fa-refresh"
+        style="vertical-align: middle"></i>
+    </div>
+  </p-toolbar>
+
+  <div class="p-grid ui-fluid mobile-messages-list">
+    <al-messages-list
+      class="mobile"
+      [hidden]="view._mobileViewType != 'list'"
+      #messagesList
+      (selectionChanged)="view._selectionChanged($event)"
+      (notify)="view._messageNotify($event)"
+      [account]="view._account"
+      [folder]="view._folder"></al-messages-list>
+    <div class="wrapper w100" [hidden]="view._mobileViewType != 'message'">
+      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+    </div>
+
+    <div class="wrapper w100 padding-10" *ngIf="view._mobileViewType == 'settings'">
+      <al-settings></al-settings>
+    </div>
+
+    <div class="w100 padding-10" [hidden]="view._mobileViewType != 'compose'">
+      <al-compose
+        (notify)="view._hideCompose($event)"
+        *ngIf="view._composer"
+        [composeType]="view._composeType"
+        [message]="view._composeMessage"
+        [to]="view._composeTo"></al-compose>
+    </div>
+  </div>
+</ng-template>
+<ng-template #toolbarButtons let-tpl>
+  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'envelope-open-o', action: 'mark-read'}}"></ng-container>
+  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'envelope-o', action: 'mark-unread'}}"></ng-container>
+  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'trash-o', action: 'delete'}}"></ng-container>
+  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: view._spamFolder ? 'thumbs-o-up' : 'thumbs-o-down', action: 'spam'}}"></ng-container>
+</ng-template>
+<ng-template #actionIcon let-context>
+  <i (click)="view._actionIcon(context.action)" 
+    [hidden]="view._mobileViewType != 'list'"
+    class="fa fa-{{context.icon}}"
+    style="vertical-align: middle"></i>
+</ng-template>
+<ng-template #actionButton let-context>
+  <button (click)="view._action(context.action)" pButton [disabled]="!(view._selection?.length > 0 && !view._message)" icon="fa fa-{{context.icon}}"></button>
+</ng-template>

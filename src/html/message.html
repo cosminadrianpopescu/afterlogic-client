@@ -1,0 +1,63 @@
+<div class="center p-grid ui-fluid" *ngIf="!view._message">
+  <div class="p-col-12"><h2>No message selected</h2></div>
+  <div class="p-col-12">Select a message from the list in order to view it!</div>
+</div>
+<div style="position: relative" *ngIf="view._message" class="main-container">
+  <div class="ui-fluid p-grid">
+    <div class="p-col-11">
+      <h2>{{view._message?.Subject}}</h2>
+    </div>
+    <div class="p-col-1">
+      <i (click)="view._star()" class="pi pi-star{{!view._message?.IsFlagged ? '-o' : ''}}"></i>
+    </div>
+    <div class="p-col avatar">
+      <al-avatar [contact]="view._message | messageFrom"></al-avatar>
+    </div>
+    <div class="p-col details">
+      <div>{{view._message | messageFrom | messageFromTxt}}</div>
+      <div>{{view._message | messageDate}}
+        <span (click)="view._detailsHidden = !view._detailsHidden" class="extra">{{view._detailsHidden ? 'Show' : 'Hide'}} details</span>
+      </div>
+      <div [hidden]="view._detailsHidden" class="extra-details">
+        <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'From'}"></ng-container>
+        <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'To'}"></ng-container>
+        <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'Cc'}"></ng-container>
+        <ng-template #detailsTpl let-field>
+          <div>{{field}}: 
+            <span
+              (click)="view._emailClick(contact)"
+              class="contact-detail"
+              *ngFor="let contact of (view._message[field] | contactsArray)"
+              [innerHTML]="contact | messageFromTxtFull | asHtml"></span>
+          </div>
+        </ng-template>
+      </div>
+      <div [hidden]="!view._hasImages" (click)="view._showImages()">
+        <i class="fa fa-picture-o"></i>&nbsp;Show images
+      </div>
+    </div>
+    <div class="p-col actions">
+      <i *ngIf="!view._isDraft" (click)="view._action('reply')" class="fa fa-reply"></i>
+      <i *ngIf="view._isDraft" (click)="view._action('from-draft')" class="fa fa-pencil"></i>
+      <span (click)="menu.toggle($event)">
+        <i class="fa fa-ellipsis-v"></i>
+      </span>
+    </div>
+  </div>
+  <div class="message-body" [ngClass]="{'hide-quote': view._quotedText}" #messageBody [innerHTML]="view._html | asHtml"></div>
+  <div [hidden]="!view._quotedText">
+    <div (click)="view._showHiddenContent()" class="extra">Show quoted text</div>
+  </div>
+  <div class="attachments" [hidden]="!view._message || (view._message | attachmentsList).length == 0">
+    <al-attachments [attachments]="view._message | attachmentsList" [message]="view._message" [account]="view._account"></al-attachments>
+  </div>
+</div>
+<p-overlayPanel #menu styleClass="max-width">
+  <ng-template pTemplate>
+    <div class="p-grid ui-fluid menu-options">
+      <div class="p-col-12" (click)="view._action('reply-all'); menu.hide()"><i class="fa fa-reply-all"></i>Reply all</div>
+      <div class="p-col-12" (click)="view._action('forward'); menu.hide()"><i class="fa fa-share"></i>Forward</div>
+      <div class="p-col-12" (click)="view._download(); menu.hide()"><i class="fa fa-download"></i>Download</div>
+    </div>
+  </ng-template>
+</p-overlayPanel>
