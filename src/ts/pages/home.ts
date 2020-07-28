@@ -51,6 +51,7 @@ export class Home extends BaseComponent {
   protected _accounts$: Observable<Array<Account>>;
   protected _mobileViewType: 'list' | 'message' | 'compose' | 'settings' = 'list';
   protected _showSettings: boolean = false;
+  protected _refreshing: boolean = false;
 
   constructor(private _route: ActivatedRoute) {
     super();
@@ -68,6 +69,8 @@ export class Home extends BaseComponent {
       this._account = account;
       this.hideLoading();
     });
+
+    this.connect(this._mails.refreshed$, () => this._refreshing = false);
 
     this.connect(this._api.sessionExpired$, u => {
       this.alert('Session expired', `User: ${u.email}`);
@@ -177,6 +180,7 @@ export class Home extends BaseComponent {
   }
 
   protected _refresh() {
+    this._refreshing = true;
     this._mails.refresh$.emit();
   }
 

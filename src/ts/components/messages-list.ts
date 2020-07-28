@@ -156,8 +156,6 @@ export class MessagesList extends BaseComponent {
       return ;
     }
     this._subscriptions = true;
-    this.connect(this._api.requestStart$, () => this._loading = true);
-    this.connect(this._api.requestEnd$, () => this._loading = false);
     const msgChanged = merge(this._api.messagesDeleted$, this._api.messagesMoved$, this._mails.refresh$);
     this.connect(
       msgChanged.pipe(
@@ -170,11 +168,14 @@ export class MessagesList extends BaseComponent {
       this._startMailsCheck();
     }
     const obs = merge(this._platform.pause.pipe(map(() => 'pause')), this._platform.resume.pipe(map(() => 'resume')));
-    this.connect(obs, ev => {
+    this.connect(obs, async ev => {
       if (ev == 'resume') {
         console.log('stopping the interval');
         this._stopBackgroundTimer();
         // this._zone.run(() => this._loadMessages({first: this._table.first}));
+        if (this._errors > MAX_BACKGROUND_RETRIES) {
+          this._checkInterval = await this._settings.getCheckoutEmailInterval();
+        }
       }
 
       if (ev == 'pause') {
@@ -292,6 +293,7 @@ export class MessagesList extends BaseComponent {
     this._setOldestMessage();
     this._totalRecords = this._api.lastSearchResults;
     this._loading = false;
+    this._mails.refreshed$.emit();
   }
 
   protected _keyup(ev: KeyboardEvent) {

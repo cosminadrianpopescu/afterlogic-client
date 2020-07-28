@@ -21,6 +21,7 @@ export class Mails extends BaseClass {
   @NgInject(Router) private _router: Router;
 
   public refresh$ = new EventEmitter();
+  public refreshed$ = new EventEmitter();
   public newEmails$ = new EventEmitter();
   public folderChanged$: EventEmitter<Folder> = new EventEmitter<Folder>();
   public currentAccount$: ReplaySubject<Account> = new ReplaySubject<Account>(1);

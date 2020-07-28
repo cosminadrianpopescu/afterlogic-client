@@ -22,8 +22,6 @@ export class Api extends BaseClass {
   public ready$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
   public lastSearchResults: number = 0;
   public folderUpdated$: EventEmitter<Folder> = new EventEmitter<Folder>();
-  public requestStart$ = new EventEmitter();
-  public requestEnd$ = new EventEmitter();
   public messagesDeleted$: EventEmitter<Array<Message>> = new EventEmitter<Array<Message>>();
   public messagesMoved$: EventEmitter<Array<Message>> = new EventEmitter<Array<Message>>();
   public messagesUpdated$: EventEmitter<Array<Message>> = new EventEmitter<Array<Message>>();
@@ -137,7 +135,6 @@ export class Api extends BaseClass {
     email: string, module: string,
     method: string, parameters: Object,
     type?: Type<ObjectType<T>>, file?: FileResult,
-    signal: boolean = true
   ): Promise<T | Array<T>> {
     const u = this._userByEmail(email);
     if (!u) {
@@ -154,9 +151,7 @@ export class Api extends BaseClass {
       this._handleUserExpired(u);
       return null;
     }
-    if (signal) this.requestStart$.emit();
     const [err, result] = await to(this._passRequest(u.token, module, method, parameters, type, file));
-    if (signal) this.requestEnd$.emit();
 
     if (err) {
       if (err.message.match(/^AUTH_ERROR/)) {
@@ -222,7 +217,7 @@ export class Api extends BaseClass {
       return this._request(
         account.Email, 'Mail', 'GetRelevantFoldersInformation',
         {AccountID: account.AccountID, Folders: list.map(x => x.Id)}, FoldersInfoResult,
-        undefined, typeof(auto) == 'undefined'
+        undefined,
       ) as Promise<FoldersInfoResult>;
     }
 
@@ -286,7 +281,7 @@ export class Api extends BaseClass {
         params['InboxUixnext'] = lastUid;
       }
       return this._request(
-        account.Email, 'Mail', 'GetMessages', params, Messages, undefined, typeof(auto) == 'undefined'
+        account.Email, 'Mail', 'GetMessages', params, Messages, undefined,
       ).then(msgs => this._processMessages(account, msgs as Messages)) as Promise<Messages>;
     }
 

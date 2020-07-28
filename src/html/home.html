@@ -13,7 +13,7 @@
               <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionButton}"></ng-container>
             </div>
             <div class="right">
-              <button (click)="view._refresh()" pButton icon="fa fa-refresh"></button>
+              <button (click)="view._refresh()" pButton icon="{{view._refreshing ? 'fa fa-spinner fa-spin' : 'fa fa-refresh'}}"></button>
             </div>
           </div>
         </th>
@@ -106,7 +106,7 @@
       <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionIcon}"></ng-container>
       <i (click)="view._refresh()" 
         [hidden]="view._mobileViewType != 'list'"
-        class="fa fa-refresh"
+        class="{{view._refreshing ? 'fa fa-spinner fa-spin' : 'fa fa-refresh'}}"
         style="vertical-align: middle"></i>
     </div>
   </p-toolbar>
