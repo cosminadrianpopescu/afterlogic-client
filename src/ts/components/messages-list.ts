@@ -143,6 +143,7 @@ export class MessagesList extends BaseComponent {
   }
 
   private async _startBackgroundTimer() {
+    this._stopBackgroundTimer();
     console.log('starting the interval');
     this._backgroundTimer.start(this._backgroundSuccess.bind(this), this._backgroundFailure.bind(this), {
       timerInterval: this._checkInterval,
@@ -203,7 +204,6 @@ export class MessagesList extends BaseComponent {
     if (err && ++this._errors >= MAX_BACKGROUND_RETRIES && this._checkInterval < MAX_INTERVAL) {
       console.log('setting the interval to max, due to 3 errors in a row', err);
       this._checkInterval = MAX_INTERVAL;
-      this._stopBackgroundTimer();
       this._startBackgroundTimer();
       console.log('set done');
       return ;
@@ -216,7 +216,6 @@ export class MessagesList extends BaseComponent {
     else if (this._errors >= MAX_BACKGROUND_RETRIES) {
       this._checkInterval = await this._settings.getCheckoutEmailInterval();
       console.log('setting the interval back to', this._checkInterval, 'due to no error now');
-      this._stopBackgroundTimer();
       this._startBackgroundTimer();
       console.log('set done');
     }

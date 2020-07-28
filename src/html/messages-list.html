@@ -52,15 +52,15 @@
   </ng-template>
 </p-table>
 
-<p-overlayPanel #advancedSearch>
+<p-overlayPanel #advancedSearch [dismissable]="false" baseZIndex="990">
   <ng-template pTemplate>
     <div class="p-grid ui-fluid">
       <div class="p-col-6"><input type="text" [(ngModel)]="view._search.from" pInputText placeholder="From"/></div>
       <div class="p-col-6"><input type="text" [(ngModel)]="view._search.to" pInputText placeholder="To"/></div>
       <div class="p-col-6"><input type="text" [(ngModel)]="view._search.subject" pInputText placeholder="Subject"/></div>
       <div class="p-col-6"><input type="text" [(ngModel)]="view._search.text" pInputText placeholder="Text"/></div>
-      <div class="p-col-6"><p-calendar [(ngModel)]="view._search.since" placeholder="Since" [showIcon]="true"></p-calendar></div>
-      <div class="p-col-6"><p-calendar [(ngModel)]="view._search.till" placeholder="Till" [showIcon]="true"></p-calendar></div>
+      <div class="p-col-6"><p-calendar [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since" [showIcon]="true"></p-calendar></div>
+      <div class="p-col-6"><p-calendar [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till" [showIcon]="true"></p-calendar></div>
       <div class="p-col-6"><p-checkbox [binary]="true" label="Has Attachments" [(ngModel)]="view._search.attachments"></p-checkbox></div>
       <div class="p-col-6 right"><button (click)="view._advSearch(); advancedSearch.hide()" pButton label="Search"></button></div>
     </div>

@@ -4,7 +4,7 @@
     <div class="p-col-6 options">
       <button (click)="view._save(false)" style="width: 73px" pButton icon="fa fa-floppy-o" label="Save"></button>
       <button (click)="view._send()" style="width: 73px; margin-left: 10px;" pButton icon="fa fa-paper-plane" label="Send"></button>
-      <button (click)="view._attach()" style="width: 87px; margin-left: 10px" pButton icon="fa fa-paperclip" label="Attach"></button>
+      <button (click)="view._attach()" style="width: 87px; margin-left: 10px" pButton icon="{{view._attaching ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'}}" label="Attach"></button>
       <input #file type="file" multiple="true" style="display: none"/>
     </div>
     <div class="p-col-12" *ngIf="view._combinedView">

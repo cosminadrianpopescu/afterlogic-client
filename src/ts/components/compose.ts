@@ -51,6 +51,7 @@ export class Compose extends BaseComponent {
   protected _combinedView: boolean = false;
   private _saveSubscription: Subscription;
   protected _accounts$: Observable<Array<Account>>;
+  protected _attaching: boolean = false;
 
   @NgCycle('init')
   protected _initMe() {
@@ -174,6 +175,7 @@ export class Compose extends BaseComponent {
   }
 
   protected async _attach() {
+    this._attaching = true;
     const files = await this._fileService.get(this._file.nativeElement);
     const p: Array<Promise<UploadResult>> = [];
     for (let i = 0; i < files.length; i++) {
@@ -181,6 +183,7 @@ export class Compose extends BaseComponent {
     }
     const attachments = await Promise.all(p);
     this._model.Attachments.push.apply(this._model.Attachments, attachments.map(a => a.Attachment));
+    this._attaching = false;
   }
 
   protected async _blur(a: AutoComplete) {
