@@ -65,7 +65,6 @@ export class Home extends BaseComponent {
     this._accounts$ = this._mails.accounts$;
     this._isMobile = this._layout.isMobile;
     this.connect(this._mails.currentAccount$, async account => {
-      console.log('account is', account);
       this._account = account;
       this.hideLoading();
     });

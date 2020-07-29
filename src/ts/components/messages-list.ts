@@ -1,20 +1,18 @@
-import {Component, EventEmitter, Input, NgZone, Output, SimpleChanges, ViewChild, ViewEncapsulation} from '@angular/core';
-import {Platform} from '@ionic/angular';
+import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation} from '@angular/core';
 import {LazyLoadEvent} from 'primeng/api/public_api';
 import {Table} from 'primeng/table/table';
-import {interval, merge} from 'rxjs';
-import {filter, map, skip, tap} from 'rxjs/operators';
+import {merge} from 'rxjs';
+import {skip, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
 import {Account, COMBINED_ACCOUNT_ID, Folder, FolderType, Message, SearchConvertor, SearchModel, to} from '../models';
 import {Api} from '../services/api';
+import {Background} from '../services/background';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
 
 const DEFAULT = 'Inbox';
-const MAX_INTERVAL = 60 * 1000 * 15;
-const MAX_BACKGROUND_RETRIES = 3;
 
 @Component({
   selector: 'al-messages-list',
@@ -37,9 +35,7 @@ export class MessagesList extends BaseComponent {
   @NgInject(Settings) private _settings: Settings;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Api) private _api: Api;
-  @NgInject(Platform) private _platform: Platform;
-  @NgInject(NgZone) private _zone: NgZone;
-  private _backgroundTimer: any;
+  @NgInject(Background) private _background: Background;
   @ViewChild('table', {static: true}) private _table: Table;
 
   protected _loading: boolean = true;
@@ -54,25 +50,9 @@ export class MessagesList extends BaseComponent {
   private _oldestMessage: Message = null;
   private _folder: Folder;
   private _subscriptions: boolean = false;
-  private _checkInterval: number = null;
-  private _errors: number = 0;
 
   constructor() {
     super();
-    this._configureBackend();
-  }
-
-  private async _configureBackend() {
-    this._backgroundTimer = window['BackgroundTimer'];
-    console.log('background timer is', this._backgroundTimer);
-    if (!this._backgroundTimer) {
-      return ;
-    }
-    this._backgroundTimer.onTimerEvent(this._backgroundRun.bind(this));
-  }
-
-  protected _backgroundFails(err: any) {
-    console.log('background config failed', err);
   }
 
   @NgCycle('init')
@@ -81,7 +61,6 @@ export class MessagesList extends BaseComponent {
       this._subscriptions = false;
       this.softRefresh();
     });
-    this._checkInterval = await this._settings.getCheckoutEmailInterval();
     this._pageSize = await this._settings.getPageSize();
     if (!this.account) {
       return ;
@@ -121,37 +100,6 @@ export class MessagesList extends BaseComponent {
     this._combinedMessages = this._combinedMessages.filter(m => map.indexOf(m.Uid) == -1);
   }
 
-  private _backgroundSuccess() {
-    console.log('executed background thing successfully');
-  }
-
-  private _backgroundFailure(e: Error) {
-    console.log('error with background timer', e);
-  }
-
-  private _backgroundRun() {
-    return new Promise(resolve => {
-      this._zone.run(async () => {
-        await this._checkMailsAuto.bind(this)();
-        resolve();
-      });
-    });
-  }
-
-  private _stopBackgroundTimer() {
-    this._backgroundTimer.stop(this._backgroundSuccess.bind(this), this._backgroundFailure.bind(this));
-  }
-
-  private async _startBackgroundTimer() {
-    this._stopBackgroundTimer();
-    console.log('starting the interval');
-    this._backgroundTimer.start(this._backgroundSuccess.bind(this), this._backgroundFailure.bind(this), {
-      timerInterval: this._checkInterval,
-      startOnBoot: false,
-      stopOnTerminate: true,
-    });
-  }
-
   private async _initSubscriptions() {
     if (this._subscriptions) {
       return ;
@@ -164,63 +112,24 @@ export class MessagesList extends BaseComponent {
       ),
       () => this._loadMessages(<LazyLoadEvent>{first: this._table.first})
     );
-
-    if (this._platform.is('desktop')) {
-      this._startMailsCheck();
-    }
-    const obs = merge(this._platform.pause.pipe(map(() => 'pause')), this._platform.resume.pipe(map(() => 'resume')));
-    this.connect(obs, async ev => {
-      if (ev == 'resume') {
-        console.log('stopping the interval');
-        this._stopBackgroundTimer();
-        // this._zone.run(() => this._loadMessages({first: this._table.first}));
-        if (this._errors > MAX_BACKGROUND_RETRIES) {
-          this._checkInterval = await this._settings.getCheckoutEmailInterval();
-        }
-      }
-
-      if (ev == 'pause') {
-        this._startBackgroundTimer();
-      }
-    });
-  }
-
-  private async _startMailsCheck() {
-    interval(this._checkInterval).pipe(
-      filter(() => Utils.emptySearch(this._search) && this._folder.Type == FolderType.Inbox),
-    ).subscribe(() => this._checkMailsAuto());
+    this._background.configure(this._checkMailsAuto.bind(this));
   }
 
   private _waitNewMails(): boolean {
-    return this._oldestMessage && this._folder && this._folder.Type == FolderType.Inbox && !this._search.simple;
+    return this._oldestMessage && this._folder && this._folder.Type == FolderType.Inbox && Utils.emptySearch(this._search);
   }
 
   private async _checkMailsAuto() {
     console.log('checking mails automatically', new Date());
     if (!this._waitNewMails()) {
+      console.log('not waiting for new messages');
       return ;
     }
     const [err, msgs] = await to(this._api.getMessages(this.account, this._folder.Id, 0, 1));
-    if (err && ++this._errors >= MAX_BACKGROUND_RETRIES && this._checkInterval < MAX_INTERVAL) {
-      console.log('setting the interval to max, due to 3 errors in a row', err);
-      this._checkInterval = MAX_INTERVAL;
-      this._startBackgroundTimer();
-      console.log('set done');
-      return ;
-    }
-
     if (err) {
-      console.log('no action taken due to error', err);
-      return ;
-    }
-    else if (this._errors >= MAX_BACKGROUND_RETRIES) {
-      this._checkInterval = await this._settings.getCheckoutEmailInterval();
-      console.log('setting the interval back to', this._checkInterval, 'due to no error now');
-      this._startBackgroundTimer();
-      console.log('set done');
+      throw err;
     }
 
-    this._errors = 0;
     console.log('fetched', msgs.length, new Date());
     if (!this._waitNewMails() || msgs.length == 0) {
       return ;
