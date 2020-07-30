@@ -148,8 +148,9 @@
   <i (click)="view._actionIcon(context.action)" 
     [hidden]="view._mobileViewType != 'list'"
     class="fa fa-{{context.icon}}"
+    [ngClass]="{disabled: view._selection?.length == 0 && !view._message}"
     style="vertical-align: middle"></i>
 </ng-template>
 <ng-template #actionButton let-context>
-  <button (click)="view._action(context.action)" pButton [disabled]="!(view._selection?.length > 0 && !view._message)" icon="fa fa-{{context.icon}}"></button>
+  <button (click)="view._action(context.action)" pButton [disabled]="view._selection?.length == 0 && !view._message" icon="fa fa-{{context.icon}}"></button>
 </ng-template>

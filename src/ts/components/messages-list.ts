@@ -98,6 +98,8 @@ export class MessagesList extends BaseComponent {
     const map = messages.map(m => m.Uid);
 
     this._combinedMessages = this._combinedMessages.filter(m => map.indexOf(m.Uid) == -1);
+    this._table.selection = this._table.selection.filter((m: Message) => map.indexOf(m.Uid) == -1);
+    this.selectionChanged.emit(this._table.selection);
   }
 
   private async _initSubscriptions() {

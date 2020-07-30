@@ -161,11 +161,9 @@ export class Compose extends BaseComponent {
     this.notify.emit('sent');
   }
 
-  protected async _save(auto: boolean = true) {
+  protected async _save() {
     this._destroy();
-    if (!auto) {
-      this.showLoading();
-    }
+    this.showLoading();
     const conv = new MessageSaveConvertor();
     const model = conv.convert(this._model);
     const result = await this._api.saveMessage(this._account, model);

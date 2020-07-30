@@ -17,7 +17,7 @@
     <p-header>
       <div class="ui-helper-clearfix">
         <span class="ui-panel-title">Accounts</span>
-        <button (click)="view._add()" pButton style="float: right" icon="pi pi-user-plus"></button>
+        <button (click)="view._add()" pButton style="float: right" icon="fa fa-user-plus"></button>
       </div>
     </p-header>
     <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
@@ -30,7 +30,7 @@
           <input type="password" id="{{user.email}}-pass" pInputText [(ngModel)]="user.pass" />
           <label for="{{user.email}}-pass">Password</label>
         </span>
-        <button pButton icon="pi pi-times" (click)="view._remove(user)"></button>
+        <button pButton icon="fa fa-user-times" (click)="view._remove(user)"></button>
       </div>
     </div>
   </p-panel>

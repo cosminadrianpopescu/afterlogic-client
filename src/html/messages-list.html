@@ -12,8 +12,8 @@
           <div class="p-col-12">
             <div class="ui-inputgroup">
               <input (keyup)="view._keyup($event)" [(ngModel)]="view._search.simple" type="text" pInputText placeholder="Search">
-              <i (click)="view._clearSearch()" class="pi pi-times" *ngIf="view._search.simple"></i>
-              <button (click)="advancedSearch.toggle($event)" pButton icon="pi pi-angle-down"></button>
+              <i (click)="view._clearSearch()" class="fa fa-times" *ngIf="view._search.simple"></i>
+              <button (click)="advancedSearch.toggle($event)" pButton icon="fa fa-angle-down"></button>
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@
             </div>
             <div class="flex ui-fluid margin-top">
               <div class="subject">
-                <i *ngIf="row.IsFlagged" class="pi pi-star"></i>{{row.Subject}}
+                <i *ngIf="row.IsFlagged" class="fa fa-star"></i>{{row.Subject}}
               </div>
             </div>
           </div>

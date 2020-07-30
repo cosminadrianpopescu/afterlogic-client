@@ -118,4 +118,8 @@ app-home {
     height: 100vh;
     overflow-y: auto;
   }
+
+  .disabled {
+    opacity: 0.2;
+  }
 }

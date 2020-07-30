@@ -56,7 +56,7 @@
             <span *ngIf="!item.DisplayName">{{item.Email}}</span>
           </ng-template>
         </p-autoComplete>
-        <button (click)="view._showCc = true" pButton icon="pi pi-angle-down" *ngIf="!view._showCc && context.field == 'To'"></button>
+        <button (click)="view._showCc = true" pButton icon="fa fa-angle-down" *ngIf="!view._showCc && context.field == 'To'"></button>
         <label [for]="context.field">{{context.field}}</label>
       </span>
     </div>

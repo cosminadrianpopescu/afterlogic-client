@@ -8,7 +8,7 @@
       <h2>{{view._message?.Subject}}</h2>
     </div>
     <div class="p-col-1">
-      <i (click)="view._star()" class="pi pi-star{{!view._message?.IsFlagged ? '-o' : ''}}"></i>
+      <i (click)="view._star()" class="fa fa-star{{!view._message?.IsFlagged ? '-o' : ''}}"></i>
     </div>
     <div class="p-col avatar">
       <al-avatar [contact]="view._message | messageFrom"></al-avatar>
