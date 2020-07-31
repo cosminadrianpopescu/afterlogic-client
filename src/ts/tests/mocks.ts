@@ -56,4 +56,17 @@ class MockStorage {
 
 export function initMocks() {
   Plugins.Storage = <any>(new MockStorage());
+  window['OC'] = {
+    Files: {
+      getClient: () => <Object>{
+        getFileInfo: async (path: string): Promise<Object> => {
+          if (['abc', 'abc-1'].indexOf(path) != -1) {
+            return {};
+          }
+
+          throw 'NOT_FOUND';
+        }
+      }
+    }
+  }
 }

@@ -2,9 +2,12 @@ import {Component, Input} from '@angular/core';
 import {FilesystemDirectory, FileWriteResult} from '@capacitor/core';
 import {WebIntent} from '@ionic-native/web-intent/ngx';
 import {BaseComponent} from '../base';
-import {NgInject} from '../decorators';
+import {NgInject, NgCycle} from '../decorators';
 import {Account, Attachment, MessageBody} from '../models';
 import {Api} from '../services/api';
+import {Nextcloud} from '../services/nextcloud';
+import {Mails} from '../services/mails';
+import {Settings} from '../services/settings';
 
 @Component({
   selector: 'al-attachments',
@@ -18,7 +21,16 @@ export class Attachments extends BaseComponent {
 
   @NgInject(Api) private _api: Api;
   @NgInject(WebIntent) private _intent: WebIntent;
+  @NgInject(Nextcloud) private _nc: Nextcloud;
+  @NgInject(Mails) private _mails: Mails;
+  @NgInject(Settings) private _settings: Settings;
   protected _attDownloading: boolean = false;
+  protected _isCloud: boolean = false;
+
+  @NgCycle('init')
+  protected _initMe() {
+    this._isCloud = this._nc.isNextcloud();
+  }
 
   protected async _doDownload(a: Attachment, where: FilesystemDirectory): Promise<FileWriteResult> {
     this._attDownloading = true;
@@ -53,5 +65,23 @@ export class Attachments extends BaseComponent {
     if (idx != -1) {
       this.attachments.splice(idx, 1);
     }
+  }
+
+  protected async _uploadToCloud(att: Attachment) {
+    if (!this.message) {
+      return ;
+    }
+
+    if (!att.Actions.download) {
+      throw 'NO_DOWNLOAD_ACTION';
+    }
+    const server = await this._settings.getServer();
+    const folder = await this._nc.pickFolder();
+    console.log('folder is', folder);
+    const a = this._mails.accountById(this.message.AccountID);
+    const content = await this._api.getAttachmentContent(a, `${server.url}/${att.Actions.download}`);
+    const path = `${folder}/${att.FileName}`;
+    const uPath = await this._nc.upload(path, content);
+    this.alert('File uploaded to the cloud', uPath);
   }
 }

@@ -4,7 +4,7 @@ import {interval, Observable, Subscription} from 'rxjs';
 import {debounceTime, finalize, map, take, takeWhile, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
-import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, MessageComposeType, Contact, ContactConvertor, DisplayContact, MessageBody, MessageCompose, MessageComposeConvertor, MessageSaveConvertor, ComposeType, ModelFactory, to, UploadResult} from '../models';
+import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, MessageComposeType, Contact, ContactConvertor, DisplayContact, MessageBody, MessageCompose, MessageComposeConvertor, MessageSaveConvertor, ComposeType, ModelFactory, to, UploadResult, FileResult} from '../models';
 import {Api} from '../services/api';
 import {Contacts} from '../services/contacts';
 import {FileService} from '../services/file';
@@ -12,6 +12,7 @@ import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
 import {Editor} from './editor';
+import {Nextcloud} from '../services/nextcloud';
 
 /**
  * * button for editing drafts.
@@ -38,6 +39,7 @@ export class Compose extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(FileService) private _fileService: FileService;
+  @NgInject(Nextcloud) private _nc: Nextcloud;
 
   @ViewChild('file', {static: false}) private _file: ElementRef<any>;
   @ViewChild('editor', {static: false}) private _editor: Editor;
@@ -52,6 +54,8 @@ export class Compose extends BaseComponent {
   private _saveSubscription: Subscription;
   protected _accounts$: Observable<Array<Account>>;
   protected _attaching: boolean = false;
+  protected _cloudAttaching: boolean = false;
+  protected _incloud: boolean = false;
 
   @NgCycle('init')
   protected _initMe() {
@@ -71,6 +75,7 @@ export class Compose extends BaseComponent {
       this._waitEditorReady();
       this._type = await this._settings.getMessageType();
     });
+    this._incloud = this._nc.isNextcloud();
   }
 
   private _setModel() {
@@ -172,16 +177,43 @@ export class Compose extends BaseComponent {
     this._viewInit();
   }
 
+  private async _doAttach(promises: Array<Promise<UploadResult>>) {
+    const attachments = await Promise.all(promises);
+    this._model.Attachments.push.apply(this._model.Attachments, attachments.map(a => a.Attachment));
+  }
+
   protected async _attach() {
-    this._attaching = true;
     const files = await this._fileService.get(this._file.nativeElement);
+    this._attaching = true;
     const p: Array<Promise<UploadResult>> = [];
     for (let i = 0; i < files.length; i++) {
       p.push(this._api.uploadAttachment(this._account, files[i]));
     }
-    const attachments = await Promise.all(p);
-    this._model.Attachments.push.apply(this._model.Attachments, attachments.map(a => a.Attachment));
+    await this._doAttach(p);
     this._attaching = false;
+  }
+
+  protected async _cloudAttach() {
+    const files = await this._nc.pickFile();
+    this._cloudAttaching = true;
+    console.log('files are', files);
+    let p = [];
+    files.forEach(file => {
+      p.push(this._nc.download(file));
+    });
+    const contents = await Promise.all(p);
+
+    p = [];
+
+    files.forEach((file, idx) => {
+      // console.log('downloaded content', content);
+      // const data = await this._fileService.read(new Blob([content]))
+      const f = new FileResult();
+      f.content = new File([contents[idx]], file.replace(/^.*\/([^\/]+)$/, '$1'));
+      p.push(this._api.uploadData(this._account, f));
+    });
+    await this._doAttach(p);
+    this._cloudAttaching = false;
   }
 
   protected async _blur(a: AutoComplete) {

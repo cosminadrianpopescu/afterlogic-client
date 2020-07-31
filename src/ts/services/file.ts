@@ -8,18 +8,18 @@ import {FileResult, FormDataSerialized, ModelFactory} from '../models';
 export class FileService extends BaseClass {
   private _callback: Function = null;
 
-  public async read(f: File): Promise<ArrayBuffer>{
+  public async read(f: Blob): Promise<string>{
     const reader = new FileReader();
     const r: FileReader = reader['__zone_symbol__originalInstance'] || reader;
 
     return new Promise((resolve, reject) => {
       r.onloadend = function() {
-        resolve(this.result as ArrayBuffer);
+        resolve(this.result as string);
       }
       r.onerror = async function() {
         reject(this.error);
       }
-      r.readAsArrayBuffer(f);
+      r.readAsBinaryString(f);
     })
   }
 

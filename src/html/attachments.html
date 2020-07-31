@@ -7,6 +7,7 @@
           Attachment
         </th>
         <th style="width: 3em"></th>
+        <th style="width: 3em" *ngIf="view._isCloud && message"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-row>
@@ -19,6 +20,9 @@
         <td>
           <i *ngIf="message" (click)="view._downloadAttachment(row)" class="fa fa-download"></i>
           <i *ngIf="!message" (click)="view._removeAttachment(row)" class="fa fa-trash"></i>
+        </td>
+        <td *ngIf="view._isCloud && message">
+          <i (click)="view._uploadToCloud(row)" class="fa fa-cloud-download"></i>
         </td>
       </tr>
     </ng-template>

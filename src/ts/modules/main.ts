@@ -54,6 +54,7 @@ import { DefaultRouteReuseStrategy } from '../services/route-reuse';
 import { Settings } from '../services/settings';
 import { Store } from '../services/store';
 import {Background} from '../services/background';
+import {Nextcloud} from '../services/nextcloud';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,7 @@ import {Background} from '../services/background';
     SplashScreen, Api, Store, Settings, Contacts, Layout, Navigation, 
     Mails, MessageService, FileService, 
     { provide: RouteReuseStrategy, useClass: DefaultRouteReuseStrategy },
-    HTTP, FileChooser, Background,
+    HTTP, FileChooser, Background, Nextcloud,
     WebIntent,
     // {provide: WebIntent, useClass: MockWebIntent},
   ],

@@ -4,7 +4,7 @@ import {FoldersConvertor} from '../models';
 
 export class FoldersTestCase extends BaseTestUnit {
 
-  @NgTest('test folders algorithm', true)
+  @NgTest()
   public testFolders() {
     const conv = new FoldersConvertor();
     let s = '["INBOX","[Gmail]","[Gmail]\\/Sent Mail","[Gmail]\\/Drafts","[Gmail]\\/Spam","[Gmail]\\/Trash","[Gmail]\\/All Mail","[Gmail]\\/Important","[Gmail]\\/Starred","amazon-kindle","Ce era prin Inbox","Code Project","De acasa","Drafts","Operate","Sent","TAID","TAID-PAS-SURE","Trash"]';

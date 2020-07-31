@@ -64,7 +64,7 @@ export class Api extends BaseClass {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    if (method != 'UploadAttachment') {
+    if (!file) {
       data = this._platform.is('desktop') ? 
         `Module=${module}&Method=${method}&Parameters=${encodeURIComponent(JSON.stringify(parameters))}`
         : {Module: module, Method: method, Parameters: JSON.stringify(parameters)};
@@ -80,7 +80,7 @@ export class Api extends BaseClass {
     }
 
     let json: ObjectType<Object>;
-    if (this._platform.is('desktop') || method == 'UploadAttachment') {
+    if (this._platform.is('desktop') || file) {
       const result = await fetch(this._url, {
         method: 'POST',
         body: data as (string | FormData),
@@ -134,7 +134,7 @@ export class Api extends BaseClass {
   private async _request<T>(
     email: string, module: string,
     method: string, parameters: Object,
-    type?: Type<ObjectType<T>>, file?: FileResult,
+    type?: Type<ObjectType<T>>, file?: FileResult
   ): Promise<T | Array<T>> {
     const u = this._userByEmail(email);
     if (!u) {
@@ -507,11 +507,9 @@ export class Api extends BaseClass {
     if (!account) {
       throw {message: "ACCOUNT_NOT_FOUND", msg: msg};
     }
-    const user = this._userByEmail(account.Email);
-    const data = await fetch(url, {headers: {Authorization: `Bearer ${user.token}`}});
+    const fileData = await this.getAttachmentContent(account, url);
     if (this._platform.is('desktop')) {
-      const bin = await data.blob();
-      const buf = await bin.arrayBuffer();
+      const buf = await fileData.arrayBuffer();
       const blob = new Blob([buf], {type: 'application/octet-stream'});
       const a = document.createElement('a');
       a.download = fileName;
@@ -529,8 +527,7 @@ export class Api extends BaseClass {
         resolve(reader.result as string);
       };
       reader.onerror = () => reject(reader.error);
-      const blob = await data.blob();
-      reader.readAsBinaryString(blob);
+      reader.readAsBinaryString(fileData);
     }) as string;
 
     const result = await Filesystem.writeFile({
@@ -539,6 +536,13 @@ export class Api extends BaseClass {
       directory: where,
     });
     return result;
+  }
+
+  public async getAttachmentContent(account: Account, url: string): Promise<Blob> {
+    this._checkReady();
+    const user = this._userByEmail(account.Email);
+    const data = await fetch(url, {headers: {Authorization: `Bearer ${user.token}`}});
+    return data.blob();
   }
 
   // Patched
@@ -553,6 +557,10 @@ export class Api extends BaseClass {
   // Patched
   public async uploadAttachment(account: Account, file: FileResult): Promise<UploadResult> {
     return this._request(account.Email, 'Mail', 'UploadAttachment', {AccountID: account.AccountID}, UploadResult, file) as Promise<UploadResult>;
+  }
+
+  public async uploadData(account: Account, data: any): Promise<UploadResult> {
+    return this._request(account.Email, 'Mail', 'UploadAttachment', {AccountID: account.AccountID}, UploadResult, data) as Promise<UploadResult>;
   }
 
   private async _setFoldersTypes(account: Account, folders: Array<Folder>) {

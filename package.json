@@ -13,6 +13,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-devkit/schematics": "^10.0.4",
     "@angular/animations": "^9.1.11",
     "@angular/cdk": "^9.2.4",
     "@angular/common": "~9.1.6",
@@ -56,6 +57,7 @@
     "@babel/register": "^7.10.3",
     "@capacitor/cli": "2.2.0",
     "@ionic/angular-toolkit": "^2.1.1",
+    "@nextcloud/typings": "^0.2.2",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
