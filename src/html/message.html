@@ -44,7 +44,9 @@
       </span>
     </div>
   </div>
-  <div class="message-body" [ngClass]="{'hide-quote': view._quotedText}" #messageBody [innerHTML]="view._html | asHtml"></div>
+  <pinch-zoom disableZoomControl="disable">
+    <div class="message-body" style="{{view._maxWidth}}" [ngClass]="{'hide-quote': view._quotedText}" #messageBody [innerHTML]="view._html | asHtml"></div>
+  </pinch-zoom>
   <div [hidden]="!view._quotedText">
     <div (click)="view._showHiddenContent()" class="extra">Show quoted text</div>
   </div>
@@ -61,3 +63,5 @@
     </div>
   </ng-template>
 </p-overlayPanel>
+<ng-template #body>
+</ng-template>

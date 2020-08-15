@@ -35,7 +35,7 @@ export class ModelFactory {
     const result = new type();
     Object.keys(json).map(k => k.replace(/^@/g, '')).forEach(k => {
       const d = deserializers(type).find(d => d.prop == k);
-      const value = json[k] || json['@' + k];
+      const value = typeof(json['@' + k]) == 'undefined' ? json[k] : json['@' + k];
       if (!d || typeof(value) == undefined || value == null) {
         result[k] = value;
         return ;
@@ -253,6 +253,10 @@ export class SearchConvertor implements Convertor<string> {
     if (src.since || src.till) {
       result = this._add(result, 'date', `${this._date(src.since)}/${this._date(src.till)}`)
     }
+    if (!result && src.all) {
+      result = src.all;
+    }
+    result = this._add(result, 'folder', src.folder);
     return result;
   }
 }
@@ -393,6 +397,7 @@ export class FoldersInfoResult {
 
 export class SearchModel {
   simple: string;
+  all: string;
   from: string;
   to: string;
   subject: string;
@@ -400,6 +405,7 @@ export class SearchModel {
   since: Date;
   till: Date;
   attachments: boolean;
+  folder: string;
 }
 
 export type ComposeNotifyType = 'sent' | 'cancel' | 'error';
@@ -646,4 +652,7 @@ export class AppSettings {
   composeType: AppSetting;
   @deserialize(AppSetting)
   checkEmailInterval: AppSetting;
+  nextcloudUrl: string;
 }
+
+export const ALL_MAIL = '[Gmail]/All Mail';

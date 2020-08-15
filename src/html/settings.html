@@ -46,6 +46,20 @@
   </p-panel>
 </div>
 
+<div class="content-section" *ngIf="view._model">
+  <p-panel header="Nextcloud integration">
+    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
+      <div class="flex users">
+        <span class="ui-float-label">
+          <input type="text" id="nextcloud-url" pInputText [ngModel]="view._model?.nextcloudUrl" (ngModelChange)="view._model.nextcloudUrl = $event" />
+          <label for="nextcloud-url">Nextcloud server base url</label>
+        </span>
+        <button class="login" [disabled]="!view._model?.nextcloudUrl" (click)="view._nextcloudLogin()" pButton label="Perform login"></button>
+      </div>
+    </div>
+  </p-panel>
+</div>
+
 <ng-template #settingTpl let-context>
   <div class="flex">
     <span class="ui-float-label">

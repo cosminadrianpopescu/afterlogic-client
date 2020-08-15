@@ -12,7 +12,8 @@ import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
 import {Editor} from './editor';
-import {Nextcloud} from '../services/nextcloud';
+import {Nextcloud} from '../nextcloud/nextcloud';
+import {Platform} from '@ionic/angular';
 
 /**
  * * button for editing drafts.
@@ -40,6 +41,7 @@ export class Compose extends BaseComponent {
   @NgInject(Mails) private _mails: Mails;
   @NgInject(FileService) private _fileService: FileService;
   @NgInject(Nextcloud) private _nc: Nextcloud;
+  @NgInject(Platform) private _platform: Platform;
 
   @ViewChild('file', {static: false}) private _file: ElementRef<any>;
   @ViewChild('editor', {static: false}) private _editor: Editor;
@@ -75,7 +77,7 @@ export class Compose extends BaseComponent {
       this._waitEditorReady();
       this._type = await this._settings.getMessageType();
     });
-    this._incloud = this._nc.isNextcloud();
+    this._incloud = this._nc.isNextcloud;
   }
 
   private _setModel() {
@@ -194,9 +196,8 @@ export class Compose extends BaseComponent {
   }
 
   protected async _cloudAttach() {
-    const files = await this._nc.pickFile();
+    const files = await this._nc.pickFile(this._platform.is('android'));
     this._cloudAttaching = true;
-    console.log('files are', files);
     let p = [];
     files.forEach(file => {
       p.push(this._nc.download(file));
@@ -209,7 +210,9 @@ export class Compose extends BaseComponent {
       // console.log('downloaded content', content);
       // const data = await this._fileService.read(new Blob([content]))
       const f = new FileResult();
-      f.content = new File([contents[idx]], file.replace(/^.*\/([^\/]+)$/, '$1'));
+      const F = window['OriginalFileApi'] ? window['OriginalFileApi'] : File;
+      f.content = new F([contents[idx]], file.replace(/^.*\/([^\/]+)$/, '$1'));
+      console.log('content is', f);
       p.push(this._api.uploadData(this._account, f));
     });
     await this._doAttach(p);

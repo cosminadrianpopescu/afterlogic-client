@@ -2,6 +2,10 @@ body {
   overflow: hidden;
 }
 app-home {
+  .overflow {
+    overflow-x: hidden;
+  }
+  
   #container {
     text-align: center;
 
@@ -106,13 +110,24 @@ app-home {
     padding-right: 10px;
   }
 
-  .ui-toolbar-group-left i {
-    margin-left: 30px;
-    font-size: 30px;
+  .padding-right-10 {
+    padding-right: 10px;
   }
 
   .ui-toolbar-group-left {
-    margin-left: -30px;
+    display: flex;
+    font-size: 30px;
+    width: 100%;
+    justify-content: space-between;
+
+  }
+  .ui-toolbar-group-left i {
+    flex: 0 1 auto;
+  }
+
+  .ui-toolbar-group-left i:last-child {
+    position: relative;
+    text-align: right;
   }
 
   [hidden] {

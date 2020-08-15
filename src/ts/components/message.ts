@@ -1,10 +1,10 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewEncapsulation, NgZone} from '@angular/core';
 import {FilesystemDirectory} from '@capacitor/core';
 import {from} from 'rxjs';
 import {switchMap, take, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
-import {Account, Attachment, ComposeType, Contact, Message as Model, MessageBody, MessageNotify, ModelFactory, ServerSetting, FolderType} from '../models';
+import {Account, Attachment, ComposeType, Contact, FolderType, Message as Model, MessageBody, MessageNotify, ModelFactory, ServerSetting} from '../models';
 import {Api} from '../services/api';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
@@ -20,6 +20,7 @@ export class Message extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Settings) private _settings: Settings;
+  @NgInject(NgZone) private _zone: NgZone;
   @ViewChild('messageBody', {static: false}) private _body: ElementRef<any>;
   @Input() public set message(m: Model) {
     this._message = m as MessageBody;
@@ -63,10 +64,33 @@ export class Message extends BaseComponent {
   protected _html: string;
   protected _server: ServerSetting;
   private _accountId: string;
+  protected _maxWidth: string = null;
+  private _width: number;
+
+  private _setMaxWidth() {
+    this._width = window.innerWidth - 22;
+    this._maxWidth = `max-width: ${this._width}px`;
+  }
+
+  private _transform() {
+    if (!this._body) {
+      return ;
+    }
+    const div: HTMLElement = this._body.nativeElement.querySelector('*');
+    div.setAttribute('style', '');
+    setTimeout(() => div.setAttribute('style', Utils.transformMessageBody(this._width, div)));
+  }
 
   @NgCycle('init')
   protected async _initMe() {
+    console.log('init message');
     this._server = await this._settings.getServer();
+    console.log('server is', this._server);
+    this._setMaxWidth();
+    window.onresize = () => this._zone.run(() => {
+      this._setMaxWidth();
+      this._transform();
+    });
   }
 
   private async _appendBody() {
@@ -85,6 +109,8 @@ export class Message extends BaseComponent {
           a.target = '_self';
           a.onclick = () => this._emailClick(ModelFactory.instance({Email: email}, Contact) as Contact);
         });
+
+      this._transform();
 
       const att = this._message.Attachments;
 
@@ -158,6 +184,7 @@ export class Message extends BaseComponent {
 
   protected _showImages() {
     (this._body.nativeElement as HTMLElement).querySelectorAll("*[data-x-src]").forEach(n => n.setAttribute('src', n.getAttribute('data-x-src')))
+    this._transform();
     this._hasImages = false;
   }
 }

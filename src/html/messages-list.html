@@ -1,7 +1,7 @@
 <p-table #table [value]="view._messages" [lazy]="true" selectionMode="single" (onLazyLoad)="view._loadMessages($event)" [paginator]="true"
   [loading]="view._loading" [rows]="view._pageSize" [totalRecords]="view._totalRecords" (onRowSelect)="view._selectionChanged()"
   (onRowUnselect)="view._selectionChanged()" (onHeaderCheckboxToggle)="view._selectionChanged()" [pageLinks]="view._combinedView ? 1 : 5"
-  [ngClass]="{'combined-view': view._combinedView}">
+  [ngClass]="{'combined-view': view._combinedView}" [(selection)]="view._table.selection">
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3em">
@@ -13,7 +13,7 @@
             <div class="ui-inputgroup">
               <input (keyup)="view._keyup($event)" [(ngModel)]="view._search.simple" type="text" pInputText placeholder="Search">
               <i (click)="view._clearSearch()" class="fa fa-times" *ngIf="view._search.simple"></i>
-              <button (click)="advancedSearch.toggle($event)" pButton icon="fa fa-angle-down"></button>
+              <button (click)="view._clickAdvSearch()" pButton icon="fa fa-angle-down"></button>
             </div>
           </div>
         </div>
@@ -52,17 +52,25 @@
   </ng-template>
 </p-table>
 
-<p-overlayPanel #advancedSearch [dismissable]="false" baseZIndex="990">
-  <ng-template pTemplate>
-    <div class="p-grid ui-fluid">
-      <div class="p-col-6"><input type="text" [(ngModel)]="view._search.from" pInputText placeholder="From"/></div>
-      <div class="p-col-6"><input type="text" [(ngModel)]="view._search.to" pInputText placeholder="To"/></div>
-      <div class="p-col-6"><input type="text" [(ngModel)]="view._search.subject" pInputText placeholder="Subject"/></div>
-      <div class="p-col-6"><input type="text" [(ngModel)]="view._search.text" pInputText placeholder="Text"/></div>
-      <div class="p-col-6"><p-calendar [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since" [showIcon]="true"></p-calendar></div>
-      <div class="p-col-6"><p-calendar [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till" [showIcon]="true"></p-calendar></div>
-      <div class="p-col-6"><p-checkbox [binary]="true" label="Has Attachments" [(ngModel)]="view._search.attachments"></p-checkbox></div>
-      <div class="p-col-6 right"><button (click)="view._advSearch(); advancedSearch.hide()" pButton label="Search"></button></div>
+<p-dialog header="Advanced search" [(visible)]="view._showSearch" [modal]="true">
+  <div class="p-grid ui-fluid">
+    <div class="p-col-12"><input #all type="text" (keyup)="view._keyup2($event)" [(ngModel)]="view._search.all" pInputText placeholder="All"/></div>
+    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.from" pInputText placeholder="From"/></div>
+    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.to" pInputText placeholder="To"/></div>
+    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.subject" pInputText placeholder="Subject"/></div>
+    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.text" pInputText placeholder="Text"/></div>
+    <div class="p-col-6">
+      <p-calendar appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since" [showIcon]="true"></p-calendar>
     </div>
-  </ng-template>
-</p-overlayPanel>
+    <div class="p-col-6">
+      <p-calendar appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till" [showIcon]="true"></p-calendar>
+    </div>
+    <div class="p-col-12">
+      <p-dropdown *ngIf="view._account$" [options]="view._account$ | async | foldersFlatList | async"
+                  appendTo="body"
+                  [(ngModel)]="view._search.folder"></p-dropdown>
+    </div>
+    <div class="p-col-6"><p-checkbox [binary]="true" label="Has Attachments" [(ngModel)]="view._search.attachments"></p-checkbox></div>
+    <div class="p-col-6 right"><button (click)="view._advSearch()" pButton label="Search"></button></div>
+  </div>
+</p-dialog>

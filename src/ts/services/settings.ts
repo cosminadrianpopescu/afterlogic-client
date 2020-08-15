@@ -3,11 +3,15 @@ import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
 import {Store} from './store';
 import {ServerSetting, MessageComposeType, AppSettings, LabelValue, AppSetting, UserSetting} from '../models';
+import {NextcloudCredentials} from '../nextcloud/models';
+import {Nextcloud} from '../nextcloud/nextcloud';
 
 const SERVER_KEY = 'server';
 const PAGE_SIZE_KEY = 'page-size';
 const MESSAGE_TYPE_KEY = 'message-type';
 const CHECK_INTERVAL = 'check-emails-interval';
+const NEXTCLOUD_CREDENTIALS = 'nextcloud-credentials';
+const NEXTCLOUD_URL = 'nextcloud-url';
 
 const EMAIL_INTERVAL_OPTIONS: Array<LabelValue> = [
   {label: '1 minute', value: 60 * 1000}, 
@@ -31,7 +35,22 @@ const PAGE_SIZE: Array<LabelValue> = [
 @Injectable()
 export class Settings extends BaseClass {
   @NgInject(Store) private _store: Store;
+  @NgInject(Nextcloud) private _nc: Nextcloud;
   public serverSet$ = new EventEmitter();
+  
+  constructor() {
+    super();
+    this._initNextcloud();
+  }
+
+  private async _initNextcloud() {
+    const c = await this.getNextcloudLogin();
+    if (!c) {
+      return ;
+    }
+
+    this._nc.setCredentials(c);
+  }
 
   public getServer(): Promise<ServerSetting> {
     return this._store.load(SERVER_KEY, ServerSetting) as Promise<ServerSetting>;
@@ -68,6 +87,22 @@ export class Settings extends BaseClass {
     return this._store.save(CHECK_INTERVAL, value);
   }
 
+  public getNextcloudLogin(): Promise<NextcloudCredentials> {
+    return this._store.load(NEXTCLOUD_CREDENTIALS, NextcloudCredentials) as Promise<NextcloudCredentials>;
+  }
+
+  public setNextcloudLogin(x: NextcloudCredentials) {
+    return this._store.save(NEXTCLOUD_CREDENTIALS, x);
+  }
+
+  public getNextcloudUrl(): Promise<string> {
+    return this._store.load(NEXTCLOUD_URL) as Promise<string>;
+  }
+
+  public setNextcloudUrl(x: string): Promise<void> {
+    return this._store.save(NEXTCLOUD_URL, x);
+  }
+
   private _toAppSetting(x: number | string, options: Array<LabelValue>): AppSetting {
     const result = new AppSetting();
     result.model = options.find(o => o.value == x);
@@ -83,6 +118,7 @@ export class Settings extends BaseClass {
       p.push(this.getMessageType().then(x => model.composeType = this._toAppSetting(x, MESSAGE_TYPE_OPTIONS)));
       p.push(this.getPageSize().then(x => model.pageSize = this._toAppSetting(x, PAGE_SIZE)));
       p.push(this.getServer().then(x => model.server = x));
+      p.push(this.getNextcloudUrl().then(x =>model.nextcloudUrl = x));
 
       Promise.all(p).then(() => resolve(model));
     });
@@ -94,6 +130,7 @@ export class Settings extends BaseClass {
     p.push(this.setCheckoutEmailInterval(settings.checkEmailInterval.model.value as number));
     p.push(this.setMessageType(settings.composeType.model.value as MessageComposeType));
     p.push(this.setPageSize(settings.pageSize.model.value as number));
+    p.push(this.setNextcloudUrl(settings.nextcloudUrl));
     await Promise.all(p);
   }
 

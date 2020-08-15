@@ -1,0 +1,21 @@
+<div class="">
+  <!--div (click)="view._select(i, $event)" [ngClass]="{selected: i.partialSelected}" class="p-col-12 flex file" *ngFor="let i of view._files">
+    <ng-container [ngTemplateOutlet]="item" [ngTemplateOutletContext]="{$implicit: i}"></ng-container>
+  </div-->
+  <div class="p-col-12 flex">
+    <p-tree #tree [selectionMode]="type == 'file' ? 'checkbox' : 'single'" [value]="view._files" [(selection)]="view._selection" (onNodeExpand)="view._load($event?.node)" [loading]="view._loading"></p-tree>
+  </div>
+  <div class="p-col-12">
+    <button pButton label="Choose" (click)="view._choose()"></button>
+  </div>
+</div>
+
+<ng-template #item let-item>
+  <div class="p-col-9">
+    <i class="fa-3w {{item.collapsedIcon}}"></i>
+    {{item.label}}
+  </div>
+  <div class="p-col-3 size">
+    {{item.data.size | humanFileSize}}
+  </div>
+</ng-template>

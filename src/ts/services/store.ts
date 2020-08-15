@@ -1,12 +1,13 @@
-import { Injectable, Type } from '@angular/core';
-import { Plugins } from '@capacitor/core';
-import { BaseClass } from '../base';
+import {Injectable, Type} from '@angular/core';
+import {Plugins} from '@capacitor/core';
+import {BaseClass} from '../base';
 import {ModelFactory, ObjectType} from '../models';
 
 const { Storage } = Plugins;
 
 const PREFIX = 'afterlogic-client-';
 const CURRENT_ACCOUNT = 'current-account'
+const FOLDER_SEARCH = 'last-folder-searched';
 
 @Injectable()
 export class Store extends BaseClass {
@@ -28,5 +29,13 @@ export class Store extends BaseClass {
 
   public async setCurrentAccount(email: string) {
     return this.save(CURRENT_ACCOUNT, email);
+  }
+
+  public async getFolderSearch(): Promise<string> {
+    return this.load(FOLDER_SEARCH) as Promise<string>;
+  }
+
+  public async setFolderSearch(f: string) {
+    this.save(FOLDER_SEARCH, f);
   }
 }

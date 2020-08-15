@@ -6,7 +6,7 @@ import {ReplaySubject} from 'rxjs';
 import {filter, map, take} from 'rxjs/operators';
 import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
-import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting} from '../models';
+import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL} from '../models';
 import {Settings} from './settings';
 import {Utils} from './utils';
 
@@ -71,6 +71,7 @@ export class Api extends BaseClass {
     }
     else  {
       data = new FormData();
+      console.log('content is', file, file.content);
       (data as FormData).append('Module', module);
       (data as FormData).append('Method', method);
       (data as FormData).append('jua-post-type', 'ajax');
@@ -99,6 +100,7 @@ export class Api extends BaseClass {
     const response = ModelFactory.instance(json, HttpResponse) as HttpResponse;
 
     if (typeof(response.ErrorCode) != 'undefined' && response.ErrorCode != null) {
+      console.log("throwing", `${[102, 108].indexOf(response.ErrorCode) != -1 ? 'AUTH_ERROR' : 'HTTP_ERROR'} ${response.ErrorMessage || response.ErrorCode}`);
       throw Error(`${[102, 108].indexOf(response.ErrorCode) != -1 ? 'AUTH_ERROR' : 'HTTP_ERROR'} ${response.ErrorMessage || response.ErrorCode}`);
     }
 
@@ -248,6 +250,9 @@ export class Api extends BaseClass {
         }
 
         const _f = Utils.folderByType(f.Type, a.FoldersOrder);
+        if (!_f) {
+          return;
+        }
         f.Count += result[idx].Counts[_f.Id][0] as number;
         f.Unread += result[idx].Counts[_f.Id][1] as number;
       });
@@ -523,11 +528,12 @@ export class Api extends BaseClass {
 
     const content = await new Promise(async (resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
+      const r: FileReader = reader['__zone_symbol__originalInstance'] || reader;
+      r.onloadend = () => {
+        resolve(r.result as string);
       };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsBinaryString(fileData);
+      r.onerror = () => reject(reader.error);
+      r.readAsBinaryString(fileData);
     }) as string;
 
     const result = await Filesystem.writeFile({
@@ -642,6 +648,10 @@ export class Api extends BaseClass {
     else {
       await this.moveMessages(account, folder, trash.Id, messages);
     }
+  }
+
+  public async archive(account: Account, folder: string, messages: Array<Message>) {
+    return this.moveMessages(account, folder, ALL_MAIL, messages);
   }
 
   // Patched

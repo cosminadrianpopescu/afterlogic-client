@@ -30,4 +30,9 @@ al-settings {
   .invalid {
     border: 1px solid red;
   }
+
+  .login {
+    flex: 0 0;
+    white-space: nowrap;
+  }
 }

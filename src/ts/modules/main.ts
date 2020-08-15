@@ -1,4 +1,4 @@
-import { Injector, NgModule } from '@angular/core';
+import { Injector, NgModule} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -54,7 +54,11 @@ import { DefaultRouteReuseStrategy } from '../services/route-reuse';
 import { Settings } from '../services/settings';
 import { Store } from '../services/store';
 import {Background} from '../services/background';
-import {Nextcloud} from '../services/nextcloud';
+import {Nextcloud} from '../nextcloud/nextcloud';
+import {DynamicDialogModule, DialogService} from 'primeng/dynamicdialog';
+import {Webdav} from '../nextcloud/webdav';
+import {Filepick} from '../nextcloud/filepick';
+import {PinchZoomModule} from 'ngx-pinch-zoom';
 
 @NgModule({
   declarations: [
@@ -64,8 +68,9 @@ import {Nextcloud} from '../services/nextcloud';
     pipes.ContactsListTxt, pipes.ContactsArray, pipes.AsHtml, pipes.AttachmentsList,
     pipes.HumanFileSize, pipes.FileIconPipe, Compose, Attachments, Editor, pipes.CurrentEmail,
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
+    Filepick, pipes.HasArchive, pipes.FoldersFlatList,
   ],
-  entryComponents: [Loading],
+  entryComponents: [Loading, Filepick],
   imports: [
     BrowserModule, IonicModule.forRoot(), 
     BrowserAnimationsModule, SidebarModule, ButtonModule, ToolbarModule, PanelModule,
@@ -73,13 +78,14 @@ import {Nextcloud} from '../services/nextcloud';
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, useHash: true }),
     TableModule, OverlayPanelModule, CalendarModule, CheckboxModule, ChipsModule, ToastModule,
     AutoCompleteModule, InputTextareaModule, MenuModule, DialogModule, DropdownModule, 
+    DynamicDialogModule, PinchZoomModule,
   ],
   providers: [
-    StatusBar,
-    SplashScreen, Api, Store, Settings, Contacts, Layout, Navigation, 
+    StatusBar, Settings,
+    SplashScreen, Api, Contacts, Layout, Navigation, Store,
     Mails, MessageService, FileService, 
     { provide: RouteReuseStrategy, useClass: DefaultRouteReuseStrategy },
-    HTTP, FileChooser, Background, Nextcloud,
+    HTTP, FileChooser, Background, Nextcloud, DialogService, Webdav,
     WebIntent,
     // {provide: WebIntent, useClass: MockWebIntent},
   ],

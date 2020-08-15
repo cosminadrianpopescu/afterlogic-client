@@ -3,7 +3,7 @@ import {Collection, COMBINED_ACCOUNT_ID, ComposedResult, Contact, Folder, Folder
 
 export class Utils {
   public static avatarColor(contact: Contact): string {
-    const name = contact.DisplayName || contact.Email;
+    const name = contact.Email;
     let hash = 0;
     for (var i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -107,6 +107,16 @@ export class Utils {
     folders.forEach(f => Utils.foldersFlatList(f.SubFolders, result));
   }
 
+  public static foldersFlatList2(folders: Array<Folder>): Array<Folder> {
+    const result = [];
+    folders.forEach(f => {
+      result.push(f);
+      result.push(...Utils.foldersFlatList2(f.SubFolders));
+    });
+
+    return result;
+  }
+
   public static foldersDiff(f1: string, f2: string) {
     if (f1.toLowerCase() == f2.toLowerCase()) {
       return false;
@@ -117,5 +127,33 @@ export class Utils {
     }
 
     return f1.toLowerCase() != f2.toLowerCase();
+  }
+
+  public static transformMessageBody(clientWidth: number, el: HTMLElement): string {
+    if (el.scrollWidth <= clientWidth) {
+      return null;
+    }
+
+    const scale = clientWidth / el.scrollWidth;
+    const x = (el.scrollWidth - clientWidth) / 2;
+    const height = el.scrollHeight * scale;
+    const y = (el.scrollHeight - height) / 2;
+    return `transform: scale(${scale}) translate(-${x}px, -${y}px); max-height: ${height}px`;
+  }
+
+  /**
+   * Returns an array. First result is the txt being searched
+   * and the second one is the folder (if it is set in the criterias)
+   */
+  public static searchFolder(txt: string): Array<string> {
+    if (!txt) {
+      return ['', null];
+    }
+    const p = /^(.*) folder:"([^"]+)"$/;
+    if (!txt.match(p)) {
+      return [txt, null];
+    }
+
+    return [txt.replace(p, '$1'), txt.replace(p, '$2')];
   }
 }

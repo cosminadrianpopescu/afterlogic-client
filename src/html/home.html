@@ -44,7 +44,7 @@
           </div>
         </td>
         <td>
-          <div class="wrapper">
+          <div class="wrapper padding-right-10">
             <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
           </div>
         </td>
@@ -68,7 +68,7 @@
   </p-dialog>
 </ng-template>
 <ng-template #mobile>
-  <p-sidebar [style]="{width: '400px'}" [(visible)]="view._toolbarVisible" [baseZIndex]="10000">
+  <p-sidebar [style]="{width: '80%'}" [(visible)]="view._toolbarVisible" [baseZIndex]="10000">
     <div class="p-grid ui-fluid">
       <div class="flex p-col-12" *ngFor="let account of (view._accounts$ | async)">
         <div class="avatar">
@@ -142,11 +142,13 @@
   <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'envelope-open-o', action: 'mark-read'}}"></ng-container>
   <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'envelope-o', action: 'mark-unread'}}"></ng-container>
   <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: 'trash-o', action: 'delete'}}"></ng-container>
-  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{$implicit: {icon: view._spamFolder ? 'thumbs-o-up' : 'thumbs-o-down', action: 'spam'}}"></ng-container>
+  <ng-container *ngIf="view._account | hasArchive:view._folder"
+    [ngTemplateOutlet]="tpl"
+    [ngTemplateOutletContext]="{$implicit: {icon: 'file-archive-o', action: 'archive'}}"></ng-container>
 </ng-template>
 <ng-template #actionIcon let-context>
   <i (click)="view._actionIcon(context.action)" 
-    [hidden]="view._mobileViewType != 'list'"
+    [hidden]="(view._mobileViewType != 'list' && view._mobileViewType != 'message') || (context.action == 'mark-read' && view._mobileViewType == 'message')"
     class="fa fa-{{context.icon}}"
     [ngClass]="{disabled: view._selection?.length == 0 && !view._message}"
     style="vertical-align: middle"></i>

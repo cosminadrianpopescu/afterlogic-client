@@ -40,13 +40,6 @@ export class Main extends BaseComponent {
 
   private _initializeApp() {
     this._platform.ready().then(() => {
-      document.addEventListener('backbutton', ev => {
-        ev.stopPropagation();
-        ev.preventDefault();
-        this._zone.run(() => {
-          this.navigate('');
-        });
-      }, false);
       this._mobile = this._layout.isMobile;
       this._splash.hide();
       if (this._platform.is('desktop')) {

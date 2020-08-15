@@ -7,6 +7,7 @@ import {Store} from '../services/store';
 import {Api} from '../services/api';
 import {take} from 'rxjs/operators';
 import {Mails} from '../services/mails';
+import {Nextcloud} from '../nextcloud/nextcloud';
 
 @Component({
   selector: 'al-settings',
@@ -19,6 +20,7 @@ export class Settings extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(SettingsService) private _settings: SettingsService;
+  @NgInject(Nextcloud) private _nc: Nextcloud;
   protected _model: AppSettings;
   protected _validate: boolean = false;
   protected _loading: boolean = true;
@@ -92,5 +94,22 @@ export class Settings extends BaseComponent {
     this.navigate('settings:saved');
     // window.location.reload();
     // this.navigate('settings:' + op);
+  }
+
+  protected async _nextcloudLogin() {
+    this.showLoading();
+    const [err, result] = await to(this._nc.login(this._model.nextcloudUrl));
+
+    if (err) {
+      console.error(err);
+      this.alert('There was an error performing login to nextcloud', err.message);
+      this.hideLoading();
+      return ;
+    }
+
+    this._settings.setNextcloudLogin(result);
+    this.alert('You have been authenticated to nextcloud', '', 'success', true);
+    this.hideLoading();
+    return ;
   }
 }

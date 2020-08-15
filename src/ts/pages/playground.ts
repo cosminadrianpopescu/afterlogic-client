@@ -4,6 +4,7 @@ import {NgCycle, NgInject} from '../decorators';
 import {Account, Folder, Message, Contact, ModelFactory, MessageNotify, MessageBody} from '../models';
 import {Mails} from '../services/mails';
 import {Api} from '../services/api';
+import {NextcloudItem} from '../nextcloud/models';
 
 @Component({
   selector: 'al-playground', 
@@ -42,5 +43,9 @@ export class Playground extends BaseComponent {
 
   protected _msgBodyNotify(ev: MessageNotify) {
     console.log('notified with', ev);
+  }
+
+  protected _choose(ev: Array<NextcloudItem>) {
+    console.log('selection is', ev);
   }
 }

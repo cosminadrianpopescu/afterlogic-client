@@ -1,10 +1,10 @@
-import {Component, Input, ViewEncapsulation} from '@angular/core';
-import {take} from 'rxjs/operators';
-import {BaseComponent} from '../base';
-import {NgInject} from '../decorators';
-import {Account, Folder, FolderType, COMBINED_ACCOUNT_ID} from '../models';
-import {Api} from '../services/api';
-import {Mails} from '../services/mails';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { take } from 'rxjs/operators';
+import { BaseComponent } from '../base';
+import { NgInject } from '../decorators';
+import { Account, Folder, FolderType } from '../models';
+import { Api } from '../services/api';
+import { Mails } from '../services/mails';
 
 @Component({
   selector: 'al-folders-list',
@@ -40,6 +40,7 @@ export class FoldersList extends BaseComponent {
     }
 
     this._selected = folder;
+    console.log('folder is', folder);
     this._mails.folderChanged$.emit(folder);
   }
 }

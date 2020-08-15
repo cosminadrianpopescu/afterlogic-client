@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation, ElementRef} from '@angular/core';
 import {LazyLoadEvent} from 'primeng/api/public_api';
 import {Table} from 'primeng/table/table';
-import {merge} from 'rxjs';
-import {skip, tap} from 'rxjs/operators';
+import {merge, Observable} from 'rxjs';
+import {skip, tap, filter} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
 import {Account, COMBINED_ACCOUNT_ID, Folder, FolderType, Message, SearchConvertor, SearchModel, to} from '../models';
@@ -11,6 +11,7 @@ import {Background} from '../services/background';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
+import {Store} from '../services/store';
 
 const DEFAULT = 'Inbox';
 
@@ -33,10 +34,12 @@ export class MessagesList extends BaseComponent {
   }
 
   @NgInject(Settings) private _settings: Settings;
+  @NgInject(Store) private _store: Store;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Api) private _api: Api;
   @NgInject(Background) private _background: Background;
   @ViewChild('table', {static: true}) private _table: Table;
+  @ViewChild('all', {static: false}) private _all: ElementRef<any>;
 
   protected _loading: boolean = true;
   protected _pageSize: number = 0;
@@ -45,11 +48,13 @@ export class MessagesList extends BaseComponent {
   protected _selected: Message;
   protected _messages: Array<Message> = [];
   protected _combinedMessages: Array<Message> = [];
+  protected _showSearch: boolean = false;
   protected _combinedView: boolean = false;
   protected _style: string = null;
   private _oldestMessage: Message = null;
   private _folder: Folder;
   private _subscriptions: boolean = false;
+  protected _account$: Observable<Account>
 
   constructor() {
     super();
@@ -107,6 +112,14 @@ export class MessagesList extends BaseComponent {
       return ;
     }
     this._subscriptions = true;
+    const f = await this._store.getFolderSearch();
+    this._account$ = this._mails.currentAccount$.pipe(
+      tap(account => {
+        const result = Utils.folderById(account.FoldersOrder, f);
+        this._search.folder = result ? result.Id : null;
+      }),
+      filter(account => !!account),
+    );
     const msgChanged = merge(this._api.messagesDeleted$, this._api.messagesMoved$, this._mails.refresh$);
     this.connect(
       msgChanged.pipe(
@@ -115,6 +128,8 @@ export class MessagesList extends BaseComponent {
       () => this._loadMessages(<LazyLoadEvent>{first: this._table.first})
     );
     this._background.configure(this._checkMailsAuto.bind(this));
+    this._search.folder = await this._store.getFolderSearch();
+    console.log('search is', this._search);
   }
 
   private _waitNewMails(): boolean {
@@ -168,9 +183,17 @@ export class MessagesList extends BaseComponent {
   }
 
   private async _fetch(first: number, auto: boolean = false): Promise<Array<Message>>{
-    const id = this._folder.Id;
-    let result = await this._api.getMessages(this.account, this._folder.Id, first, this._pageSize, this._search.simple, '', auto);
-    if (this._folder.Id != id) {
+    const [txt, searchFolder] = Utils.searchFolder(this._search.simple);
+    const id = searchFolder || this._folder.Id;
+    let [err, result] = await to(this._api.getMessages(this.account, id, first, this._pageSize, txt, '', auto));
+    if (err) {
+      this.alert('There was an error fetching the messages', err.message, 'error');
+      return [];
+    }
+    if (typeof(this._search.folder) != 'undefined' && this._search.folder != null) {
+      this._store.setFolderSearch(this._search.folder);
+    }
+    if (this._folder.Id != id && !searchFolder) {
       return this._messages.length > 0 && this._mails.messageInComposedFolder(this._messages[0], this._folder) ? this._messages : [];
     }
     if (this.account.AccountID != COMBINED_ACCOUNT_ID) {
@@ -214,14 +237,16 @@ export class MessagesList extends BaseComponent {
   }
 
   protected _advSearch() {
+    this._showSearch = false;
     const conv = new SearchConvertor();
     this._search.simple = conv.convert(this._search);
     this._reset();
   }
 
-  protected _clearSearch() {
+  protected async _clearSearch() {
     this._search = new SearchModel();
     this._reset();
+    this._search.folder = await this._store.getFolderSearch();
   }
 
   protected _select(row: Message) {
@@ -231,5 +256,24 @@ export class MessagesList extends BaseComponent {
 
   protected _selectionChanged() {
     this.selectionChanged.emit(this._table.selection);
+  }
+
+  public unselect() {
+    this._table.selection = [];
+    this._table.clearState();
+    this._selected = null;
+    this._selectionChanged();
+  }
+
+  protected _clickAdvSearch() {
+    this._showSearch = true;
+    setTimeout(() => this._all.nativeElement.focus(), 151);
+  }
+
+  protected _keyup2(ev: KeyboardEvent) {
+    if (ev.keyCode != 13) {
+      return ;
+    }
+    this._advSearch();
   }
 }

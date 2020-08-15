@@ -13,8 +13,9 @@ import {Layout} from '../services/layout';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
+import { Navigation } from '../services/navigation';
 
-type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam';
+type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam' | 'archive';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +30,7 @@ export class Home extends BaseComponent {
   @NgInject(Settings) private _settings: Settings;
   @NgInject(Contacts) private _contacts: Contacts;
   @NgInject(NgZone) private _zone: NgZone;
+  @NgInject(Navigation) private _nav: Navigation;
 
   @ViewChild('messagesList', {static: false}) private _list: MessagesList;
 
@@ -122,31 +124,41 @@ export class Home extends BaseComponent {
           })
         }
       }
-    )
+    );
+
+    this.connect(this._nav.backButton$, () => this._toolbarBack());
   }
 
   protected async _folderNotify(f: Folder) {
     this._folder = f.Id;
     this._message = null;
     this._spamFolder = this._api.isSpamFolder(f);
+    this._toolbarVisible = false;
   }
 
   protected _messageNotify(m: Message) {
     console.log('message notify');
+    this._list.unselect();
     this._message = m;
     this._mobileViewType = 'message';
   }
 
   protected _selectionChanged(messages: Array<Message>) {
+    console.log('selection changed with', messages);
     this._selection = messages;
   }
 
-  protected _actionIcon(which: ActionType) {
+  protected async _actionIcon(which: ActionType) {
     if (this._selection.length == 0 && !this._message) {
       return ;
     }
 
-    this._action(which);
+    this.showLoading();
+    await to(this._action(which));
+    if (this._message) {
+      this._toolbarBack();
+    }
+    this.hideLoading();
   }
 
   protected async _action(which: ActionType) {
@@ -171,6 +183,10 @@ export class Home extends BaseComponent {
 
     if (which == 'spam') {
       [err, ] = await to(this._api.markSpam(this._account, this._folder, arr));
+    }
+
+    if (which == 'archive') {
+      [err, ] = await to(this._api.archive(this._account, this._folder, arr));
     }
 
     if (err) {
@@ -233,6 +249,10 @@ export class Home extends BaseComponent {
     this._hideCompose('cancel');
     if (['', '/'].indexOf(this._router.url) == -1) {
       this.navigate('');
+    }
+
+    if (this._layout.isMobile) {
+      this._list.unselect();
     }
   }
 

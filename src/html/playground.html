@@ -1,6 +1,9 @@
 <div>
-  <al-compose composeType="new"></al-compose>
+  <nc-filepick type="file" (choose)="view._choose($event)"></nc-filepick>
 </div>
+<!--div>
+  <al-compose composeType="new"></al-compose>
+</div-->
   <!--div>
     <al-folders-list [account]="view._account" (notify)="view._folderNotify($event)"></al-folders-list>
   </div>

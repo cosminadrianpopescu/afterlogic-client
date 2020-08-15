@@ -1,15 +1,16 @@
 import {Pipe} from '@angular/core';
 import * as dateFormat from 'dateformat';
-import {TreeNode} from 'primeng/api';
+import {TreeNode, SelectItem} from 'primeng/api';
 import {merge, Observable, of} from 'rxjs';
 import {map, filter} from 'rxjs/operators';
 import {BaseClass} from './base';
 import {NgInject} from './decorators';
-import {Account, Folder, Message, Contact, Contacts, MessageBody, Attachment, COMBINED_ACCOUNT_ID, ModelFactory} from './models';
+import {Account, Folder, Message, Contact, Contacts, MessageBody, Attachment, COMBINED_ACCOUNT_ID, ModelFactory, ALL_MAIL} from './models';
 import {Api} from './services/api';
 import {Utils} from './services/utils';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {Mails} from './services/mails';
+import { NextcloudItem } from './nextcloud/models';
 
 @Pipe({name: 'foldersTree'})
 export class FoldersTree extends BaseClass {
@@ -23,6 +24,17 @@ export class FoldersTree extends BaseClass {
       data: f,
       selectable: f.SubFolders.length == 0,
    })
+  }
+}
+
+@Pipe({name: 'ncFilesToTree'})
+export class NcFilesToTree extends BaseClass {
+  public transform(files: Array<NextcloudItem>): Array<TreeNode> {
+    return files.map(f => <TreeNode> {
+      label: f.basename,
+      leaf: f.type == 'file',
+      data: f,
+    });
   }
 }
 
@@ -162,6 +174,9 @@ export class AvatarText extends BaseClass {
 @Pipe({name: 'humanFileSize'})
 export class HumanFileSize extends BaseClass {
   public transform(size: number): string {
+    if (!size) {
+      return '';
+    }
     const i = Math.floor( Math.log(size) / Math.log(1024) );
     return ( size / Math.pow(1024, i) ).toFixed(2) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
   }
@@ -244,5 +259,44 @@ export class Count extends BaseClass {
     };
 
     return a.length;
+  }
+}
+
+@Pipe({name: 'hasArchive'})
+export class HasArchive extends BaseClass {
+  private _search(folders: Array<Folder>): boolean {
+    if (folders.length == 0) {
+      return false;
+    }
+
+    const f = folders.find(f => f.Id == ALL_MAIL);
+    if (f) {
+      return true;
+    }
+
+    return this._search(folders.map(f => f.SubFolders).reduce((acc, v) => acc.concat(v), []));
+  }
+  public transform(a: Account, folderId: string): boolean {
+    if (!a || folderId == ALL_MAIL) {
+      return false;
+    }
+
+    return this._search(a.FoldersOrder);
+  }
+}
+
+@Pipe({name: 'foldersFlatList'})
+export class FoldersFlatList extends BaseClass {
+  public transform(account: Account): Observable<Array<SelectItem>> {
+    return account.Folders$.pipe(
+      map(folders => {
+        if (!Array.isArray(folders)) {
+          return [];
+        }
+        const result: Array<SelectItem> = [{value: '', label: 'Current folder'}];
+        result.push(...Utils.foldersFlatList2(folders).map(f => <SelectItem>{value: f.Id, label: account.AccountID == COMBINED_ACCOUNT_ID ? f.Name : f.Id}));
+        return result;
+      })
+    );
   }
 }

@@ -5,9 +5,10 @@ import {BaseComponent} from '../base';
 import {NgInject, NgCycle} from '../decorators';
 import {Account, Attachment, MessageBody} from '../models';
 import {Api} from '../services/api';
-import {Nextcloud} from '../services/nextcloud';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
+import {Nextcloud} from '../nextcloud/nextcloud';
+import {Platform} from '@ionic/angular';
 
 @Component({
   selector: 'al-attachments',
@@ -24,12 +25,13 @@ export class Attachments extends BaseComponent {
   @NgInject(Nextcloud) private _nc: Nextcloud;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Settings) private _settings: Settings;
+  @NgInject(Platform) private _platform: Platform;
   protected _attDownloading: boolean = false;
   protected _isCloud: boolean = false;
 
   @NgCycle('init')
   protected _initMe() {
-    this._isCloud = this._nc.isNextcloud();
+    this._isCloud = this._nc.isNextcloud;
   }
 
   protected async _doDownload(a: Attachment, where: FilesystemDirectory): Promise<FileWriteResult> {
@@ -55,7 +57,7 @@ export class Attachments extends BaseComponent {
     }
     this._intent.startActivity({
       action: this._intent.ACTION_VIEW, 
-      url: result.uri, 
+      url: decodeURIComponent(result.uri), 
       type: a.MimeType,
     });
   }
@@ -76,8 +78,10 @@ export class Attachments extends BaseComponent {
       throw 'NO_DOWNLOAD_ACTION';
     }
     const server = await this._settings.getServer();
-    const folder = await this._nc.pickFolder();
-    console.log('folder is', folder);
+    const folder = await this._nc.pickFolder(this._platform.is('android'));
+    if (!folder) {
+      return ;
+    }
     const a = this._mails.accountById(this.message.AccountID);
     const content = await this._api.getAttachmentContent(a, `${server.url}/${att.Actions.download}`);
     const path = `${folder}/${att.FileName}`;

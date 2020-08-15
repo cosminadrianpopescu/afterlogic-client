@@ -168,8 +168,8 @@ export class BaseComponent extends BaseClass {
     return this._router.url.match(/job$/) ? true : false;
   }
 
-  protected alert(title: string, message: string, severity: 'error' | 'success' = 'success') {
-    this._toast.add({severity: severity, summary: title, detail: message, key: 'abc'});
+  protected alert(title: string, message: string, severity: 'error' | 'success' = 'success', sticky: boolean = false) {
+    this._toast.add({severity: severity, summary: title, detail: message, key: 'abc', sticky: sticky});
   }
 }
 
