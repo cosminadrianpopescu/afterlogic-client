@@ -53,7 +53,7 @@
 </p-table>
 
 <p-dialog header="Advanced search" [(visible)]="view._showSearch" [modal]="true">
-  <div class="p-grid ui-fluid">
+  <div class="p-grid ui-fluid adv-search">
     <div class="p-col-12"><input #all type="text" (keyup)="view._keyup2($event)" [(ngModel)]="view._search.all" pInputText placeholder="All"/></div>
     <div class="p-col-6"><input type="text" [(ngModel)]="view._search.from" pInputText placeholder="From"/></div>
     <div class="p-col-6"><input type="text" [(ngModel)]="view._search.to" pInputText placeholder="To"/></div>
