@@ -9,6 +9,7 @@ import {Api} from '../services/api';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
+import {MenuItem} from 'primeng/api/public_api';
 
 @Component({
   selector: 'al-message',
@@ -66,6 +67,12 @@ export class Message extends BaseComponent {
   private _accountId: string;
   protected _maxWidth: string = null;
   private _width: number;
+
+  protected _actions: Array<MenuItem> = [
+    {label: 'Reply all', icon: 'fa fa-reply-all', command: () => this._action('reply-all')},
+    {label: 'Forward', icon: 'fa fa-share', command: () => this._action('forward')},
+    {label: 'Download', icon: 'fa fa-download', command: () => this._download()},
+  ];
 
   private _setMaxWidth() {
     this._width = window.innerWidth - 22;

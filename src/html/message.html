@@ -37,11 +37,8 @@
       </div>
     </div>
     <div class="p-col actions">
-      <i *ngIf="!view._isDraft" (click)="view._action('reply')" class="fa fa-reply"></i>
-      <i *ngIf="view._isDraft" (click)="view._action('from-draft')" class="fa fa-pencil"></i>
-      <span (click)="menu.toggle($event)">
-        <i class="fa fa-ellipsis-v"></i>
-      </span>
+      <p-splitButton *ngIf="!view._isDraft" label="Reply&nbsp;&nbsp;" icon="fa fa-reply" (onClick)="view._action('reply')" [model]="view._actions"></p-splitButton>
+      <i *ngIf="view._isDraft" (click)="view._action('from-draft')" class="fa fa-pencil draft"></i>
     </div>
   </div>
   <pinch-zoom disableZoomControl="disable">

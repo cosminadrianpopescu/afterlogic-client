@@ -177,6 +177,7 @@ export class Home extends BaseComponent {
       if (!err) {
         if (arr.indexOf(this._message) != -1) {
           this._message = null;
+          this._mobileViewType = 'list';
         }
       }
     }

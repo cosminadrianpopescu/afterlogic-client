@@ -56,6 +56,7 @@ export class Compose extends BaseComponent {
   private _saveSubscription: Subscription;
   protected _accounts$: Observable<Array<Account>>;
   protected _attaching: boolean = false;
+  protected _saving: boolean = false;
   protected _cloudAttaching: boolean = false;
   protected _incloud: boolean = false;
 
@@ -115,7 +116,12 @@ export class Compose extends BaseComponent {
   private _waitEditorReady() {
     interval(100).pipe(
       takeWhile(() => !this._editor),
-      finalize(() => this._viewInit()),
+      finalize(() => {
+        if (['reply', 'reply-all'].indexOf(this.composeType) != -1) {
+          this._editor.focus();
+        }
+        this._viewInit();
+      }),
     ).toPromise();
   }
 
@@ -169,14 +175,14 @@ export class Compose extends BaseComponent {
   }
 
   protected async _save() {
+    this._saving = true;
     this._destroy();
-    this.showLoading();
     const conv = new MessageSaveConvertor();
     const model = conv.convert(this._model);
     const result = await this._api.saveMessage(this._account, model);
     this._model.DraftUid = result.NewUid;
-    this.hideLoading();
     this._viewInit();
+    this._saving = false;
   }
 
   private async _doAttach(promises: Array<Promise<UploadResult>>) {
@@ -207,8 +213,6 @@ export class Compose extends BaseComponent {
     p = [];
 
     files.forEach((file, idx) => {
-      // console.log('downloaded content', content);
-      // const data = await this._fileService.read(new Blob([content]))
       const f = new FileResult();
       const F = window['OriginalFileApi'] ? window['OriginalFileApi'] : File;
       f.content = new F([contents[idx]], file.replace(/^.*\/([^\/]+)$/, '$1'));

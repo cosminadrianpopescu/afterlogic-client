@@ -451,6 +451,7 @@ export class ReplyToBodyConvertor implements Convertor<string> {
     const c = msg.From.Collection[0];
     return `
 <br/>
+<br/>
 On ${dateFormat(d, 'ddd, mmm dd "at" HH:MM')}, ${c.DisplayName || c.Email} wrote:
 <blockquote>${msg.Html || msg.Plain}</blockquote>
 `;

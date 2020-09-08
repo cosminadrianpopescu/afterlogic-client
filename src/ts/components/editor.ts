@@ -23,4 +23,8 @@ export class Editor extends BaseComponent {
     this.model = this._editor.nativeElement.innerHTML;
     this.modelChange.emit(this.model);
   }
+
+  public focus() {
+    this._editor.nativeElement.focus();
+  }
 }

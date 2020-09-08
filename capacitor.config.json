@@ -1,6 +1,6 @@
 {
   "appId": "afterlogic.client",
-  "appName": "afterlogic-client",
+  "appName": "Email",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

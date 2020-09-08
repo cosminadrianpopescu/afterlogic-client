@@ -59,6 +59,7 @@ import {DynamicDialogModule, DialogService} from 'primeng/dynamicdialog';
 import {Webdav} from '../nextcloud/webdav';
 import {Filepick} from '../nextcloud/filepick';
 import {PinchZoomModule} from 'ngx-pinch-zoom';
+import {SplitButtonModule} from 'primeng/splitbutton';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,7 @@ import {PinchZoomModule} from 'ngx-pinch-zoom';
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, useHash: true }),
     TableModule, OverlayPanelModule, CalendarModule, CheckboxModule, ChipsModule, ToastModule,
     AutoCompleteModule, InputTextareaModule, MenuModule, DialogModule, DropdownModule, 
-    DynamicDialogModule, PinchZoomModule,
+    DynamicDialogModule, PinchZoomModule, SplitButtonModule,
   ],
   providers: [
     StatusBar, Settings,

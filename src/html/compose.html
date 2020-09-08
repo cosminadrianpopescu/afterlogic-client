@@ -2,8 +2,14 @@
   <div class="p-grid ui-fluid">
     <div class="p-col-6"></div>
     <div class="p-col-6 options">
-      <button (click)="view._save(false)" style="width: 73px" pButton icon="fa fa-floppy-o" label="Save"></button>
-      <button (click)="view._send()" style="width: 73px; margin-left: 10px;" pButton icon="fa fa-paper-plane" label="Send"></button>
+      <button
+        [disabled]="view._saving"
+        (click)="view._save(false)"
+        style="width: 73px"
+        pButton
+        icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-floppy-o'}}"
+        label="Save"></button>
+      <button [disabled]="view._saving" (click)="view._send()" style="width: 73px; margin-left: 10px;" pButton icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-paper-plane'}}" label="Send"></button>
       <button (click)="view._attach()" style="width: 87px; margin-left: 10px" pButton icon="{{view._attaching ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'}}" label="Attach"></button>
       <button *ngIf="view._incloud" (click)="view._cloudAttach()" style="width: 87px; margin-left: 10px" pButton icon="{{view._cloudAttaching ? 'fa fa-spinner fa-spin' : 'fa fa-cloud'}}" label="Attach"></button>
       <input #file type="file" multiple="true" style="display: none"/>
@@ -41,6 +47,7 @@
       <span class="ui-inputgroup ui-float-label">
         <p-autoComplete
           #autocomplete
+          type="email"
           [(ngModel)]="view._model[context.field]"
           [suggestions]="view._contacts"
           [autoHighlight]="true"
