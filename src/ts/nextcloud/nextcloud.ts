@@ -36,7 +36,7 @@ export class Nextcloud extends BaseClass {
     return ModelFactory.instance(json, type) as T;
   }
 
-  private get _isOC(): boolean {
+  public static get isOC(): boolean {
     return window.top && window.top['OC'];
   }
 
@@ -50,7 +50,7 @@ export class Nextcloud extends BaseClass {
   }
 
   public get isNextcloud(): boolean {
-    return this._isOC || this._isNcSetup;
+    return Nextcloud.isOC || this._isNcSetup;
   }
 
   private async _processLastPath(x: Array<string>) {

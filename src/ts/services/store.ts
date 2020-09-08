@@ -2,8 +2,10 @@ import {Injectable, Type} from '@angular/core';
 import {Plugins} from '@capacitor/core';
 import {BaseClass} from '../base';
 import {ModelFactory, ObjectType} from '../models';
+import {Nextcloud} from '../nextcloud/nextcloud';
+import {Storage as NCStorage} from '../nextcloud/storage';
 
-const { Storage } = Plugins;
+const Storage = Nextcloud.isOC ? NCStorage : Plugins.Storage;
 
 const PREFIX = 'afterlogic-client-';
 const CURRENT_ACCOUNT = 'current-account'
@@ -20,7 +22,7 @@ export class Store extends BaseClass {
   }
 
   public async save(key: string, data: any): Promise<void> {
-    Storage.set({key: PREFIX + key, value: JSON.stringify({data: data, date: new Date()})});
+    return Storage.set({key: PREFIX + key, value: JSON.stringify({data: data, date: new Date()})});
   }
 
   public async getCurrentAccount(): Promise<string> {
