@@ -11,6 +11,7 @@ const PAGE_SIZE_KEY = 'page-size';
 const MESSAGE_TYPE_KEY = 'message-type';
 const CHECK_INTERVAL = 'check-emails-interval';
 const NEXTCLOUD_CREDENTIALS = 'nextcloud-credentials';
+const CLOUD_PREVIEW = 'preview-in-cloud';
 const NEXTCLOUD_URL = 'nextcloud-url';
 
 const EMAIL_INTERVAL_OPTIONS: Array<LabelValue> = [
@@ -103,6 +104,18 @@ export class Settings extends BaseClass {
     return this._store.save(NEXTCLOUD_URL, x);
   }
 
+  public async getCloudPreview(): Promise<boolean> {
+    const result = await (this._store.load(CLOUD_PREVIEW) as Promise<boolean>);
+    if (result == null) {
+      return false;
+    }
+    return result;
+  }
+
+  public setCloudPreview(x: boolean): Promise<void> {
+    return this._store.save(CLOUD_PREVIEW, x);
+  }
+
   private _toAppSetting(x: number | string, options: Array<LabelValue>): AppSetting {
     const result = new AppSetting();
     result.model = options.find(o => o.value == x);
@@ -118,7 +131,8 @@ export class Settings extends BaseClass {
       p.push(this.getMessageType().then(x => model.composeType = this._toAppSetting(x, MESSAGE_TYPE_OPTIONS)));
       p.push(this.getPageSize().then(x => model.pageSize = this._toAppSetting(x, PAGE_SIZE)));
       p.push(this.getServer().then(x => model.server = x));
-      p.push(this.getNextcloudUrl().then(x =>model.nextcloudUrl = x));
+      p.push(this.getNextcloudUrl().then(x => model.nextcloudUrl = x));
+      p.push(this.getCloudPreview().then(x => model.previewInCloud = x));
 
       Promise.all(p).then(() => resolve(model));
     });
@@ -131,6 +145,7 @@ export class Settings extends BaseClass {
     p.push(this.setMessageType(settings.composeType.model.value as MessageComposeType));
     p.push(this.setPageSize(settings.pageSize.model.value as number));
     p.push(this.setNextcloudUrl(settings.nextcloudUrl));
+    p.push(this.setCloudPreview(settings.previewInCloud));
     await Promise.all(p);
   }
 

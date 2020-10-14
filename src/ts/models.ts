@@ -653,6 +653,7 @@ export class AppSettings {
   composeType: AppSetting;
   @deserialize(AppSetting)
   checkEmailInterval: AppSetting;
+  previewInCloud: boolean;
   nextcloudUrl: string;
 }
 

@@ -34,10 +34,10 @@ export class Attachments extends BaseComponent {
     this._isCloud = this._nc.isNextcloud;
   }
 
-  protected async _doDownload(a: Attachment, where: FilesystemDirectory): Promise<FileWriteResult> {
+  protected async _doDownload(a: Attachment, where: FilesystemDirectory, preview: boolean = false): Promise<FileWriteResult> {
     this._attDownloading = true;
     const fileName = this.message ? `${this.message.Uid}-${a.FileName}` : a.FileName;
-    const result = await this._api.downloadAttachment(this.account, a, fileName, where, this.message);
+    const result = await this._api.downloadAttachment(this.account, a, fileName, where, this.message, preview);
     this._attDownloading = false;
     return result;
   }
@@ -51,7 +51,7 @@ export class Attachments extends BaseComponent {
   }
 
   protected async _viewAttachment(a: Attachment) {
-    const result = await this._doDownload(a, FilesystemDirectory.Documents);
+    const result = await this._doDownload(a, FilesystemDirectory.Documents, true);
     if (result == null) {
       return ;
     }

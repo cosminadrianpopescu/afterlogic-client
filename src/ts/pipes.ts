@@ -300,3 +300,11 @@ export class FoldersFlatList extends BaseClass {
     );
   }
 }
+
+@Pipe({name: 'isOfType'})
+export class IsOfType extends BaseClass {
+  public transform(x: any, type: string): boolean {
+    console.log('analyze', x, type, typeof(x));
+    return typeof(x) == type;
+  }
+}

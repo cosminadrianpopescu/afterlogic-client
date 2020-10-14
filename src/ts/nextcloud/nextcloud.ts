@@ -4,7 +4,7 @@ import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
 import {ModelFactory, to} from '../models';
 import {FilePicker} from './filepicker';
-import {NextcloudCredentials, NextcloudLogin, NextcloudPoll} from './models';
+import {NextcloudCredentials, NextcloudLogin, NextcloudPoll, NextcloudShare, NextcloudShareResult} from './models';
 import {Webdav} from './webdav';
 import {Filepick, FilepickInstance} from './filepick';
 import {take} from 'rxjs/operators';
@@ -26,7 +26,9 @@ export class Nextcloud extends BaseClass {
       options = {};
     }
 
-    options.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+    if (options && !options.headers) {
+      options.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+    }
     //options.headers = {'OCS-APIRequest': 'true'};
     const result = await fetch(url, options);
     if (result.status < 200 || result.status >= 300) {
@@ -170,5 +172,66 @@ export class Nextcloud extends BaseClass {
     document.body.removeChild(a);
 
     return this._poll(loginData.poll);
+  }
+
+  public async mkdir(path: string) {
+    return await this._webdav.mkdir(path);
+  }
+
+  public async exists(path: string): Promise<boolean> {
+    return this._webdav.exists(path);
+  }
+
+  private _shareDate(): string {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+
+    return `${d.getFullYear()}-${m < 10 ? '0' : ''}${m}-${day < 10 ? '0': ''}${day}`;
+  }
+
+  public async share(c: NextcloudCredentials, path: string): Promise<NextcloudShare> {
+    const params = {path: path, shareType: 3, expireDate: this._shareDate()};
+    const result = await this._rest(
+      `${c.server}/ocs/v2.php/apps/files_sharing/api/v1/shares`,
+      {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': `Basic ${btoa(c.loginName + ':' + c.appPassword)}`,
+          'OCS-APIRequest': 'true',
+          'Accept': 'application/json, text/plain, */*',
+        },
+        body: JSON.stringify(params),
+      },
+      NextcloudShareResult,
+    );
+
+    return result.ocs.data;
+  }
+
+  public async unshare(c: NextcloudCredentials, id: string) {
+    return this._rest(
+      `${c.server}/ocs/v2.php/apps/files_sharing/api/v1/shares/${id}`,
+      {
+        method: 'delete',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': `Basic ${btoa(c.loginName + ':' + c.appPassword)}`,
+          'OCS-APIRequest': 'true',
+          'Accept': 'application/json, text/plain, */*',
+        }
+      },
+      Object,
+    );
+  }
+
+  public async getFileUrl(path: string): Promise<string> {
+    return this._webdav.getFileUrl(path);
+  }
+
+  public async getStats(path: string): Promise<Object> {
+    return this._webdav.getStats(path);
   }
 }

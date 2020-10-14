@@ -28,3 +28,12 @@ export class NextcloudItem {
   etag: string;
   props: Object;
 }
+
+export class NextcloudShare {
+  url: string;
+  id: string;
+}
+
+export class NextcloudShareResult {
+  ocs: {data: NextcloudShare}
+}

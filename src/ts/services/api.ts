@@ -9,6 +9,7 @@ import {NgInject} from '../decorators';
 import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL} from '../models';
 import {Settings} from './settings';
 import {Utils} from './utils';
+import {Nextcloud} from '../nextcloud/nextcloud';
 
 const {Filesystem} = Plugins;
 type PayloadInfoType = {account: Account, folder: string, msgs: Array<Message>};
@@ -19,6 +20,7 @@ export class Api extends BaseClass {
   @NgInject(Settings) private _settings: Settings;
   @NgInject(Platform) private _platform: Platform;
   @NgInject(HTTP) private _http: HTTP;
+  @NgInject(Nextcloud) private _nc: Nextcloud;
   public ready$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
   public lastSearchResults: number = 0;
   public folderUpdated$: EventEmitter<Folder> = new EventEmitter<Folder>();
@@ -503,8 +505,23 @@ export class Api extends BaseClass {
     this.messagesMoved$.emit(messages);
   }
 
+  public static openUrl(url: string, fileName?: string) {
+    const a = document.createElement('a');
+    if (fileName) {
+      a.download = fileName;
+    }
+    a.target = '_blank';
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   // Patched
-  public async downloadUrl(account: Account, url: string, fileName: string, where: FilesystemDirectory, msg?: Message): Promise<FileWriteResult> {
+  public async downloadUrl(
+    account: Account, url: string, fileName: string,
+    where: FilesystemDirectory, msg?: Message, preview: boolean = false
+  ): Promise<FileWriteResult> {
     this._checkReady();
     if (msg) {
       account = this._accounts.find(a => a.AccountID == msg.AccountID);
@@ -513,16 +530,41 @@ export class Api extends BaseClass {
       throw {message: "ACCOUNT_NOT_FOUND", msg: msg};
     }
     const fileData = await this.getAttachmentContent(account, url);
+    const arr = await Promise.all([this._settings.getNextcloudLogin(), this._settings.getCloudPreview()]);
+    if (arr[0] && arr[1] && preview) {
+      const basePath = '/tmp';
+      if (!(await this._nc.exists(basePath))) {
+        const [err, ] = await to(this._nc.mkdir(basePath));
+        if (err) {
+          console.error(basePath);
+          throw "COULD_NOT_CREATE_PREVIEW_FOLDER";
+        }
+      }
+
+      const path = `${basePath}/${fileName}`;
+      const [err, ] = await to(this._nc.upload(path, fileData));
+      if (err) {
+        console.error('Path is', path);
+        throw `ERROR_UPLOADING_FOR_PREVIEW`;
+      }
+
+      const [shareErr, share] = await to(this._nc.share(arr[0], path));
+      if (shareErr) {
+        console.error(shareErr);
+        throw 'ERROR_SHARE';
+      }
+
+      setTimeout(() => this._nc.unshare(arr[0], share.id), 60 * 1000);
+
+      Api.openUrl(share.url);
+      return null;
+    }
+
     if (this._platform.is('desktop')) {
       const buf = await fileData.arrayBuffer();
       const blob = new Blob([buf], {type: 'application/octet-stream'});
-      const a = document.createElement('a');
-      a.download = fileName;
       const url = URL.createObjectURL(blob);
-      a.href = url;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      Api.openUrl(url, fileName);
       return null;
     }
 
@@ -552,12 +594,15 @@ export class Api extends BaseClass {
   }
 
   // Patched
-  public async downloadAttachment(account: Account, att: Attachment, fileName: string, where: FilesystemDirectory, msg?: Message): Promise<FileWriteResult> {
+  public async downloadAttachment(
+    account: Account, att: Attachment, fileName: string,
+    where: FilesystemDirectory, msg?: Message, preview: boolean = false
+  ): Promise<FileWriteResult> {
     this._checkReady();
     if (!att.Actions || !att.Actions.download) {
       return null;
     }
-    return this.downloadUrl(account, `${this._server.url}/${att.Actions.download}`, fileName, where, msg);
+    return this.downloadUrl(account, `${this._server.url}/${att.Actions.download}`, fileName, where, msg, preview);
   }
 
   // Patched

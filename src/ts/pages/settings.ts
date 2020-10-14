@@ -57,7 +57,6 @@ export class Settings extends BaseComponent {
       return ;
     }
     const users = await this._settings.needAuthenticating(this._model.server);
-    console.log('model is', JSON.parse(JSON.stringify(this._model)), users);
     if (users.length > 0) {
       this.showLoading();
       // To be able to do anything with the API we need a server url, at least.

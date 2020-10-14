@@ -69,7 +69,7 @@ import {SplitButtonModule} from 'primeng/splitbutton';
     pipes.ContactsListTxt, pipes.ContactsArray, pipes.AsHtml, pipes.AttachmentsList,
     pipes.HumanFileSize, pipes.FileIconPipe, Compose, Attachments, Editor, pipes.CurrentEmail,
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
-    Filepick, pipes.HasArchive, pipes.FoldersFlatList,
+    Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType,
   ],
   entryComponents: [Loading, Filepick],
   imports: [
