@@ -42,9 +42,17 @@ export class Nextcloud extends BaseClass {
     return window.top && window.top['OC'];
   }
 
-  public setCredentials(credentials: NextcloudCredentials) {
-    this._credentials = credentials;
-    this._webdav.init(credentials);
+  public set credentials(x: NextcloudCredentials) {
+    this._credentials = x;
+    this._webdav.init(x);
+  }
+
+  public get credentials(): NextcloudCredentials {
+    if (this._isNcSetup) {
+      return this._credentials;
+    }
+
+    return FilePicker.credentials;
   }
 
   private get _isNcSetup(): boolean {
@@ -157,7 +165,7 @@ export class Nextcloud extends BaseClass {
       return this._poll(poll, n + 1);
     }
 
-    this.setCredentials(result);
+    this.credentials = result;
 
     return result;
   }
@@ -179,7 +187,10 @@ export class Nextcloud extends BaseClass {
   }
 
   public async exists(path: string): Promise<boolean> {
-    return this._webdav.exists(path);
+    if (this._isNcSetup) {
+      return this._webdav.exists(path);
+    }
+    return FilePicker.exists(path);
   }
 
   private _shareDate(): string {
@@ -191,47 +202,47 @@ export class Nextcloud extends BaseClass {
     return `${d.getFullYear()}-${m < 10 ? '0' : ''}${m}-${day < 10 ? '0': ''}${day}`;
   }
 
-  public async share(c: NextcloudCredentials, path: string): Promise<NextcloudShare> {
+  public async share(path: string): Promise<NextcloudShare> {
+    const c = this.credentials;
     const params = {path: path, shareType: 3, expireDate: this._shareDate()};
+    const options: RequestInit = {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'OCS-APIRequest': 'true',
+        'Accept': 'application/json, text/plain, */*',
+      },
+      body: JSON.stringify(params),
+    };
+
+    if (this._isNcSetup) {
+      options.headers['Authorization'] = `Basic ${btoa(c.loginName + ':' + c.appPassword)}`;
+    }
     const result = await this._rest(
       `${c.server}/ocs/v2.php/apps/files_sharing/api/v1/shares`,
-      {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': `Basic ${btoa(c.loginName + ':' + c.appPassword)}`,
-          'OCS-APIRequest': 'true',
-          'Accept': 'application/json, text/plain, */*',
-        },
-        body: JSON.stringify(params),
-      },
-      NextcloudShareResult,
+      options, NextcloudShareResult,
     );
 
     return result.ocs.data;
   }
 
-  public async unshare(c: NextcloudCredentials, id: string) {
+  public async unshare(id: string) {
+    const c = this.credentials;
+    const options: RequestInit = {
+      method: 'delete',
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'OCS-APIRequest': 'true',
+        'Accept': 'application/json, text/plain, */*',
+      }
+    }
+
+    if (this._isNcSetup) {
+      options.headers['Authorization'] = `Basic ${btoa(c.loginName + ':' + c.appPassword)}`;
+    }
     return this._rest(
       `${c.server}/ocs/v2.php/apps/files_sharing/api/v1/shares/${id}`,
-      {
-        method: 'delete',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': `Basic ${btoa(c.loginName + ':' + c.appPassword)}`,
-          'OCS-APIRequest': 'true',
-          'Accept': 'application/json, text/plain, */*',
-        }
-      },
-      Object,
+      options, Object,
     );
-  }
-
-  public async getFileUrl(path: string): Promise<string> {
-    return this._webdav.getFileUrl(path);
-  }
-
-  public async getStats(path: string): Promise<Object> {
-    return this._webdav.getStats(path);
   }
 }

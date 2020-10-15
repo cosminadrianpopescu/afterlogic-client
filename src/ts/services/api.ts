@@ -530,8 +530,7 @@ export class Api extends BaseClass {
       throw {message: "ACCOUNT_NOT_FOUND", msg: msg};
     }
     const fileData = await this.getAttachmentContent(account, url);
-    const arr = await Promise.all([this._settings.getNextcloudLogin(), this._settings.getCloudPreview()]);
-    if (arr[0] && arr[1] && preview) {
+    if (preview && this._nc.isNextcloud) {
       const basePath = '/tmp';
       if (!(await this._nc.exists(basePath))) {
         const [err, ] = await to(this._nc.mkdir(basePath));
@@ -548,13 +547,13 @@ export class Api extends BaseClass {
         throw `ERROR_UPLOADING_FOR_PREVIEW`;
       }
 
-      const [shareErr, share] = await to(this._nc.share(arr[0], path));
+      const [shareErr, share] = await to(this._nc.share(path));
       if (shareErr) {
         console.error(shareErr);
         throw 'ERROR_SHARE';
       }
 
-      setTimeout(() => this._nc.unshare(arr[0], share.id), 60 * 1000);
+      setTimeout(() => this._nc.unshare(share.id), 60 * 1000);
 
       Api.openUrl(share.url);
       return null;

@@ -50,7 +50,7 @@ export class Settings extends BaseClass {
       return ;
     }
 
-    this._nc.setCredentials(c);
+    this._nc.credentials = c;
   }
 
   public getServer(): Promise<ServerSetting> {
