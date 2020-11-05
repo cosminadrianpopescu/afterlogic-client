@@ -42,6 +42,7 @@
       <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'checkEmailInterval', label: 'Interval to check new emails (minutes)'}}"></ng-container>
       <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'pageSize', label: 'Number of messages displayed on a page'}}"></ng-container>
       <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'composeType', label: 'Type of messages to compose'}}"></ng-container>
+      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'theme', label: 'Application theme'}}"></ng-container>
       <div class="p-field-checkbox">
         <p-checkbox [(ngModel)]="view._model.previewInCloud" [binary]="true" inputId="checkbox-preview-in-cloud"></p-checkbox>
         <label for="checkbox-preview-in-cloud">Preview attachments in the cloud</label>

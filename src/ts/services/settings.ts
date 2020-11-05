@@ -2,7 +2,7 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
 import {Store} from './store';
-import {ServerSetting, MessageComposeType, AppSettings, LabelValue, AppSetting, UserSetting} from '../models';
+import {ServerSetting, MessageComposeType, AppSettings, LabelValue, AppSetting, UserSetting, ThemeType} from '../models';
 import {NextcloudCredentials} from '../nextcloud/models';
 import {Nextcloud} from '../nextcloud/nextcloud';
 
@@ -13,6 +13,7 @@ const CHECK_INTERVAL = 'check-emails-interval';
 const NEXTCLOUD_CREDENTIALS = 'nextcloud-credentials';
 const CLOUD_PREVIEW = 'preview-in-cloud';
 const NEXTCLOUD_URL = 'nextcloud-url';
+const THEME = 'theme';
 
 const EMAIL_INTERVAL_OPTIONS: Array<LabelValue> = [
   {label: '1 minute', value: 60 * 1000}, 
@@ -31,16 +32,34 @@ const PAGE_SIZE: Array<LabelValue> = [
   {label: '20 messages', value: 20},
   {label: '50 messages', value: 50},
   {label: '100 messages', value: 100},
-]
+];
+
+const THEME_OPTIONS: Array<LabelValue> = [
+  {label: 'Light', value: <ThemeType>'light'},
+  {label: 'Dark', value: <ThemeType>'dark'},
+];
 
 @Injectable()
 export class Settings extends BaseClass {
   @NgInject(Store) private _store: Store;
   @NgInject(Nextcloud) private _nc: Nextcloud;
   public serverSet$ = new EventEmitter();
+
+  public async initTheme() {
+    const theme = await this.getTheme();
+    if (theme == 'dark') {
+      document.body.style.backgroundColor = '#323232';
+      document.querySelector('#theme-link').setAttribute('href', 'assets/themes/luna-pink/theme.css');
+      return ;
+    }
+
+    document.body.style.backgroundColor = 'inherit';
+    document.querySelector('#theme-link').setAttribute('href', 'assets/themes/nova-light/theme.css');
+  }
   
   constructor() {
     super();
+    this.initTheme();
     this._initNextcloud();
   }
 
@@ -104,6 +123,14 @@ export class Settings extends BaseClass {
     return this._store.save(NEXTCLOUD_URL, x);
   }
 
+  public getTheme(): Promise<ThemeType> {
+    return this._store.load(THEME) as Promise<ThemeType>;
+  }
+
+  public setTheme(x: ThemeType): Promise<void> {
+    return this._store.save(THEME, x);
+  }
+
   public async getCloudPreview(): Promise<boolean> {
     const result = await (this._store.load(CLOUD_PREVIEW) as Promise<boolean>);
     if (result == null) {
@@ -112,9 +139,7 @@ export class Settings extends BaseClass {
     return result;
   }
 
-  public setCloudPreview(x: boolean): Promise<void> {
-    return this._store.save(CLOUD_PREVIEW, x);
-  }
+  public setCloudPreview(x: boolean): Promise<void> { return this._store.save(CLOUD_PREVIEW, x); }
 
   private _toAppSetting(x: number | string, options: Array<LabelValue>): AppSetting {
     const result = new AppSetting();
@@ -133,6 +158,7 @@ export class Settings extends BaseClass {
       p.push(this.getServer().then(x => model.server = x));
       p.push(this.getNextcloudUrl().then(x => model.nextcloudUrl = x));
       p.push(this.getCloudPreview().then(x => model.previewInCloud = x));
+      p.push(this.getTheme().then(x => model.theme = this._toAppSetting(x, THEME_OPTIONS)));
 
       Promise.all(p).then(() => resolve(model));
     });
@@ -146,7 +172,9 @@ export class Settings extends BaseClass {
     p.push(this.setPageSize(settings.pageSize.model.value as number));
     p.push(this.setNextcloudUrl(settings.nextcloudUrl));
     p.push(this.setCloudPreview(settings.previewInCloud));
+    p.push(this.setTheme(settings.theme.model.value as ThemeType));
     await Promise.all(p);
+    this.initTheme();
   }
 
   public async needAuthenticating(server: ServerSetting): Promise<Array<UserSetting>>{

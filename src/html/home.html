@@ -45,7 +45,7 @@
         </td>
         <td>
           <div class="wrapper padding-right-10">
-            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+            <al-message [ngClass]="view._themeClass" (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
           </div>
         </td>
       </tr>
@@ -89,7 +89,7 @@
     </div>
   </p-sidebar>
 
-  <p-toolbar>
+  <p-toolbar [ngClass]="view._themeClass">
     <div class="ui-toolbar-group-left">
       <i (click)="view._toolbarVisible = true"
         [hidden]="view._mobileViewType != 'list'"
@@ -121,7 +121,7 @@
       [account]="view._account"
       [folder]="view._folder"></al-messages-list>
     <div class="wrapper w100 ui-fluid p-grid" [hidden]="view._mobileViewType != 'message'">
-      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+      <al-message [ngClass]="view._themeClass" (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
     </div>
 
     <div class="wrapper w100 padding-10" *ngIf="view._mobileViewType == 'settings'">

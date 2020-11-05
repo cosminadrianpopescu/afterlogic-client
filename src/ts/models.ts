@@ -11,6 +11,8 @@ export enum FolderType {Inbox = 1, Sent = 2, Drafts = 3, Spam = 4, Trash = 5, Ot
 export type Primitive = boolean | string | number;
 export type ObjectType<T> = T | Primitive | Array<T | Primitive>;
 
+export type ThemeType = 'dark' | 'light';
+
 export interface Collection<T> {
   Count: number;
   Collection: Array<T>;
@@ -655,6 +657,8 @@ export class AppSettings {
   checkEmailInterval: AppSetting;
   previewInCloud: boolean;
   nextcloudUrl: string;
+  @deserialize(AppSetting)
+  theme: AppSetting;
 }
 
 export const ALL_MAIL = '[Gmail]/All Mail';
