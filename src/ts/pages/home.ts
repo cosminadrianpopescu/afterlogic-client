@@ -6,7 +6,7 @@ import {filter, map} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {MessagesList} from '../components/messages-list';
 import {NgCycle, NgInject} from '../decorators';
-import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, ComposeType, Contact, Folder, Message, MessageBody, MessageNotify, ModelFactory, to} from '../models';
+import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, ComposeType, Contact, Folder, Message, MessageBody, MessageNotify, ModelFactory, to, SaveMessageResponse} from '../models';
 import {Api} from '../services/api';
 import {Contacts} from '../services/contacts';
 import {Layout} from '../services/layout';
@@ -267,5 +267,9 @@ export class Home extends BaseComponent {
   protected _settingsClick() {
     this._mobileViewType = 'settings';
     this._toolbarVisible = false;
+  }
+
+  protected _draftSaved() {
+    this._refresh();
   }
 }

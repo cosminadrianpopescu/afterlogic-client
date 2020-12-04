@@ -39,7 +39,6 @@ export class Message extends BaseComponent {
     this._hasImages = false;
     // Keep the real account id (in case of combined view)
     this._accountId = m.AccountID;
-    this.connect(this._mails.folderChanged$, f => this._isDraft = f.Type == FolderType.Drafts);
     this._mails.currentAccount$.pipe(
       take(1),
       tap(account => this._account = account),
@@ -94,6 +93,10 @@ export class Message extends BaseComponent {
     this._server = await this._settings.getServer();
     console.log('server is', this._server);
     this._setMaxWidth();
+    this.connect(this._mails.folderChanged$, f => {
+      this._isDraft = f.Type == FolderType.Drafts;
+      console.log('folder type is', f.Type)
+    });
     window.onresize = () => this._zone.run(() => {
       this._setMaxWidth();
       this._transform();

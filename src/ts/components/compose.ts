@@ -4,7 +4,7 @@ import {interval, Observable, Subscription} from 'rxjs';
 import {debounceTime, finalize, map, take, takeWhile, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
-import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, MessageComposeType, Contact, ContactConvertor, DisplayContact, MessageBody, MessageCompose, MessageComposeConvertor, MessageSaveConvertor, ComposeType, ModelFactory, to, UploadResult, FileResult} from '../models';
+import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, MessageComposeType, Contact, ContactConvertor, DisplayContact, MessageBody, MessageCompose, MessageComposeConvertor, MessageSaveConvertor, ComposeType, ModelFactory, to, UploadResult, FileResult, SaveMessageResponse} from '../models';
 import {Api} from '../services/api';
 import {Contacts} from '../services/contacts';
 import {FileService} from '../services/file';
@@ -34,6 +34,7 @@ export class Compose extends BaseComponent {
   @Input() public composeType: ComposeType;
 
   @Output() notify: EventEmitter<ComposeNotifyType> = new EventEmitter<ComposeNotifyType>();
+  @Output() draftSaved: EventEmitter<SaveMessageResponse> = new EventEmitter<SaveMessageResponse>();
 
   @NgInject(Contacts) private _contactsService: Contacts;
   @NgInject(Settings) private _settings: Settings;
@@ -181,6 +182,9 @@ export class Compose extends BaseComponent {
     const model = conv.convert(this._model);
     const result = await this._api.saveMessage(this._account, model);
     this._model.DraftUid = result.NewUid;
+    if (Utils.isDraftReply(this._model)) {
+      this.draftSaved.emit(result);
+    }
     this._viewInit();
     this._saving = false;
   }

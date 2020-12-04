@@ -98,6 +98,8 @@ app-home {
 
   .w100 {
     width: 100%;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
   }
 
   .mobile-messages-list al-message {
@@ -106,8 +108,7 @@ app-home {
   }
 
   .padding-10 {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 18px;
   }
 
   .padding-right-10 {

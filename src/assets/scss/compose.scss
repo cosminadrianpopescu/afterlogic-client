@@ -13,8 +13,8 @@ button {
 }
 
 .form {
-  margin: 0.5em;
-  height: calc(100vh - 40px);
+  margin-top: 0.5em;
+  // height: calc(100vh - 40px);
   overflow-y: auto;
 }
 
@@ -22,3 +22,6 @@ button {
   border-right-width: thin;
 }
 
+.p-grid {
+  width: calc(100% + 0.5rem);
+}

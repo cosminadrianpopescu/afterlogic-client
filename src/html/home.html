@@ -53,11 +53,11 @@
   </p-table>
   <p-dialog
     (onHide)="view._hideCompose(null)"
-    [autoZIndex]="false"
     [header]="view._composeTitle" [(visible)]="view._compose"
     [closeOnEscape]="true" [style]="{width: '600px'}">
     <al-compose
       (notify)="view._hideCompose($event)"
+      (draftSaved)="view._draftSaved($event)"
       *ngIf="view._composer"
       [composeType]="view._composeType"
       [message]="view._composeMessage"
@@ -131,6 +131,7 @@
     <div class="w100 padding-10" [hidden]="view._mobileViewType != 'compose'">
       <al-compose
         (notify)="view._hideCompose($event)"
+        (draftSaved)="view._draftSaved($event)"
         *ngIf="view._composer"
         [composeType]="view._composeType"
         [message]="view._composeMessage"
