@@ -1,6 +1,24 @@
 al-messages-list {
+  th {
+    background: white !important;
+    position: sticky;
+    top: 0px;
+  }
   .header {
-    margin-top: 0px;
+    font-weight: normal;
+  }
+  .search-input {
+    al-input {
+      width: 100%;
+    }
+    display: flex;
+    flex: 1;
+  }
+  .search-button {
+    display: flex;
+  }
+  .flex {
+    display: flex;
   }
 
   .from, .subject {
@@ -10,12 +28,14 @@ al-messages-list {
     white-space: nowrap;
   }
 
-  .subject {
-    font-size: 13px;
+  .p-datatable-wrapper {
+    height: calc(100vh - 105px);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
-  .margin-top {
-    margin-top: 0px;
+  .subject {
+    font-size: 13px;
   }
 
   .date {
@@ -37,24 +57,16 @@ al-messages-list {
     font-weight: bold;
   }
 
-  .ui-inputgroup {
-    position: relative;
-    .fa-times {
-      position: absolute;
-      right: 38px;
-      top: 9px;
-    }
+  .adv-search {
+    max-width: 600px;
   }
 
   .right {
-    text-align: right;
+     max-width: 100px;
   }
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    margin-right: 8px;
-    margin-top: 8px;
+  .flex {
+    flex: 1;
   }
 
   .message {
@@ -62,38 +74,11 @@ al-messages-list {
     margin-top: 8px;
   }
 
-  .flex {
-    display: flex;
+  .valign {
+    vertical-align: middle !important;
   }
 
-  td {
-    overflow: hidden;
-  }
-
-  .ui-overlaypanel {
-    max-width: 400px;
-  }
-
-  .fix-search-form .ui-overlaypanel {
-    top: 50px !important;
-    left: 107px !important;
-  }
-
-  .ui-datepicker {
-    min-width: 300px !important;
-  }
-
-  .combined-view {
-    .ui-paginator-first, .ui-paginator-last {
-      display: none;
-    }
-  }
-
-  td.highlight {
-    border-right: 5px solid !important;
-  }
-
-  .adv-search {
-    max-width: 600px;
+  .margin-left {
+    margin-left: 10px;
   }
 }

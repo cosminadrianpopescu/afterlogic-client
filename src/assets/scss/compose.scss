@@ -1,27 +1,70 @@
+al-compose {
+  // .options {
+  //   justify-content: flex-end;
+  //   display: flex;
+  // }
+  // 
+  // button {
+  //   width: inherit;
+  // }
+  // 
+  // .ui-float-label {
+  //   display: flex;
+  // }
+  // 
+  // .form {
+  //   margin-top: 0.5em;
+  //   // height: calc(100vh - 40px);
+  //   overflow-y: auto;
+  // }
+  // 
+  // .ui-inputgroup .ui-inputtext:not(:last-child) {
+  //   border-right-width: thin;
+  // }
+  // 
+  // .p-grid {
+  //   width: calc(100% + 0.5rem);
+  // }
 
-.options {
-  justify-content: flex-end;
-  display: flex;
+  .flex-right {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1000;
+  }
+
+  .field {
+    display: flex;
+
+    label {
+      left: 0.9rem;
+    }
+  }
+
+  .p-float-label .p-inputwrapper-focus ~ label, .p-float-label .p-inputwrapper-filled ~ label {
+    top: 0.25rem !important;
+  }
+
+  .flex-1 {
+    display: flex;
+    flex: 1;
+    .p-autocomplete {
+      width: 100%;
+    }
+
+    .p-focus {
+      box-shadow: none !important;
+      outline: none !important;
+    }
+  }
+
+  .margin-top {
+    margin-top: 15px;
+  }
 }
 
-button {
-  width: inherit;
-}
-
-.ui-float-label {
-  display: flex;
-}
-
-.form {
-  margin-top: 0.5em;
-  // height: calc(100vh - 40px);
-  overflow-y: auto;
-}
-
-.ui-inputgroup .ui-inputtext:not(:last-child) {
-  border-right-width: thin;
-}
-
-.p-grid {
-  width: calc(100% + 0.5rem);
-}

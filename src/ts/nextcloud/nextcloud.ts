@@ -79,11 +79,11 @@ export class Nextcloud extends BaseClass {
   private async _pickFromApp(maximized: boolean, type: 'file' | 'directory' = 'file'): Promise<Array<string>> {
     const options: DynamicDialogConfig = {
       modal: true, header: type == 'file' ? 'Choose a file' : 'Choose a directory', closable: true, closeOnEscape: false,
-      styleClass: 'content', 
+      styleClass: 'content', footer: ' ',
     }
 
     if (maximized) {
-      options.styleClass = 'ui-dialog-maximized';
+      options.styleClass = 'p-dialog-maximized';
     }
     const ref = this._modal.open(Filepick, options);
 

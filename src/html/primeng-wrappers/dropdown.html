@@ -1,0 +1,12 @@
+<span class="p-float-label">
+  <p-dropdown
+    [autoDisplayFirst]="false"
+    [inputId]="id"
+    [disabled]="disabled"
+    [options]="options"
+    [optionLabel]="optionLabel"
+    [ngModel]="view._model"
+    appendTo="body"
+    (ngModelChange)="view._modelChange($event)"></p-dropdown>
+  <label [for]="id">{{label}}</label>
+</span>

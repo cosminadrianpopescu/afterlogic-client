@@ -25,9 +25,12 @@ export class Settings extends BaseComponent {
   protected _validate: boolean = false;
   protected _loading: boolean = true;
   protected _urlFixed: boolean = false;
+  protected _style = {'margin-top': '1rem'};
+  protected _isNc: boolean = false;
 
   @NgCycle('init')
   protected async _initMe() {
+    this._isNc = this._nc.isNextcloud;
     this._model = await this._settings.appSettings;
     if (!this._model.server) {
       this._model.server = new ServerSetting();
@@ -51,7 +54,7 @@ export class Settings extends BaseComponent {
     return this._api.ready$.pipe(take(1)).toPromise();
   }
 
-  protected async _save() {
+  public async save() {
     if (!this._model.server && !Array.isArray(this._model.server.users) || this._model.server.users.length == 0) {
       this.alert('You have to have at least one account', '');
       return ;

@@ -17,19 +17,18 @@ import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { DropdownModule, Dropdown } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MenuModule } from 'primeng/menu';
 import { MessageModule } from 'primeng/message';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { PanelModule } from 'primeng/panel';
 import { SidebarModule } from 'primeng/sidebar';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TreeModule } from 'primeng/tree';
-import { Statics } from '../base';
+import { Statics, BaseComponent } from '../base';
 import { Attachments } from '../components/attachments';
 import { Avatar } from '../components/avatar';
 import { Compose } from '../components/compose';
@@ -60,6 +59,18 @@ import {Webdav} from '../nextcloud/webdav';
 import {Filepick} from '../nextcloud/filepick';
 import {PinchZoomModule} from 'ngx-pinch-zoom';
 import {SplitButtonModule} from 'primeng/splitbutton';
+import {RippleModule} from 'primeng/ripple';
+import {Button} from '../components/primeng-wrappers/button';
+import {TextInput} from '../components/primeng-wrappers/input';
+import {Dropdown as MyDropdown} from '../components/primeng-wrappers/dropdown';
+import {CardModule} from 'primeng/card';
+import {InputSwitchModule} from 'primeng/inputswitch';
+import {Checkbox} from '../components/primeng-wrappers/checkbox';
+import {LocalStorage} from '../services/local-storage';
+
+Dropdown.prototype.getOptionValue = function(option: any) {
+  return option;
+}
 
 @NgModule({
   declarations: [
@@ -69,17 +80,18 @@ import {SplitButtonModule} from 'primeng/splitbutton';
     pipes.ContactsListTxt, pipes.ContactsArray, pipes.AsHtml, pipes.AttachmentsList,
     pipes.HumanFileSize, pipes.FileIconPipe, Compose, Attachments, Editor, pipes.CurrentEmail,
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
-    Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType,
+    Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType, Button,
+    BaseComponent, TextInput, MyDropdown, Checkbox,
   ],
   entryComponents: [Loading, Filepick],
   imports: [
     BrowserModule, IonicModule.forRoot(), 
-    BrowserAnimationsModule, SidebarModule, ButtonModule, ToolbarModule, PanelModule,
+    BrowserAnimationsModule, SidebarModule, ButtonModule, ToolbarModule, CardModule,
     InputTextModule, FormsModule, MessageModule, BlockUIModule, TreeModule,
     RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules, useHash: true }),
     TableModule, OverlayPanelModule, CalendarModule, CheckboxModule, ChipsModule, ToastModule,
     AutoCompleteModule, InputTextareaModule, MenuModule, DialogModule, DropdownModule, 
-    DynamicDialogModule, PinchZoomModule, SplitButtonModule,
+    DynamicDialogModule, PinchZoomModule, SplitButtonModule, RippleModule, InputSwitchModule,
   ],
   providers: [
     StatusBar, Settings,
@@ -87,7 +99,7 @@ import {SplitButtonModule} from 'primeng/splitbutton';
     Mails, MessageService, FileService, 
     { provide: RouteReuseStrategy, useClass: DefaultRouteReuseStrategy },
     HTTP, FileChooser, Background, Nextcloud, DialogService, Webdav,
-    WebIntent,
+    WebIntent, LocalStorage,
     // {provide: WebIntent, useClass: MockWebIntent},
   ],
   bootstrap: [MainComponent]

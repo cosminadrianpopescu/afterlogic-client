@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AutoComplete} from 'primeng/autocomplete';
 import {interval, Observable, Subscription} from 'rxjs';
 import {debounceTime, finalize, map, take, takeWhile, tap} from 'rxjs/operators';
@@ -26,7 +26,8 @@ type ACContact = Contact & {
 @Component({
   selector: 'al-compose',
   templateUrl: '../../html/compose.html',
-  styleUrls: ['../../assets/scss/compose.scss']
+  styleUrls: ['../../assets/scss/compose.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class Compose extends BaseComponent {
   @Input() public message: MessageBody;
@@ -46,6 +47,7 @@ export class Compose extends BaseComponent {
 
   @ViewChild('file', {static: false}) private _file: ElementRef<any>;
   @ViewChild('editor', {static: false}) private _editor: Editor;
+  @ViewChild('autocomplete', {static: false}) private _acl: AutoComplete;
 
   protected _showCc: boolean = false;
   protected _contacts: Array<ACContact> = [];
@@ -80,6 +82,15 @@ export class Compose extends BaseComponent {
       this._type = await this._settings.getMessageType();
     });
     this._incloud = this._nc.isNextcloud;
+  }
+
+  @NgCycle('afterViewInit')
+  protected async _afterViewInit() {
+    if (['new', 'forward'].indexOf(this.composeType) == -1) {
+      return ;
+    }
+    await new Promise(resolve => setTimeout(resolve));
+    this._acl.focusInput();
   }
 
   private _setModel() {
@@ -148,6 +159,8 @@ export class Compose extends BaseComponent {
   }
 
   protected async _send() {
+    console.log('model is', this._model, this._account);
+    return ;
     if (this._model.To.length == 0) {
       this.alert('No recepient', 'Please add a recipient to receive the e-mail');
       return ;

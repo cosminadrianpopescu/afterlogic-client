@@ -8,12 +8,19 @@
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
       <th>
-        <div class="header p-grid ui-fluid">
-          <div class="p-col-12">
-            <div class="ui-inputgroup">
-              <input (keyup)="view._keyup($event)" [(ngModel)]="view._search.simple" type="text" pInputText placeholder="Search">
-              <i (click)="view._clearSearch()" class="fa fa-times" *ngIf="view._search.simple"></i>
-              <button (click)="view._clickAdvSearch()" pButton icon="fa fa-angle-down"></button>
+        <div class="header p-grid p-fluid">
+          <div class="p-col-12 flex">
+            <div class="search-input">
+              <al-input
+                (keyup)="view._keyup($event)"
+                [(model)]="view._search.simple"
+                [isFloatLabel]="false"
+                label="Search"
+                [icon]="view._search.simple ? 'fa fa-times' : null"
+                (iconClick)="view._clearSearch()"></al-input>
+            </div>
+            <div class="search-button">
+              <al-button icon="fa fa-angle-down" (notify)="view._clickAdvSearch()"></al-button>
             </div>
           </div>
         </div>
@@ -22,16 +29,16 @@
   </ng-template>
   <ng-template pTemplate="body" let-row>
     <tr [ngClass]="{'ui-state-highlight': view._selected?.Uid == row.Uid}">
-      <td>
+      <td class="valign">
         <p-tableCheckbox [value]="row"></p-tableCheckbox>
       </td>
       <td [ngClass]="{unread: !row.IsSeen}" (click)="view._select(row)" [ngStyle]="row | borderRight | async">
-        <div class="p-grid ui-fluid">
+        <div class="p-grid">
           <div class="avatar" *ngIf="row.From.Collection?.length > 0">
             <al-avatar [contact]="row.From.Collection[0]"></al-avatar>
           </div>
           <div class="message">
-            <div class="flex ui-fluid">
+            <div class="flex">
               <div class="from">{{row | messageFrom | messageFromTxt}}</div>
               <div class="flags">
                 <i *ngIf="row.IsForwarded" class="fa fa-share"></i>
@@ -40,7 +47,7 @@
               </div>
               <div class="date">{{row | messageDate}}</div>
             </div>
-            <div class="flex ui-fluid margin-top">
+            <div class="flex margin-top">
               <div class="subject">
                 <i *ngIf="row.IsFlagged" class="fa fa-star"></i>{{row.Subject}}
               </div>
@@ -53,24 +60,25 @@
 </p-table>
 
 <p-dialog header="Advanced search" [(visible)]="view._showSearch" [modal]="true">
-  <div class="p-grid ui-fluid adv-search">
-    <div class="p-col-12"><input #all type="text" (keyup)="view._keyup2($event)" [(ngModel)]="view._search.all" pInputText placeholder="All"/></div>
-    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.from" pInputText placeholder="From"/></div>
-    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.to" pInputText placeholder="To"/></div>
-    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.subject" pInputText placeholder="Subject"/></div>
-    <div class="p-col-6"><input type="text" [(ngModel)]="view._search.text" pInputText placeholder="Text"/></div>
+  <div class="p-grid p-fluid adv-search">
+    <div class="p-col-12"><al-input #all [isFloatLabel]="false" (keyup)="view._keyup2($event)" [(model)]="view._search.all" label="All"></al-input></div>
+    <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.from" label="From"></al-input></div>
+    <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.to" label="To"></al-input></div>
+    <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.subject" label="Subject"></al-input></div>
+    <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.text" label="Text"></al-input></div>
     <div class="p-col-6">
-      <p-calendar appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since" [showIcon]="true"></p-calendar>
+      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since"></p-calendar>
     </div>
     <div class="p-col-6">
-      <p-calendar appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till" [showIcon]="true"></p-calendar>
+      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till"></p-calendar>
     </div>
     <div class="p-col-12">
-      <p-dropdown *ngIf="view._account$" [options]="view._account$ | async | foldersFlatList | async"
-                  appendTo="body"
-                  [(ngModel)]="view._search.folder"></p-dropdown>
+      <al-dropdown [isPrimitive]="true" *ngIf="view._account$" [options]="view._account$ | async | foldersFlatList | async" [(model)]="view._search.folder"></al-dropdown>
     </div>
-    <div class="p-col-6"><p-checkbox [binary]="true" label="Has Attachments" [(ngModel)]="view._search.attachments"></p-checkbox></div>
-    <div class="p-col-6 right"><button (click)="view._advSearch()" pButton label="Search"></button></div>
+    <div class="p-col-6 flex">
+      <al-checkbox [(model)]="view._search.attachments" label="Has attachments"></al-checkbox>
+      <al-checkbox class="margin-left" [(model)]="view._search.unseen" label="Unread messages"></al-checkbox>
+    </div>
+    <div class="p-col-6 right"><al-button (notify)="view._advSearch()" label="Search"></al-button></div>
   </div>
 </p-dialog>

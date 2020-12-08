@@ -1,7 +1,25 @@
-<div>
-  <nc-filepick type="file" (choose)="view._choose($event)"></nc-filepick>
+<div>Hello</div>
+<div class="p-fluid p-grid">
+  <div class="p-col-4">
+    <al-button label="Click"></al-button>
+    <al-button icon="fa fa-times"></al-button>
+    <al-button icon="fa fa-times" label="Click"></al-button>
+  </div>
+  <div class="p-col-4">
+    <al-input label="A label" [(model)]="view._inputModel"></al-input>
+  </div>
+  <div class="p-col-4">
+    <al-dropdown label="A dropdown" [(model)]="view._city" [options]="view._cities"></al-dropdown>
+    <div>you selected {{view._city?.label}}, {{view._city?.value}}</div>
+  </div>
+  <div class="p-col-4">
+    <al-input (iconClick)="view._iconClick()" label="A label with icon" [(model)]="view._inputModel" icon="fa fa-times"></al-input>
+  </div>
 </div>
 <!--div>
+  <nc-filepick type="file" (choose)="view._choose($event)"></nc-filepick>
+</div>
+<div>
   <al-compose composeType="new"></al-compose>
 </div-->
   <!--div>

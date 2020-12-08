@@ -6,42 +6,38 @@ al-message {
     text-align: center;
   }
 
+  .flex {
+    display: flex;
+  }
+
   .from {
     display: flex;
     align-items: center;
   }
 
-  .margin {
-    margin-left: 10px;
-  }
-
-  .buttons {
-    button {
-      margin-left: 4px;
-    }
-    text-align: right;
-  }
-
   .avatar {
-    max-width: 56px;
-    margin: 8px;
+    max-width: 40px;;
+    margin-right: 8px;
   }
 
   .details {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     margin-top: 11px;
   }
 
   .actions {
-    max-width: 117px;
+    display: flex;
     margin-top: 11px;
-    .fa.draft {
-      font-size: 30px;
-      margin-left: 20px;
-    }
   }
 
-  .p-col-1 {
+  .subject {
+    display: flex;
+    flex: 1;
+  }
+
+  .star {
     align-items: center;
     display: flex;
     justify-content: flex-end;
@@ -59,12 +55,8 @@ al-message {
     margin-right: 5px;
   }
   
-  .menu-options i{
-    margin-right: 10px;
-  }
-
   .max-width {
-    max-width: 150px;
+    max-width: 200px;
   }
 
   .message-body {
@@ -86,5 +78,13 @@ al-message {
 
   pinch-zoom {
     background-color: inherit !important;
+  }
+
+  .max {
+    width: 100%;
+  }
+
+  .margin-bottom {
+    margin-bottom: 10px;
   }
 }

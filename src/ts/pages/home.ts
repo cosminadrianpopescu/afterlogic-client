@@ -6,16 +6,21 @@ import {filter, map} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {MessagesList} from '../components/messages-list';
 import {NgCycle, NgInject} from '../decorators';
-import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, ComposeType, Contact, Folder, Message, MessageBody, MessageNotify, ModelFactory, to, SaveMessageResponse} from '../models';
+import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, ComposeType, Contact, Folder, Message, MessageBody, MessageNotify, ModelFactory, to} from '../models';
 import {Api} from '../services/api';
 import {Contacts} from '../services/contacts';
 import {Layout} from '../services/layout';
 import {Mails} from '../services/mails';
+import {Navigation} from '../services/navigation';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
-import { Navigation } from '../services/navigation';
+import {Settings as SettingsWidget} from './settings';
+import {LocalStorage} from '../services/local-storage';
+import {Table} from 'primeng/table';
 
 type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam' | 'archive';
+
+const WIDTH_KEY = 'width-key';
 
 @Component({
   selector: 'app-home',
@@ -31,8 +36,11 @@ export class Home extends BaseComponent {
   @NgInject(Contacts) private _contacts: Contacts;
   @NgInject(NgZone) private _zone: NgZone;
   @NgInject(Navigation) private _nav: Navigation;
+  @NgInject(LocalStorage) private _localStorage: LocalStorage;
 
   @ViewChild('messagesList', {static: false}) private _list: MessagesList;
+  @ViewChild('settings') private _settingsWidget: SettingsWidget;
+  @ViewChild('table') protected _table: Table;
 
   protected _isMobile: boolean = true;
   protected _account: Account;
@@ -130,6 +138,16 @@ export class Home extends BaseComponent {
     );
 
     this.connect(this._nav.backButton$, () => this._toolbarBack());
+  }
+
+  @NgCycle('afterViewInit')
+  protected _afterViewInit() {
+    const widths = this._localStorage.get(WIDTH_KEY);
+    if (!widths || this._isMobile) {
+      return ;
+    }
+    this._table.columnWidthsState = widths;
+    this._table.restoreColumnWidths();
   }
 
   protected async _folderNotify(f: Folder) {
@@ -271,5 +289,23 @@ export class Home extends BaseComponent {
 
   protected _draftSaved() {
     this._refresh();
+  }
+
+  protected async _saveSettings() {
+    console.log('save settings');
+    await this._settingsWidget.save();
+    this._cancelSettings();
+  }
+
+  protected _cancelSettings() {
+    this._mobileViewType = 'list';
+    this._showSettings = false;
+  }
+
+  protected _resize() {
+    let x: Object = {};
+    this._table.saveColumnWidths(x);
+    const value: string = x['columnWidths'];
+    this._localStorage.set(WIDTH_KEY, value.split(',').slice(0, 3).join(','));
   }
 }

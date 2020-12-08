@@ -72,7 +72,7 @@ export class Utils {
 
   public static emptySearch(model: SearchModel): boolean {
     return !model.from && !model.to && !model.text && !model.till
-      && !model.since && !model.simple && !model.subject && !model.attachments;
+      && !model.since && !model.simple && !model.subject && !model.attachments && !model.unseen;
   }
 
   public static buildUserMenu(server: ServerSetting, callback: Function): Array<MenuItem> {
@@ -134,10 +134,13 @@ export class Utils {
       return null;
     }
 
+    console.log('widths are', clientWidth, el.scrollWidth);
+
     const scale = clientWidth / el.scrollWidth;
     const x = (el.scrollWidth - clientWidth) / 2;
     const height = el.scrollHeight * scale;
     const y = (el.scrollHeight - height) / 2;
+    // return '';
     return `transform: scale(${scale}) translate(-${x}px, -${y}px); max-height: ${height}px`;
   }
 

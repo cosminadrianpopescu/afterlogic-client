@@ -1,5 +1,6 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewEncapsulation, NgZone} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, NgZone, Output, ViewChild, ViewEncapsulation} from '@angular/core';
 import {FilesystemDirectory} from '@capacitor/core';
+import {MenuItem} from 'primeng/api/public_api';
 import {from} from 'rxjs';
 import {switchMap, take, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
@@ -9,7 +10,6 @@ import {Api} from '../services/api';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
-import {MenuItem} from 'primeng/api/public_api';
 
 @Component({
   selector: 'al-message',
@@ -44,7 +44,7 @@ export class Message extends BaseComponent {
       tap(account => this._account = account),
       switchMap(() => from(this._api.getMessageBody(this._account, m))),
       take(1),
-    ).subscribe(body => {
+    ).subscribe(async body => {
       this._message = body;
       this._appendBody();
       if (!m.IsSeen) {
@@ -73,16 +73,25 @@ export class Message extends BaseComponent {
     {label: 'Download', icon: 'fa fa-download', command: () => this._download()},
   ];
 
-  private _setMaxWidth() {
-    this._width = window.innerWidth - 22;
+  private async _setMaxWidth() {
+    await new Promise(resolve => setTimeout(resolve));
+    const el = document.querySelector('#pinch');
+    if (!el) {
+      return ;
+    }
+    this._width = el.clientWidth;
     this._maxWidth = `max-width: ${this._width}px`;
   }
 
-  private _transform() {
+  private async _transform() {
+    await this._setMaxWidth();
     if (!this._body) {
       return ;
     }
     const div: HTMLElement = this._body.nativeElement.querySelector('*');
+    if (!div) {
+      return ;
+    }
     div.setAttribute('style', '');
     setTimeout(() => div.setAttribute('style', Utils.transformMessageBody(this._width, div)));
   }
@@ -91,14 +100,8 @@ export class Message extends BaseComponent {
   protected async _initMe() {
     console.log('init message');
     this._server = await this._settings.getServer();
-    console.log('server is', this._server);
-    this._setMaxWidth();
-    this.connect(this._mails.folderChanged$, f => {
-      this._isDraft = f.Type == FolderType.Drafts;
-      console.log('folder type is', f.Type)
-    });
+    this.connect(this._mails.folderChanged$, f => this._isDraft = f.Type == FolderType.Drafts);
     window.onresize = () => this._zone.run(() => {
-      this._setMaxWidth();
       this._transform();
     });
   }
@@ -163,6 +166,10 @@ export class Message extends BaseComponent {
   }
 
   protected _action(type: ComposeType) {
+    if (type == <any>'download') {
+      this._download();
+      return ;
+    }
     const ev = ModelFactory.instance(<MessageNotify>{message: this._message, type: type}, MessageNotify) as MessageNotify;
     this.notify.emit(ev);
   }

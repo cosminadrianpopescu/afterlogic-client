@@ -15,10 +15,44 @@
   <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
 
   <link id="theme-link" rel="stylesheet" href="assets/themes/nova/theme.css"/>
+  <link rel="stylesheet" href="assets/scss/global.css"/>
 
   <!-- add to homescreen for ios -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <style>
+    .p-button:focus {
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    .p-inputtext {
+      border: none;
+      border-bottom: 1px solid #ced4da;
+      border-radius: 0px;
+    }
+
+    .p-datatable-resizable .p-datatable-tbody>tr>td {
+      white-space: inherit !important;
+    }
+
+    .p-inputtext:enabled:focus {
+      border-bottom: 1px solid #2196F3 !important;
+      outline: none;
+      box-shadow: none;
+    }
+    .p-dropdown:not(.p-disabled).p-focus {
+      outline: none;
+      box-shadow: none;
+    }
+    p-dynamicdialog .p-dialog-content {
+      padding: 0px
+    }
+
+    .p-button:disabled {
+      opacity: 0.2 !important;
+    }
+  </style>
 </head>
 
 <body>

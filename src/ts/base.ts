@@ -1,4 +1,4 @@
-import {EventEmitter, Injector, Provider, SimpleChanges, ComponentFactoryResolver, ApplicationRef, ComponentRef, EmbeddedViewRef, ElementRef} from '@angular/core';
+import {EventEmitter, Injector, Provider, SimpleChanges, ComponentFactoryResolver, ApplicationRef, ComponentRef, EmbeddedViewRef, ElementRef, Directive, Input, Output} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
@@ -70,7 +70,16 @@ export class BaseClass extends BaseClassWithDecorations {
   }
 }
 
+@Directive({
+  selector: 'al-base-component',
+})
 export class BaseComponent extends BaseClass {
+  @Input() public label: string;
+  @Input() public id: string;
+  @Input() public model: any;
+
+  @Output() modelChange: EventEmitter<any> = new EventEmitter<any>();
+
   @NgInject(Router) protected _router: Router;
   @NgInject(<any>ComponentFactoryResolver) private __factoryResolver__: ComponentFactoryResolver;
   @NgInject(ApplicationRef) private __appRef__: ApplicationRef;
@@ -121,6 +130,9 @@ export class BaseComponent extends BaseClass {
   }
 
   private async ngOnInit() {
+    if (!this.id) {
+      this.id = BaseComponent.UUID();
+    }
     this._runCycle('init');
   }
 

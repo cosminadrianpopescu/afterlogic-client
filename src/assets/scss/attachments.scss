@@ -2,3 +2,16 @@ i {
   font-size: 30px;
   margin-left: -3px;
 }
+
+.rel {
+  position: relative;
+}
+
+.block {
+  display: flex;
+  z-index: 1009;
+}
+
+.w3em {
+  width: 3em;
+}

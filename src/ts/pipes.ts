@@ -5,7 +5,7 @@ import {merge, Observable, of} from 'rxjs';
 import {map, filter} from 'rxjs/operators';
 import {BaseClass} from './base';
 import {NgInject} from './decorators';
-import {Account, Folder, Message, Contact, Contacts, MessageBody, Attachment, COMBINED_ACCOUNT_ID, ModelFactory, ALL_MAIL} from './models';
+import {Account, Folder, Message, Contact, Contacts, MessageBody, Attachment, COMBINED_ACCOUNT_ID, ModelFactory, ALL_MAIL, LabelValue} from './models';
 import {Api} from './services/api';
 import {Utils} from './services/utils';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';

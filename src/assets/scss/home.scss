@@ -1,7 +1,14 @@
 body {
   overflow: hidden;
 }
+
 app-home {
+  .main-header th {
+    padding: 0px !important;
+  }
+  p-dialog .p-grid {
+    margin-top: 0px;
+  }
   .overflow {
     overflow-x: hidden;
   }
@@ -16,23 +23,23 @@ app-home {
     transform: translateY(-50%);
   }
 
-  #container strong {
-    font-size: 20px;
-    line-height: 26px;
-  }
+  // #container strong {
+  //   font-size: 20px;
+  //   line-height: 26px;
+  // }
 
-  #container p {
-    font-size: 16px;
-    line-height: 22px;
+  // #container p {
+  //   font-size: 16px;
+  //   line-height: 22px;
 
-    color: #8c8c8c;
+  //   color: #8c8c8c;
 
-    margin: 0;
-  }
+  //   margin: 0;
+  // }
 
-  #container a {
-    text-decoration: none;
-  }
+  // #container a {
+  //   text-decoration: none;
+  // }
 
   .folders-col {
     width: 200px;
@@ -52,10 +59,6 @@ app-home {
 
   }
 
-  .right {
-    float: right;
-  }
-
   .menuWidth {
     min-width: 300px;
     text-align: left;
@@ -63,6 +66,15 @@ app-home {
 
   .mail-col {
     width: calc(100% - 600px);
+    .content {
+      display: flex;
+    }
+    .profile {
+      display: flex;
+      flex: 1;
+      align-items: center;
+    }
+
   }
 
   .top td {
@@ -91,14 +103,9 @@ app-home {
     height: calc(100vh - 81px);
   }
 
-  .mobile-messages-list {
-    position: relative;
-    top: 8px;
-  }
-
   .w100 {
     width: 100%;
-    height: calc(100vh - 48px);
+    height: calc(100vh - 64px);
     overflow-y: auto;
   }
 
@@ -107,8 +114,10 @@ app-home {
     margin-right: 9px;
   }
 
-  .padding-10 {
-    padding-left: 18px;
+  .padding-20 {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
   }
 
   .padding-right-10 {
@@ -144,7 +153,43 @@ app-home {
     opacity: 0.2;
   }
 
+  .rest {
+    display: flex;
+    flex: 1;
+  }
+
+  p-toolbar i {
+    min-width: 64px;
+  }
+
   .dark i {
     color: #a32049 !important;
+  }
+
+  .p40 {
+    font-size: 40px;
+  }
+
+  .bigger-font {
+    font-size: 1.17em;
+    position: relative;
+    left: 4px;
+    bottom: 6px;
+  }
+
+  td.no-padding {
+    padding: 0px !important;
+  }
+
+  .mobile-toolbar .p-toolbar {
+    padding: 0px !important;
+  }
+
+  .fix-button {
+    min-width: 40px;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    background-color: #F8F9FA;
   }
 }

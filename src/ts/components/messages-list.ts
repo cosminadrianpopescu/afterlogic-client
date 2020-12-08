@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation, ElementRef} from '@angular/core';
+import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation} from '@angular/core';
 import {LazyLoadEvent} from 'primeng/api/public_api';
 import {Table} from 'primeng/table/table';
 import {merge, Observable} from 'rxjs';
-import {skip, tap, filter} from 'rxjs/operators';
+import {filter, skip, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
 import {Account, COMBINED_ACCOUNT_ID, Folder, FolderType, Message, SearchConvertor, SearchModel, to} from '../models';
@@ -10,8 +10,9 @@ import {Api} from '../services/api';
 import {Background} from '../services/background';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
-import {Utils} from '../services/utils';
 import {Store} from '../services/store';
+import {Utils} from '../services/utils';
+import {TextInput} from './primeng-wrappers/input';
 
 const DEFAULT = 'Inbox';
 
@@ -39,7 +40,7 @@ export class MessagesList extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Background) private _background: Background;
   @ViewChild('table', {static: true}) private _table: Table;
-  @ViewChild('all', {static: false}) private _all: ElementRef<any>;
+  @ViewChild('all', {static: false}) private _all: TextInput;
 
   protected _loading: boolean = true;
   protected _pageSize: number = 0;
@@ -267,7 +268,7 @@ export class MessagesList extends BaseComponent {
 
   protected _clickAdvSearch() {
     this._showSearch = true;
-    setTimeout(() => this._all.nativeElement.focus(), 151);
+    setTimeout(() => this._all.focus(), 151);
   }
 
   protected _keyup2(ev: KeyboardEvent) {

@@ -1,37 +1,20 @@
 <div class="form" *ngIf="view._model">
-  <div class="p-grid ui-fluid">
-    <div class="p-col-6"></div>
-    <div class="p-col-6 options">
-      <button
-        [disabled]="view._saving"
-        (click)="view._save(false)"
-        style="width: 73px"
-        pButton
-        icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-floppy-o'}}"
-        label="Save"></button>
-      <button [disabled]="view._saving" (click)="view._send()" style="width: 73px; margin-left: 10px;" pButton icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-paper-plane'}}" label="Send"></button>
-      <button (click)="view._attach()" style="width: 87px; margin-left: 10px" pButton icon="{{view._attaching ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'}}" label="Attach"></button>
-      <button *ngIf="view._incloud" (click)="view._cloudAttach()" style="width: 87px; margin-left: 10px" pButton icon="{{view._cloudAttaching ? 'fa fa-spinner fa-spin' : 'fa fa-cloud'}}" label="Attach"></button>
-      <input #file type="file" multiple="true" style="display: none"/>
-    </div>
+  <div class="flex-right">
+    <al-button [disabled]="view._saving" (notify)="view._save(false)" icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-floppy-o'}}" label="Save"></al-button>
+    <al-button [disabled]="view._saving" (notify)="view._send()" icon="{{view._saving ? 'fa fa-spinner fa-spin' : 'fa fa-paper-plane'}}" label="Send"></al-button>
+    <al-button (notify)="view._attach()" icon="{{view._attaching ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'}}" label="Attach"></al-button>
+    <al-button *ngIf="view._incloud" (notify)="view._cloudAttach()" icon="{{view._cloudAttaching ? 'fa fa-spinner fa-spin' : 'fa fa-cloud'}}" label="Attach"></al-button>
+    <input #file type="file" multiple="true" style="display: none"/>
+  </div>
+  <div class="p-grid p-fluid">
     <div class="p-col-12" *ngIf="view._combinedView">
-      <span class="ui-inputgroup ui-float-label">
-        <p-dropdown id="from-dropdown"
-          [options]="view._accounts$ | async"
-          [(ngModel)]="view._account"
-          [disabled]="view._model?.Attachments.length > 0"
-          optionLabel="Email"></p-dropdown>
-        <label for="from-dropdown">From</label>
-      </span>
+      <al-dropdown [options]="view._accounts$ | async" [(model)]="view._account" [disabled]="view._model?.Attachments.length > 0" optionLabel="Email"></al-dropdown>
     </div>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'To'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'Cc'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'Bcc'}}"></ng-container>
-    <div class="p-col-12">
-      <span class="ui-inputgroup ui-float-label">
-        <input type="text" pInputText id="subject-id" [(ngModel)]="view._model.Subject"/>
-        <label for="subject-id">Subject</label>
-      </span>
+    <div class="p-col-12 margin-top">
+      <al-input [(model)]="view._model.Subject" label="Subject"></al-input>
     </div>
     <div class="p-col-12">
       <al-editor [(model)]="view._model.Body" #editor *ngIf="view._type == 'HTML'"></al-editor>
@@ -43,30 +26,29 @@
   </div>
 
   <ng-template #field let-context>
-    <div class="p-col-12" [hidden]="!view._showCc && context.field != 'To'">
-      <span class="ui-inputgroup ui-float-label">
-        <p-autoComplete
-          #autocomplete
-          type="email"
-          [(ngModel)]="view._model[context.field]"
-          [suggestions]="view._contacts"
-          [autoHighlight]="true"
-          (onBlur)="view._blur(autocomplete)"
-          (onFocus)="view._focus(autocomplete)"
-          delay="0"
-          [id]="context.field"
-          [multiple]="true"
-          field="display"
-          (completeMethod)="view._filterContact($event)"
-          >
-          <ng-template pTemplate="item" let-item>
-            <span *ngIf="item.DisplayName">{{item.DisplayName}} ({{item.Email}})</span>
-            <span *ngIf="!item.DisplayName">{{item.Email}}</span>
-          </ng-template>
-        </p-autoComplete>
-        <button (click)="view._showCc = true" pButton icon="fa fa-angle-down" *ngIf="!view._showCc && context.field == 'To'"></button>
-        <label [for]="context.field">{{context.field}}</label>
-      </span>
+    <div class="p-col-12 p-float-label field" *ngIf="view._showCc || context.field == 'To'">
+      <p-autoComplete
+        class="flex-1"
+        #autocomplete
+        type="email"
+        [(ngModel)]="view._model[context.field]"
+        [suggestions]="view._contacts"
+        [autoHighlight]="true"
+        (onBlur)="view._blur(autocomplete)"
+        (onFocus)="view._focus(autocomplete)"
+        delay="0"
+        [inputId]="context.field"
+        [multiple]="true"
+        field="display"
+        (completeMethod)="view._filterContact($event)"
+        >
+        <ng-template pTemplate="item" let-item>
+          <span *ngIf="item.DisplayName">{{item.DisplayName}} ({{item.Email}})</span>
+          <span *ngIf="!item.DisplayName">{{item.Email}}</span>
+        </ng-template>
+      </p-autoComplete>
+      <al-button (notify)="view._showCc = true" icon="fa fa-angle-down" *ngIf="!view._showCc && context.field == 'To'"></al-button>
+      <label [for]="context.field">{{context.field}}</label>
     </div>
   </ng-template>
 </div>

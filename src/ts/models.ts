@@ -249,8 +249,14 @@ export class SearchConvertor implements Convertor<string> {
     result = this._add(result, 'to', src.to);
     result = this._add(result, 'subject', src.subject);
     result = this._add(result, 'text', src.text);
-    if (src.attachments) {
+    if (src.unseen && src.attachments) {
+      result = this._add(result, 'has', 'attachments unseen');
+    }
+    else if (src.attachments) {
       result = this._add(result, 'has', 'attachments');
+    }
+    else if (src.unseen) {
+      result = this._add(result, 'has', 'unseen');
     }
     if (src.since || src.till) {
       result = this._add(result, 'date', `${this._date(src.since)}/${this._date(src.till)}`)
@@ -407,6 +413,7 @@ export class SearchModel {
   since: Date;
   till: Date;
   attachments: boolean;
+  unseen: boolean;
   folder: string;
 }
 
@@ -639,6 +646,11 @@ export class FormDataSerialized {
 export class LabelValue {
   label: string;
   value: string | number | boolean;
+
+  public getValue?(): LabelValue {
+    console.log('this is', this);
+    return this;
+  }
 }
 
 export class AppSetting {

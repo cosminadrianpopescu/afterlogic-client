@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, ViewEncapsulation} from '@angular/core';
+import {ApplicationRef, Component, EventEmitter, Input, Output, TemplateRef, ViewChild, ViewEncapsulation} from '@angular/core';
 import {TreeNode} from 'primeng/api';
 import {BaseComponent} from '../base';
 import {NgCycle, NgInject} from '../decorators';
@@ -21,7 +21,9 @@ export class Filepick extends BaseComponent {
   @Input() public type: 'file' | 'directory' = 'file';
 
   @Output() public choose: EventEmitter<Array<NextcloudItem>> = new EventEmitter<Array<NextcloudItem>>();
+  @ViewChild('footer', {static: true}) private _footer: TemplateRef<any>;
   @NgInject(Webdav) private _webdav: Webdav;
+  @NgInject(ApplicationRef) private _appRef: ApplicationRef;
   protected _loading: boolean = true;
   protected _files: Array<TreeNode> = [];
   protected _selection: Array<TreeNode> = [];
@@ -34,6 +36,15 @@ export class Filepick extends BaseComponent {
   @NgCycle('init')
   protected _initMe() {
     this._load();
+  }
+
+  @NgCycle('afterViewInit')
+  protected _afterViewInit() {
+    console.log('footer is', this._footer);
+    const view = this._footer.createEmbeddedView(null);
+    console.log('view is', view);
+    this._appRef.attachView(view);
+    document.querySelector('.p-dialog-footer').append(view.rootNodes[0]);
   }
 
   private _results(files: Array<NextcloudItem>): Array<TreeNode> {
@@ -82,5 +93,9 @@ export class Filepick extends BaseComponent {
     const selection = this._selection ? (Array.isArray(this._selection) ? this._selection : [this._selection]) : [];
     this.choose.emit(selection.map((n: TreeNode) => n.data).filter((f: NextcloudItem) => f.type == this.type));
     // this.choose.emit(this._selection.map(n => n.data));
+  }
+
+  protected _close() {
+    this.choose.emit([]);
   }
 }

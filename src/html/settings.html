@@ -1,82 +1,47 @@
-<div class="content-section" *ngIf="view._model">
-  <p-panel header="Server">
-    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
-      <div class="flex">
-        <span class="ui-float-label">
-          <input type="text" id="server-url" pInputText [ngModel]="view._model?.server.url" (ngModelChange)="view._model.server.url = $event" />
-          <label for="server-url">Server url</label>
-        </span>
-        <p-message [hidden]="view._model.server && view._model.server.url" severity="error" text="Url is required"></p-message>
-      </div>
+<p-card [style]="view._style" *ngIf="view._model">
+  <div class="p-fluid p-grid">
+    <div class="p-col-12">
+      <al-input validator="required" label="Server url" [model]="view._model?.server.url" (modelChange)="view._model.server.url = $event"></al-input>
     </div>
-  </p-panel>
-</div>
+  </div>
+</p-card>
 
-<div class="content-section" *ngIf="view._model">
-  <p-panel>
-    <p-header>
-      <div class="ui-helper-clearfix">
-        <span class="ui-panel-title">Accounts</span>
-        <button (click)="view._add()" pButton style="float: right" icon="fa fa-user-plus"></button>
-      </div>
-    </p-header>
-    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
-      <div [ngClass]="{invalid: view._validate && !user.token}" class="flex users" *ngFor="let user of view._model?.server.users || []">
-        <span class="ui-float-label">
-          <input type="text" [id]="user.email" pInputText [(ngModel)]="user.email" />
-          <label [for]="user.email">Email</label>
-        </span>
-        <span class="ui-float-label right">
-          <input type="password" id="{{user.email}}-pass" pInputText [(ngModel)]="user.pass" />
-          <label for="{{user.email}}-pass">Password</label>
-        </span>
-        <button pButton icon="fa fa-user-times" (click)="view._remove(user)"></button>
-      </div>
-    </div>
-  </p-panel>
-</div>
+<p-card [style]="view._style" *ngIf="view._model">
+  <div class="p-col-12 flex" *ngFor="let user of view._model?.server.users || []">
+    <al-input validator="custom" label="Email" [(model)]="user.email" [isValid]="!view._validate || user.token"></al-input>
+    <al-input validator="custom" label="Password" [(model)]="user.pass" [isValid]="!view._validate || user.token"></al-input>
+    <al-button icon="fa fa-user-times" (notify)="view._remove(user)"></al-button>
+  </div>
+  <div>
+    <al-button icon="fa fa-user-plus" label="Add new user" (notify)="view._add()"></al-button>
+  </div>
+</p-card>
 
-<div class="content-section" *ngIf="view._model">
-  <p-panel header="App settings">
-    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
-      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'checkEmailInterval', label: 'Interval to check new emails (minutes)'}}"></ng-container>
-      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'pageSize', label: 'Number of messages displayed on a page'}}"></ng-container>
-      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'composeType', label: 'Type of messages to compose'}}"></ng-container>
-      <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'theme', label: 'Application theme'}}"></ng-container>
-      <div class="p-field-checkbox">
-        <p-checkbox [(ngModel)]="view._model.previewInCloud" [binary]="true" inputId="checkbox-preview-in-cloud"></p-checkbox>
-        <label for="checkbox-preview-in-cloud">Preview attachments in the cloud</label>
-      </div>
+<p-card [style]="view._style" *ngIf="view._model">
+  <div class="p-fluid p-grid">
+    <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'checkEmailInterval', label: 'Interval to check new emails (minutes)'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'pageSize', label: 'Number of messages displayed on a page'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'composeType', label: 'Type of messages to compose'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="settingTpl" [ngTemplateOutletContext]="{$implicit: {field: 'theme', label: 'Application theme', padding: false}}"></ng-container>
+    <div class="p-col-12" *ngIf="view._isNc">
+      <al-checkbox [(model)]="view._model.previewInCloud" label="Preview attachments in the cloud"></al-checkbox>
     </div>
-  </p-panel>
-</div>
+  </div>
+</p-card>
 
-<div class="content-section" *ngIf="view._model">
-  <p-panel header="Nextcloud integration">
-    <div class="panel-container p-fluid forms-grid ui-fluid" style="margin: 1em 0;">
-      <div class="flex users">
-        <span class="ui-float-label">
-          <input type="text" id="nextcloud-url" pInputText [ngModel]="view._model?.nextcloudUrl" (ngModelChange)="view._model.nextcloudUrl = $event" />
-          <label for="nextcloud-url">Nextcloud server base url</label>
-        </span>
-        <button class="login" [disabled]="!view._model?.nextcloudUrl" (click)="view._nextcloudLogin()" pButton label="Perform login"></button>
-      </div>
+<p-card [style]="view._style" *ngIf="view._model">
+  <div class="p-fluid p-grid">
+    <div class="left">
+      <al-input label="Nextcloud server base url" [model]="view._model?.nextcloudUrl" (modelChange)="view._model.nextcloudUrl = $event"></al-input>
     </div>
-  </p-panel>
-</div>
+    <div class="right">
+      <al-button [disabled]="!view._model?.nextcloudUrl" (notify)="view._nextcloudLogin()" label="Perform login"></al-button>
+    </div>
+  </div>
+</p-card>
 
 <ng-template #settingTpl let-context>
-  <div class="flex">
-    <span class="ui-float-label">
-      <p-dropdown id="setting-{{context.field}}"
-                  [options]="view._model[context.field].options"
-                  [(ngModel)]="view._model[context.field].model"
-                  optionLabel="label"></p-dropdown>
-      <label for="setting-{{context.field}}">{{context.label}}</label>
-    </span>
+  <div class="p-col-12" [ngClass]="{'margin-bottom': context.padding !== false}">
+    <al-dropdown [label]="context.label" [options]="view._model[context.field].options" [(model)]="view._model[context.field].model"></al-dropdown>
   </div>
 </ng-template>
-
-<div class="content-section" *ngIf="view._model">
-  <button [disabled]="!view._model?.server.url" pButton label="Save" (click)="view._save()"></button>
-</div>

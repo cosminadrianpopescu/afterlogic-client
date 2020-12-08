@@ -47,7 +47,6 @@ export class Settings extends BaseClass {
 
   public async initTheme() {
     const theme = await this.getTheme();
-    console.log('theme is', theme);
     if (theme == 'dark') {
       document.body.style.backgroundColor = '#323232';
       document.querySelector('#theme-link').setAttribute('href', 'assets/themes/vela-blue/theme.css');
@@ -145,6 +144,9 @@ export class Settings extends BaseClass {
   private _toAppSetting(x: number | string, options: Array<LabelValue>): AppSetting {
     const result = new AppSetting();
     result.model = options.find(o => o.value == x);
+    if (!result.model) {
+      result.model = options[0];
+    }
     result.options = options;
     return result;
   }
