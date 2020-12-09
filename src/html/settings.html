@@ -7,10 +7,12 @@
 </p-card>
 
 <p-card [style]="view._style" *ngIf="view._model">
-  <div class="p-col-12 flex" *ngFor="let user of view._model?.server.users || []">
-    <al-input validator="custom" label="Email" [(model)]="user.email" [isValid]="!view._validate || user.token"></al-input>
-    <al-input validator="custom" label="Password" [(model)]="user.pass" [isValid]="!view._validate || user.token"></al-input>
-    <al-button icon="fa fa-user-times" (notify)="view._remove(user)"></al-button>
+  <div class="p-fluid p-grid">
+    <div class="p-col-12 flex" *ngFor="let user of view._model?.server.users || []">
+      <al-input validator="custom" label="Email" [(model)]="user.email" [isValid]="!view._validate || user.token"></al-input>
+      <al-input validator="custom" type="password" label="Password" [(model)]="user.pass" [isValid]="!view._validate || user.token"></al-input>
+      <al-button icon="fa fa-user-times" (notify)="view._remove(user)"></al-button>
+    </div>
   </div>
   <div>
     <al-button icon="fa fa-user-plus" label="Add new user" (notify)="view._add()"></al-button>

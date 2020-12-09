@@ -61,7 +61,6 @@ export class Home extends BaseComponent {
   protected _accounts$: Observable<Array<Account>>;
   protected _mobileViewType: 'list' | 'message' | 'compose' | 'settings' = 'list';
   protected _showSettings: boolean = false;
-  protected _themeClass = {};
   protected _refreshing: boolean = false;
 
   constructor(private _route: ActivatedRoute) {
@@ -89,8 +88,6 @@ export class Home extends BaseComponent {
 
     this.connect(this._mails.folderChanged$, f => this._folderNotify(f));
     const server = await this._settings.getServer();
-    const theme = await this._settings.getTheme();
-    this._themeClass = {dark: theme == 'dark'};
     this._userMenu = Utils.buildUserMenu(server, this._onMenu.bind(this));
     this.connect(
       this._route.paramMap.pipe(

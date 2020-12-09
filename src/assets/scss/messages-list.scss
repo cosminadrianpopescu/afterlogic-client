@@ -1,9 +1,20 @@
+@import './variables.scss';
+
 al-messages-list {
   th {
-    background: white !important;
     position: sticky;
     top: 0px;
+    z-index: 1000;
   }
+
+  .dark th {
+    background-color: $dark-bg !important;
+  }
+
+  .light th {
+    background-color: $light-bg !important;
+  }
+
   .header {
     font-weight: normal;
   }
@@ -80,5 +91,16 @@ al-messages-list {
 
   .margin-left {
     margin-left: 10px;
+  }
+
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flex-right {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
   }
 }

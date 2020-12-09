@@ -12,6 +12,7 @@ export class TextInput extends BaseComponent {
   @Input() public validator: 'required' | 'custom' | 'none' = 'none';
   @Input() public isValid: boolean = true;
   @Input() public isFloatLabel: boolean = true;
+  @Input() public type: 'text' | 'password' = 'text';
 
   @Output() public iconClick = new EventEmitter();
   @Output() public keyup: EventEmitter<KeyboardEvent> = new EventEmitter<KeyboardEvent>();

@@ -47,13 +47,14 @@ export class Settings extends BaseClass {
 
   public async initTheme() {
     const theme = await this.getTheme();
+    document.body.className = theme;
     if (theme == 'dark') {
-      document.body.style.backgroundColor = '#323232';
+      // document.body.style.backgroundColor = '#323232';
       document.querySelector('#theme-link').setAttribute('href', 'assets/themes/vela-blue/theme.css');
       return ;
     }
 
-    document.body.style.backgroundColor = 'inherit';
+    // document.body.style.backgroundColor = 'inherit';
     document.querySelector('#theme-link').setAttribute('href', 'assets/themes/saga-blue/theme.css');
   }
   

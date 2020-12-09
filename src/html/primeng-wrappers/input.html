@@ -3,7 +3,7 @@
   <input 
     (keyup)="keyup.emit($event)"
     #input
-    type="text" [id]="id" pInputText
+    [type]="type" [id]="id" pInputText
     [ngModel]="model" (ngModelChange)="modelChange.emit($event)"
     [placeholder]="isFloatLabel ? '' : label"
     [ngClass]="{'p-invalid': validator != 'none' && !isValid}"/>

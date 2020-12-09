@@ -1,31 +1,14 @@
-al-compose {
-  // .options {
-  //   justify-content: flex-end;
-  //   display: flex;
-  // }
-  // 
-  // button {
-  //   width: inherit;
-  // }
-  // 
-  // .ui-float-label {
-  //   display: flex;
-  // }
-  // 
-  // .form {
-  //   margin-top: 0.5em;
-  //   // height: calc(100vh - 40px);
-  //   overflow-y: auto;
-  // }
-  // 
-  // .ui-inputgroup .ui-inputtext:not(:last-child) {
-  //   border-right-width: thin;
-  // }
-  // 
-  // .p-grid {
-  //   width: calc(100% + 0.5rem);
-  // }
+@import './variables.scss';
 
+.dark al-compose .flex-right {
+  background: $dark-bg;
+}
+
+.light al-compose .flex-right {
+  background: white;
+}
+
+al-compose {
   .flex-right {
     display: flex;
     width: 100%;
@@ -34,7 +17,6 @@ al-compose {
     margin-bottom: 10px;
     position: sticky;
     top: 0;
-    background: white;
     z-index: 1000;
   }
 

@@ -45,26 +45,27 @@
         </td>
         <td class="no-padding">
           <div class="wrapper padding-right-10">
-            <al-message [ngClass]="view._themeClass" (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
-    <p-dialog
-      (onHide)="view._hideCompose(null)"
-      [header]="view._composeTitle" [(visible)]="view._compose"
-      [maximizable]="true"
-      [closeOnEscape]="true">
-      <al-compose
-        (notify)="view._hideCompose($event)"
-        (draftSaved)="view._draftSaved($event)"
-        *ngIf="view._composer"
-        [composeType]="view._composeType"
-        [message]="view._composeMessage"
-        [to]="view._composeTo"></al-compose>
-    </p-dialog>
-  <p-dialog header="Settings" [resizable]="true" [closeOnEscape]="true" [(visible)]="view._showSettings">
+  <p-dialog
+    (onHide)="view._hideCompose(null)"
+    [header]="view._composeTitle" [(visible)]="view._compose"
+    [style]="{width: '900px'}"
+    [maximizable]="true"
+    [closeOnEscape]="true">
+    <al-compose
+      (notify)="view._hideCompose($event)"
+      (draftSaved)="view._draftSaved($event)"
+      *ngIf="view._composer"
+      [composeType]="view._composeType"
+      [message]="view._composeMessage"
+      [to]="view._composeTo"></al-compose>
+  </p-dialog>
+  <p-dialog header="Settings" [resizable]="true" [closeOnEscape]="true" [(visible)]="view._showSettings" [style]="{width: '900px'}">
     <al-settings #settings></al-settings>
     <ng-template pTemplate="footer">
       <al-button icon="fa fa-check" label="Save" (notify)="view._saveSettings()"></al-button>
@@ -95,13 +96,13 @@
     </div>
   </p-sidebar>
 
-  <p-toolbar [ngClass]="view._themeClass" class="mobile-toolbar">
+  <p-toolbar class="mobile-toolbar">
     <div class="ui-toolbar-group-left">
       <al-button (click)="view._toolbarVisible = true" [hidden]="view._mobileViewType != 'list'" icon="fa fa-bars" styleClass="p-button-lg"></al-button>
       <al-button (click)="view._toolbarBack()" [hidden]="view._mobileViewType == 'list'" icon="fa fa-arrow-left" styleClass="p-button-lg"></al-button>
       <al-button (click)="view._newMessage('new')" [hidden]="view._mobileViewType != 'list'" icon="fa fa-plus" styleClass="p-button-lg"></al-button>
       <al-button (click)="view._saveSettings()" [hidden]="view._mobileViewType != 'settings'" icon="fa fa-check" styleClass="p-button-lg"></al-button>
-      <al-button (click)="view._cancelSettings" [hidden]="view._mobileViewType != 'settings'" icon="fa fa-times" styleClass="p-button-lg"></al-button>
+      <al-button (click)="view._cancelSettings()" [hidden]="view._mobileViewType != 'settings'" icon="fa fa-times" styleClass="p-button-lg"></al-button>
       <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionIcon}"></ng-container>
       <div class="rest">&nbsp;</div>
       <al-button (click)="view._refresh()" [hidden]="view._mobileViewType != 'list'" icon="{{view._refreshing ? 'fa fa-spinner fa-spin' : 'fa fa-refresh'}}" styleClass="p-button-lg"></al-button>
@@ -118,7 +119,7 @@
       [account]="view._account"
       [folder]="view._folder"></al-messages-list>
     <div class="wrapper w100 padding-right-10" [hidden]="view._mobileViewType != 'message'">
-      <al-message [ngClass]="view._themeClass" (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
     </div>
 
     <div class="wrapper w100 padding-20" *ngIf="view._mobileViewType == 'settings'">

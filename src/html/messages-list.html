@@ -75,10 +75,10 @@
     <div class="p-col-12">
       <al-dropdown [isPrimitive]="true" *ngIf="view._account$" [options]="view._account$ | async | foldersFlatList | async" [(model)]="view._search.folder"></al-dropdown>
     </div>
-    <div class="p-col-6 flex">
+    <div class="p-col-12 flex-column">
       <al-checkbox [(model)]="view._search.attachments" label="Has attachments"></al-checkbox>
-      <al-checkbox class="margin-left" [(model)]="view._search.unseen" label="Unread messages"></al-checkbox>
+      <al-checkbox [(model)]="view._search.unseen" label="Unread messages"></al-checkbox>
     </div>
-    <div class="p-col-6 right"><al-button (notify)="view._advSearch()" label="Search"></al-button></div>
+    <div class="flex-right"><al-button (notify)="view._advSearch()" label="Search"></al-button></div>
   </div>
 </p-dialog>
