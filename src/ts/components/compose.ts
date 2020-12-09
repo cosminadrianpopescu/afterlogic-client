@@ -159,8 +159,6 @@ export class Compose extends BaseComponent {
   }
 
   protected async _send() {
-    console.log('model is', this._model, this._account);
-    return ;
     if (this._model.To.length == 0) {
       this.alert('No recepient', 'Please add a recipient to receive the e-mail');
       return ;
