@@ -53,7 +53,7 @@ export class Settings extends BaseClass {
 
   private async _initTheme() {
     this.themeLoading$.next(true);
-    const p = [this.getTheme(), this.getBackgroundImage(), new Promise(resolve => setTimeout(resolve, 3000))];
+    const p = [this.getTheme(), this.getBackgroundImage()];
     const [theme, image] = await Promise.all(<any>p);
     Utils.parseThemeStyles(theme as string, image as boolean, this._layout.isMobile);
     document.body.className = <any>theme;
