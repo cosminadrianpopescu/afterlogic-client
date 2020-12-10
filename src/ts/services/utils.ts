@@ -1,6 +1,8 @@
 import {MenuItem} from 'primeng/api';
 import {Collection, COMBINED_ACCOUNT_ID, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, ServerSetting, UserSetting} from '../models';
 
+const EXTRA_STYLES_ID = 'extra-styles';
+
 export class Utils {
   public static avatarColor(contact: Contact): string {
     const name = contact.Email;
@@ -158,5 +160,31 @@ export class Utils {
     }
 
     return [txt.replace(p, '$1'), txt.replace(p, '$2')];
+  }
+
+  public static parseThemeStyles(theme: string, image: boolean, isMobile: boolean) {
+    if (isMobile) {
+      return ;
+    }
+    if (!image) {
+      const tag = document.querySelector(`#${EXTRA_STYLES_ID}`);
+      if (tag) {
+        document.head.removeChild(tag);
+      }
+      return ;
+    }
+    const html = document.querySelector('#theme-styles').innerHTML;
+    const style = html.replace(/\{\{([^\}]+)\}\}/ig, (_substr: string, js: string) => {
+      return eval(js);
+    });
+
+    let tag: HTMLStyleElement = document.querySelector(`#${EXTRA_STYLES_ID}`);
+    if (!tag) {
+      tag = document.createElement('style');
+      tag.setAttribute('id', EXTRA_STYLES_ID)
+      document.querySelector('head').append(tag);
+    }
+
+    tag.innerText = style;
   }
 }

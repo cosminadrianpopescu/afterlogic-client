@@ -4,10 +4,24 @@
   width: 8px;
 }
 
+::root {
+  --dark-bg: $dark-bg;
+  --light-bg: $light-bg;
+}
+
+body.dark {
+  background-color: $dark-bg;
+  color: rgba(255, 255, 255, 0.87);
+}
+
 ::-webkit-scrollbar-thumb {
   background-color: var(--surface-d);
   width: 8px;
   border-radius: 20px;
+}
+
+.is-mobile {
+  font-family: var(--font-family);
 }
 
 body {

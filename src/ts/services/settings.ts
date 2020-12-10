@@ -5,6 +5,9 @@ import {Store} from './store';
 import {ServerSetting, MessageComposeType, AppSettings, LabelValue, AppSetting, UserSetting, ThemeType} from '../models';
 import {NextcloudCredentials} from '../nextcloud/models';
 import {Nextcloud} from '../nextcloud/nextcloud';
+import {Utils} from './utils';
+import {BehaviorSubject} from 'rxjs';
+import {Layout} from './layout';
 
 const SERVER_KEY = 'server';
 const PAGE_SIZE_KEY = 'page-size';
@@ -14,6 +17,7 @@ const NEXTCLOUD_CREDENTIALS = 'nextcloud-credentials';
 const CLOUD_PREVIEW = 'preview-in-cloud';
 const NEXTCLOUD_URL = 'nextcloud-url';
 const THEME = 'theme';
+const IMAGE = 'background-image';
 
 const EMAIL_INTERVAL_OPTIONS: Array<LabelValue> = [
   {label: '1 minute', value: 60 * 1000}, 
@@ -43,24 +47,23 @@ const THEME_OPTIONS: Array<LabelValue> = [
 export class Settings extends BaseClass {
   @NgInject(Store) private _store: Store;
   @NgInject(Nextcloud) private _nc: Nextcloud;
+  @NgInject(Layout) private _layout: Layout;
   public serverSet$ = new EventEmitter();
+  public themeLoading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
 
-  public async initTheme() {
-    const theme = await this.getTheme();
-    document.body.className = theme;
-    if (theme == 'dark') {
-      // document.body.style.backgroundColor = '#323232';
-      document.querySelector('#theme-link').setAttribute('href', 'assets/themes/vela-blue/theme.css');
-      return ;
-    }
-
-    // document.body.style.backgroundColor = 'inherit';
-    document.querySelector('#theme-link').setAttribute('href', 'assets/themes/saga-blue/theme.css');
+  private async _initTheme() {
+    this.themeLoading$.next(true);
+    const p = [this.getTheme(), this.getBackgroundImage(), new Promise(resolve => setTimeout(resolve, 3000))];
+    const [theme, image] = await Promise.all(<any>p);
+    Utils.parseThemeStyles(theme as string, image as boolean, this._layout.isMobile);
+    document.body.className = <any>theme;
+    document.querySelector('#theme-link').setAttribute('href', `assets/themes/${theme == 'dark' ? 'vela' : 'saga'}-blue/theme.css`)
+    this.themeLoading$.next(false);
   }
   
   constructor() {
     super();
-    this.initTheme();
+    this._initTheme();
     this._initNextcloud();
   }
 
@@ -132,6 +135,19 @@ export class Settings extends BaseClass {
     return this._store.save(THEME, x);
   }
 
+  public async getBackgroundImage(): Promise<boolean> {
+    const result = await (this._store.load(IMAGE) as Promise<boolean>);
+    if (result == null) {
+      return false;
+    }
+
+    return result;
+  }
+
+  public setBackgroundImage(x: boolean): Promise<void> {
+    return this._store.save(IMAGE, x);
+  }
+
   public async getCloudPreview(): Promise<boolean> {
     const result = await (this._store.load(CLOUD_PREVIEW) as Promise<boolean>);
     if (result == null) {
@@ -162,6 +178,7 @@ export class Settings extends BaseClass {
       p.push(this.getServer().then(x => model.server = x));
       p.push(this.getNextcloudUrl().then(x => model.nextcloudUrl = x));
       p.push(this.getCloudPreview().then(x => model.previewInCloud = x));
+      p.push(this.getBackgroundImage().then(x => model.backgroundImage = x));
       p.push(this.getTheme().then(x => model.theme = this._toAppSetting(x, THEME_OPTIONS)));
 
       Promise.all(p).then(() => resolve(model));
@@ -169,6 +186,7 @@ export class Settings extends BaseClass {
   }
 
   public async saveSettings(settings: AppSettings): Promise<void> {
+    const current = await this.appSettings;
     const p = [];
     p.push(this.setServer(settings.server));
     p.push(this.setCheckoutEmailInterval(settings.checkEmailInterval.model.value as number));
@@ -176,9 +194,12 @@ export class Settings extends BaseClass {
     p.push(this.setPageSize(settings.pageSize.model.value as number));
     p.push(this.setNextcloudUrl(settings.nextcloudUrl));
     p.push(this.setCloudPreview(settings.previewInCloud));
+    p.push(this.setBackgroundImage(settings.backgroundImage));
     p.push(this.setTheme(settings.theme.model.value as ThemeType));
     await Promise.all(p);
-    this.initTheme();
+    if (current.theme != settings.theme || current.backgroundImage != settings.backgroundImage) {
+      this._initTheme();
+    }
   }
 
   public async needAuthenticating(server: ServerSetting): Promise<Array<UserSetting>>{

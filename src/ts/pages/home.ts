@@ -1,8 +1,9 @@
 import {Component, NgZone, ViewChild, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {MenuItem} from 'primeng/api';
+import {Table} from 'primeng/table';
 import {Observable} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import {filter, map, debounceTime} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {MessagesList} from '../components/messages-list';
 import {NgCycle, NgInject} from '../decorators';
@@ -10,13 +11,12 @@ import {Account, COMBINED_ACCOUNT_ID, ComposeNotifyType, ComposeType, Contact, F
 import {Api} from '../services/api';
 import {Contacts} from '../services/contacts';
 import {Layout} from '../services/layout';
+import {LocalStorage} from '../services/local-storage';
 import {Mails} from '../services/mails';
 import {Navigation} from '../services/navigation';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
 import {Settings as SettingsWidget} from './settings';
-import {LocalStorage} from '../services/local-storage';
-import {Table} from 'primeng/table';
 
 type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam' | 'archive';
 
@@ -62,10 +62,14 @@ export class Home extends BaseComponent {
   protected _mobileViewType: 'list' | 'message' | 'compose' | 'settings' = 'list';
   protected _showSettings: boolean = false;
   protected _refreshing: boolean = false;
+  protected _themeLoading$: Observable<boolean> = this._settings.themeLoading$.pipe(
+    debounceTime(500),
+  );
 
   constructor(private _route: ActivatedRoute) {
     super();
     this._contacts.add([]);
+    this._isMobile = this._layout.isMobile;
   }
 
   @NgCycle('init')
@@ -73,7 +77,6 @@ export class Home extends BaseComponent {
     console.log('init main component');
     this.showLoading();
     this._accounts$ = this._mails.accounts$;
-    this._isMobile = this._layout.isMobile;
     this.connect(this._mails.currentAccount$, async account => {
       this._account = account;
       this.hideLoading();

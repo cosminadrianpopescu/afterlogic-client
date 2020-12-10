@@ -20,7 +20,7 @@
   <!-- add to homescreen for ios -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <style>
+  <style id="custom-style">
     .p-button:focus {
       box-shadow: none !important;
       outline: none !important;
@@ -53,7 +53,24 @@
     .p-button:disabled {
       opacity: 0.2 !important;
     }
+
+    body.light {
+      background-color: white;
+    }
+
   </style>
+
+  <script type="text/x-template" id="theme-styles">
+    body {
+      background-image: url('./assets/img/{{theme == 'dark' ? 'space-1' : 'sand'}}.jpg');
+    }
+    .p-tree {
+      background: none;
+    }
+    .p-datatable .p-datatable-tbody > tr {
+      {{theme == 'light' ? 'background-color: rgba(255, 255, 255, 0.55)' : 'background-color: rgba(31, 45, 64, 0.55)'}};
+    }
+   </script>
 </head>
 
 <body>

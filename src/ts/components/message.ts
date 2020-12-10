@@ -54,6 +54,7 @@ export class Message extends BaseComponent {
   }
 
   @Output() public notify: EventEmitter<MessageNotify> = new EventEmitter<MessageNotify>();
+  @Output() public back = new EventEmitter();
 
   protected _originalMessage: Model;
   protected _quotedText: boolean = false;
@@ -203,5 +204,9 @@ export class Message extends BaseComponent {
     (this._body.nativeElement as HTMLElement).querySelectorAll("*[data-x-src]").forEach(n => n.setAttribute('src', n.getAttribute('data-x-src')))
     this._transform();
     this._hasImages = false;
+  }
+
+  protected _close() {
+    this.back.emit();
   }
 }

@@ -668,6 +668,7 @@ export class AppSettings {
   @deserialize(AppSetting)
   checkEmailInterval: AppSetting;
   previewInCloud: boolean;
+  backgroundImage: boolean;
   nextcloudUrl: string;
   @deserialize(AppSetting)
   theme: AppSetting;

@@ -1,4 +1,10 @@
-<ng-container [ngTemplateOutlet]="view._isMobile ? mobile : desktop"></ng-container>
+<span [ngClass]="{'is-mobile': view._isMobile}" [hidden]="view._themeLoading$ | async">
+  <ng-container [ngTemplateOutlet]="view._isMobile ? mobile : desktop"></ng-container>
+</span>
+
+<p-blockUI [blocked]="view._themeLoading$ | async">
+    <i class="fa fa-spinner fa-spin fa-3w" style="position:absolute;top:calc(50% - 30px);left:calc(50% - 30px);font-size: 60px;font-weight: bold"></i>
+</p-blockUI>
 
 <ng-template #desktop>
   <p-table #table [value]="view._row" [resizableColumns]="true" (onColResize)="view._resize($event)">
@@ -45,7 +51,7 @@
         </td>
         <td class="no-padding">
           <div class="wrapper padding-right-10">
-            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message" (back)="view._message = null"></al-message>
           </div>
         </td>
       </tr>
@@ -119,7 +125,7 @@
       [account]="view._account"
       [folder]="view._folder"></al-messages-list>
     <div class="wrapper w100 padding-right-10" [hidden]="view._mobileViewType != 'message'">
-      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message"></al-message>
+      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message" (back)="view._message = null"></al-message>
     </div>
 
     <div class="wrapper w100 padding-20" *ngIf="view._mobileViewType == 'settings'">
