@@ -67,6 +67,8 @@ import {CardModule} from 'primeng/card';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {Checkbox} from '../components/primeng-wrappers/checkbox';
 import {LocalStorage} from '../services/local-storage';
+import {PanelModule} from 'primeng/panel';
+import {Panel} from '../components/primeng-wrappers/panel';
 
 Dropdown.prototype.getOptionValue = function(option: any) {
   return option;
@@ -81,7 +83,7 @@ Dropdown.prototype.getOptionValue = function(option: any) {
     pipes.HumanFileSize, pipes.FileIconPipe, Compose, Attachments, Editor, pipes.CurrentEmail,
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
     Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType, Button,
-    BaseComponent, TextInput, MyDropdown, Checkbox,
+    BaseComponent, TextInput, MyDropdown, Checkbox, Panel, pipes.TotalSize,
   ],
   entryComponents: [Loading, Filepick],
   imports: [
@@ -92,6 +94,7 @@ Dropdown.prototype.getOptionValue = function(option: any) {
     TableModule, OverlayPanelModule, CalendarModule, CheckboxModule, ChipsModule, ToastModule,
     AutoCompleteModule, InputTextareaModule, MenuModule, DialogModule, DropdownModule, 
     DynamicDialogModule, PinchZoomModule, SplitButtonModule, RippleModule, InputSwitchModule,
+    PanelModule,
   ],
   providers: [
     StatusBar, Settings,

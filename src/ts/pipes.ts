@@ -96,7 +96,7 @@ export class MessageDate extends BaseClass {
 @Pipe({name: 'messageFrom'})
 export class MessageFrom extends BaseClass {
   public transform(msg: Message): Contact {
-    if (!msg.From && msg.From.Count < 1) {
+    if (!msg || !msg.From && msg.From.Count < 1) {
       return null;
     }
 
@@ -306,5 +306,12 @@ export class IsOfType extends BaseClass {
   public transform(x: any, type: string): boolean {
     console.log('analyze', x, type, typeof(x));
     return typeof(x) == type;
+  }
+}
+
+@Pipe({name: 'totalSize'})
+export class TotalSize {
+  public transform(a: Array<Attachment>): number {
+    return a.reduce((acc, v) => acc + (v.EstimatedSize || v.Size || 0), 0);
   }
 }

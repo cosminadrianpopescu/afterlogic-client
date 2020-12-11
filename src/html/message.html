@@ -36,8 +36,12 @@
             </div>
           </ng-template>
         </div>
-        <div [hidden]="!view._hasImages" (click)="view._showImages()">
-          <i class="fa fa-picture-o"></i>&nbsp;Show images
+        <div [hidden]="!view._hasImages" class="img-options">
+          <span (click)="view._showImages(false)"><i class="fa fa-picture-o"></i>&nbsp;Show images</span>
+          <span (click)="view._showImages(true)" *ngIf="!view._contact?.IsTrusted"><i class="fa fa-picture-o"></i>&nbsp;Always show images</span>
+        </div>
+        <div [hidden]="!view._contact?.IsTrusted">
+          <span (click)="view._untrust()"><i class="fa fa-minus-circle"></i>&nbsp;Don't show images</span>
         </div>
       </div>
       <div class="actions" #actions>
@@ -48,15 +52,15 @@
         <i *ngIf="view._isDraft" (click)="view._action('from-draft')" class="fa fa-pencil"></i>
       </div>
     </div>
+    <div class="attachments col-12" [hidden]="!view._message || (view._message | attachmentsList).length == 0">
+      <al-attachments [attachments]="view._message | attachmentsList" [message]="view._message" [account]="view._account"></al-attachments>
+    </div>
   </div>
   <pinch-zoom id="pinch" disableZoomControl="auto">
     <div class="message-body" style="{{view._maxWidth}}" [ngClass]="{'hide-quote': view._quotedText}" #messageBody [innerHTML]="view._html | asHtml"></div>
   </pinch-zoom>
   <div [hidden]="!view._quotedText">
     <div (click)="view._showHiddenContent()" class="extra">Show quoted text</div>
-  </div>
-  <div class="attachments" [hidden]="!view._message || (view._message | attachmentsList).length == 0">
-    <al-attachments [attachments]="view._message | attachmentsList" [message]="view._message" [account]="view._account"></al-attachments>
   </div>
 </div>
 <p-overlayPanel #menu styleClass="max-width" [appendTo]="menuButton">

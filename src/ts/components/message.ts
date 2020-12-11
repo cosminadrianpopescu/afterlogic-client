@@ -10,6 +10,8 @@ import {Api} from '../services/api';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Utils} from '../services/utils';
+import {Contacts} from '../services/contacts';
+import {MessageFrom} from '../pipes';
 
 @Component({
   selector: 'al-message',
@@ -22,9 +24,12 @@ export class Message extends BaseComponent {
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Settings) private _settings: Settings;
   @NgInject(NgZone) private _zone: NgZone;
+  @NgInject(Contacts) private _contacts: Contacts;
   @ViewChild('messageBody', {static: false}) private _body: ElementRef<any>;
   @Input() public set message(m: Model) {
     this._message = m as MessageBody;
+    const c = (new MessageFrom()).transform(this._message);
+    if (c) this._contact = this._contacts.contactByEmail(c.Email);
     this._originalMessage = m;
     this._html = '';
     if (!m) {
@@ -67,6 +72,7 @@ export class Message extends BaseComponent {
   private _accountId: string;
   protected _maxWidth: string = null;
   private _width: number;
+  protected _contact: Contact;
 
   protected _actions: Array<MenuItem> = [
     {label: 'Reply all', icon: 'fa fa-reply-all', command: () => this._action('reply-all')},
@@ -109,7 +115,11 @@ export class Message extends BaseComponent {
 
   private async _appendBody() {
     const el: HTMLElement = this._body.nativeElement;
-    this._html = this._message.Html || this._message.Plain;
+    let html = this._message.Html || this._message.Plain;
+    if (this._contact && this._contact.IsTrusted) {
+      html = html.replace(/data-x-src/g, 'src');
+    }
+    this._html = html;
     setTimeout(() => {
       this._quotedText = el.querySelector('blockquote') != null;
       this._hasImages = el.querySelectorAll("*[data-x-src]").length > 0;
@@ -200,13 +210,21 @@ export class Message extends BaseComponent {
     this._originalMessage.IsFlagged = this._message.IsFlagged;
   }
 
-  protected _showImages() {
+  protected _showImages(always: boolean) {
     (this._body.nativeElement as HTMLElement).querySelectorAll("*[data-x-src]").forEach(n => n.setAttribute('src', n.getAttribute('data-x-src')))
     this._transform();
     this._hasImages = false;
+    if (always) this._contacts.setTrusted(this._contact, true);
   }
 
   protected _close() {
     this.back.emit();
+  }
+
+  protected _untrust() {
+    if (!this._contact) {
+      return ;
+    }
+    this._contacts.setTrusted(this._contact, false);
   }
 }

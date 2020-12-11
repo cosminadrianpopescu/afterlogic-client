@@ -143,6 +143,7 @@ export class Folder {
 export class Contact {
   DisplayName?: string;
   Email: string;
+  IsTrusted?: boolean;
 }
 
 export class Contacts {

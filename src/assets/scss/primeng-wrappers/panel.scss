@@ -1,0 +1,67 @@
+@import '../variables.scss';
+
+.dark al-panel .p-panel-header {
+  background: $dark-bg-transparent !important;
+}
+
+.light al-panel .p-panel-header {
+  background: $light-bg-transparent !important;
+}
+
+.dark al-panel .p-toggleable-content {
+  background: $dark-bg-transparent;
+}
+
+.light al-panel .p-toggleable-content {
+  background: $light-bg-transparent;
+}
+
+.dark al-panel .p-toggleable-content[aria-hidden="true"] {
+  border-bottom: 1px solid $dark-border;
+}
+
+.light al-panel .p-toggleable-content[aria-hidden="true"] {
+  border-bottom: 1px solid $light-border;
+}
+
+al-panel {
+  .p-panel-header {
+    border-bottom: none !important;
+  }
+
+  .p-panel-content {
+    background: none !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr {
+    background: none !important;
+  }
+
+  .p-datatable-tbody tr {
+    background: none !important;
+  }
+
+  .p-panel-icons {
+    display: none;
+  }
+
+  .flex {
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .header {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  }
+
+  .header-icon {
+    display: flex;
+  }
+
+  p-header {
+    width: 100%
+  }
+}

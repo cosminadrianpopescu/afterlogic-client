@@ -23,6 +23,16 @@ export class Contacts extends BaseClass {
 
     return a.Collection;
   }
+
+  public contactByEmail(mail: string): Contact {
+    return this.contacts.find(c => c.Email == mail) || null;
+  }
+
+  public setTrusted(c: Contact, x: boolean) {
+    const _c = this.contactByEmail(c.Email);
+    _c.IsTrusted = x;
+    this._store.save(CONTACTS_KEY, this.contacts);
+  }
   
   private async _init() {
     this.contacts = await this._store.load(CONTACTS_KEY, Contact, []) as Array<Contact>;

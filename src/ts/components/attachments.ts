@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewEncapsulation} from '@angular/core';
 import {FilesystemDirectory, FileWriteResult} from '@capacitor/core';
 import {WebIntent} from '@ionic-native/web-intent/ngx';
 import {BaseComponent} from '../base';
@@ -13,7 +13,8 @@ import {Platform} from '@ionic/angular';
 @Component({
   selector: 'al-attachments',
   templateUrl: '../../html/attachments.html',
-  styleUrls: ['../../assets/scss/attachments.scss']
+  styleUrls: ['../../assets/scss/attachments.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class Attachments extends BaseComponent {
   @Input() public attachments: Array<Attachment> = [];

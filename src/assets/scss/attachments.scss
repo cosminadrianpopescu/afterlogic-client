@@ -1,17 +1,46 @@
-i {
-  font-size: 30px;
-  margin-left: -3px;
-}
+al-attachments {
+  i {
+    font-size: 30px !important;
+    margin-left: -3px;
+  }
 
-.rel {
-  position: relative;
-}
+  .rel {
+    position: relative;
+  }
 
-.block {
-  display: flex;
-  z-index: 1009;
-}
+  .block {
+    display: flex;
+    z-index: 1009;
+  }
 
-.w3em {
-  width: 3em;
+  .w3em {
+    width: 3em;
+  }
+
+  .p-panel-title {
+    margin-right: 8px;
+  }
+
+  .p-panel-content {
+    padding-top: 0px !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td  {
+    border: none !important;
+  }
+
+  .flex {
+    display: flex;
+    width: 100%;
+  }
+
+  .title {
+    align-items: center;
+    display: flex;
+    flex: 1;
+  }
+
+  .size {
+    display: flex;
+  }
 }

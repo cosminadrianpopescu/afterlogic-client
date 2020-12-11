@@ -79,7 +79,7 @@ export class Nextcloud extends BaseClass {
   private async _pickFromApp(maximized: boolean, type: 'file' | 'directory' = 'file'): Promise<Array<string>> {
     const options: DynamicDialogConfig = {
       modal: true, header: type == 'file' ? 'Choose a file' : 'Choose a directory', closable: true, closeOnEscape: false,
-      styleClass: 'content', footer: ' ',
+      styleClass: 'content', footer: ' ', style: {'min-width': '600px'},
     }
 
     if (maximized) {

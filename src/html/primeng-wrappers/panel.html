@@ -1,0 +1,11 @@
+<p-panel #panel [toggleable]="toggleable" [collapsed]="collapsed">
+  <p-header (click)="view._click()">
+    <div class="flex">
+      <div class="header"><ng-container [ngTemplateOutlet]="headerTpl"></ng-container></div>
+      <div class="header-icon">
+        <al-button styleClass="p-button-rounded" icon="fa fa-angle-{{(view._collapsed$ | async) ? 'down' : 'up'}}"></al-button>
+      </div>
+    </div>
+  </p-header>
+  <ng-content></ng-content>
+</p-panel>
