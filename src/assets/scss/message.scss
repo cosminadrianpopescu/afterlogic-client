@@ -46,10 +46,6 @@ al-message {
     justify-content: flex-end;
   }
 
-  .extra {
-    color: blue;
-  }
-
   .extra-details {
     font-size: 0.8em;
   }
@@ -59,7 +55,7 @@ al-message {
   }
   
   .max-width {
-    max-width: 200px;
+    max-width: 300px;
   }
 
   .message-body {
@@ -74,6 +70,10 @@ al-message {
     top: 150px !important;
     left: 370px !important;
   }*/
+
+  .link {
+    color: var(--primary-color);
+  }
 
   .main-container {
     padding-left: 15px;

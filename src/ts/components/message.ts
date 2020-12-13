@@ -20,6 +20,10 @@ import {MessageFrom} from '../pipes';
   encapsulation: ViewEncapsulation.None,
 })
 export class Message extends BaseComponent {
+  @Input() public set maximized(x: boolean) {
+    this._maximized = x;
+  }
+
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Settings) private _settings: Settings;
@@ -58,10 +62,15 @@ export class Message extends BaseComponent {
     });
   }
 
+  public maximize() {
+    this._action('open-window');
+  }
+
   @Output() public notify: EventEmitter<MessageNotify> = new EventEmitter<MessageNotify>();
-  @Output() public back = new EventEmitter();
+  @Output() public close = new EventEmitter();
 
   protected _originalMessage: Model;
+  protected _maximized: boolean = false;
   protected _quotedText: boolean = false;
   protected _isDraft: boolean = false;
   protected _detailsHidden: boolean = true;
@@ -108,9 +117,7 @@ export class Message extends BaseComponent {
     console.log('init message');
     this._server = await this._settings.getServer();
     this.connect(this._mails.folderChanged$, f => this._isDraft = f.Type == FolderType.Drafts);
-    window.onresize = () => this._zone.run(() => {
-      this._transform();
-    });
+    window.onresize = () => this._zone.run(this._transform.bind(this));
   }
 
   private async _appendBody() {
@@ -176,11 +183,17 @@ export class Message extends BaseComponent {
     this.notify.emit(ev);
   }
 
-  protected _action(type: ComposeType) {
-    if (type == <any>'download') {
+  protected _action(type: ComposeType | 'download' | 'open-window') {
+    if (type == 'download') {
       this._download();
       return ;
     }
+
+    if (type == 'open-window') {
+      this._maximized = true;
+      return ;
+    }
+
     const ev = ModelFactory.instance(<MessageNotify>{message: this._message, type: type}, MessageNotify) as MessageNotify;
     this.notify.emit(ev);
   }
@@ -211,14 +224,15 @@ export class Message extends BaseComponent {
   }
 
   protected _showImages(always: boolean) {
-    (this._body.nativeElement as HTMLElement).querySelectorAll("*[data-x-src]").forEach(n => n.setAttribute('src', n.getAttribute('data-x-src')))
+    this._html = this._html.replace(/data-x-src/g, 'src');
+    // (this._body.nativeElement as HTMLElement).querySelectorAll("*[data-x-src]").forEach(n => n.setAttribute('src', n.getAttribute('data-x-src')))
     this._transform();
     this._hasImages = false;
     if (always) this._contacts.setTrusted(this._contact, true);
   }
 
   protected _close() {
-    this.back.emit();
+    this.close.emit();
   }
 
   protected _untrust() {

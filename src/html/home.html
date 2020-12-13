@@ -45,13 +45,14 @@
               #messagesList
               (selectionChanged)="view._selectionChanged($event)"
               (notify)="view._messageNotify($event)"
+              (maximize)="messageBody.maximize()"
               [account]="view._account"
               [folder]="view._folder"></al-messages-list>
           </div>
         </td>
         <td class="no-padding">
           <div class="wrapper padding-right-10">
-            <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message" (back)="view._message = null"></al-message>
+            <al-message #messageBody (notify)="view._msgBodyNotify($event)" [message]="view._message" (close)="view._messageClose()"></al-message>
           </div>
         </td>
       </tr>
@@ -119,13 +120,14 @@
     <al-messages-list
       class="mobile"
       [hidden]="view._mobileViewType != 'list'"
+      (maximize)="messageBody.maximize()"
       #messagesList
       (selectionChanged)="view._selectionChanged($event)"
       (notify)="view._messageNotify($event)"
       [account]="view._account"
       [folder]="view._folder"></al-messages-list>
     <div class="wrapper w100 padding-right-10" [hidden]="view._mobileViewType != 'message'">
-      <al-message (notify)="view._msgBodyNotify($event)" [message]="view._message" (back)="view._message = null"></al-message>
+      <al-message #messageBody (notify)="view._msgBodyNotify($event)" [message]="view._message" (close)="view._messageClose()"></al-message>
     </div>
 
     <div class="wrapper w100 padding-20" *ngIf="view._mobileViewType == 'settings'">

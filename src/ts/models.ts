@@ -13,6 +13,8 @@ export type ObjectType<T> = T | Primitive | Array<T | Primitive>;
 
 export type ThemeType = 'dark' | 'light';
 
+export type AttPreviewType = 'local' | 'cloud';
+
 export interface Collection<T> {
   Count: number;
   Collection: Array<T>;
@@ -262,9 +264,6 @@ export class SearchConvertor implements Convertor<string> {
     if (src.since || src.till) {
       result = this._add(result, 'date', `${this._date(src.since)}/${this._date(src.till)}`)
     }
-    if (!result && src.all) {
-      result = src.all;
-    }
     result = this._add(result, 'folder', src.folder);
     return result;
   }
@@ -406,7 +405,6 @@ export class FoldersInfoResult {
 
 export class SearchModel {
   simple: string;
-  all: string;
   from: string;
   to: string;
   subject: string;
@@ -419,7 +417,7 @@ export class SearchModel {
 }
 
 export type ComposeNotifyType = 'sent' | 'cancel' | 'error';
-export type ComposeType = 'new' | 'from-draft' | 'reply' | 'reply-all' | 'forward';
+export type ComposeType = 'new' | 'from-draft' | 'reply' | 'reply-all' | 'forward' | 'edit-new';
 
 export class MessageNotify {
   type: ComposeType;
@@ -673,6 +671,10 @@ export class AppSettings {
   nextcloudUrl: string;
   @deserialize(AppSetting)
   theme: AppSetting;
+}
+
+export class StringParsing {
+  constructor(public operator: string, public operand?: string){}
 }
 
 export const ALL_MAIL = '[Gmail]/All Mail';

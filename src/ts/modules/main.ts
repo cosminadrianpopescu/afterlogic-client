@@ -69,6 +69,7 @@ import {Checkbox} from '../components/primeng-wrappers/checkbox';
 import {LocalStorage} from '../services/local-storage';
 import {PanelModule} from 'primeng/panel';
 import {Panel} from '../components/primeng-wrappers/panel';
+import {DoubleClick} from '../directives/double-click';
 
 Dropdown.prototype.getOptionValue = function(option: any) {
   return option;
@@ -84,6 +85,7 @@ Dropdown.prototype.getOptionValue = function(option: any) {
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
     Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType, Button,
     BaseComponent, TextInput, MyDropdown, Checkbox, Panel, pipes.TotalSize,
+    DoubleClick,
   ],
   entryComponents: [Loading, Filepick],
   imports: [

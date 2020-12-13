@@ -1,5 +1,5 @@
 import {MenuItem} from 'primeng/api';
-import {Collection, COMBINED_ACCOUNT_ID, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, ServerSetting, UserSetting} from '../models';
+import {Collection, COMBINED_ACCOUNT_ID, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, ServerSetting, UserSetting, StringParsing} from '../models';
 
 const EXTRA_STYLES_ID = 'extra-styles';
 
@@ -136,8 +136,6 @@ export class Utils {
       return null;
     }
 
-    console.log('widths are', clientWidth, el.scrollWidth);
-
     const scale = clientWidth / el.scrollWidth;
     const x = (el.scrollWidth - clientWidth) / 2;
     const height = el.scrollHeight * scale;
@@ -186,5 +184,73 @@ export class Utils {
     }
 
     tag.innerText = style;
+  }
+
+  private static _parseSearch(s: string): Array<StringParsing> {
+    const result: Array<StringParsing> = [];
+    let inQ: boolean = false;
+    let inS: boolean = false;
+    let token: string = '';
+
+    const add = (token: string): void => {
+      if (!token) {
+        return ;
+      }
+      if (result.length > 0 && result[result.length - 1].operator && !result[result.length - 1].operand) {
+        result[result.length - 1].operand = token;
+      }
+      else {
+        const f = result.find(s => s.operator == 'body');
+        if (f) {
+          f.operand += ` ${token}`;
+        }
+        else {
+          result.push(new StringParsing("body", token));
+        }
+      }
+    }
+
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] == ":" && !token && !inQ && !inS) {
+        return [];
+      }
+
+      if (s[i] == ":" && !inQ && !inS) {
+        result.push(new StringParsing(token));
+        token = '';
+        continue;
+      }
+
+      if (s[i] == "'" && !inQ && !inS) {
+        inQ = true;
+        continue ;
+      }
+      else if (s[i] == '"' && !inQ && !inS) {
+        inS = true;
+        continue ;
+      }
+      else if ((s[i] == "'" && inQ) || (s[i] == '"' && inS) || (s[i] == ' ' && !inS && !inQ)) {
+        inQ = false;
+        inS = false;
+
+        add(token);
+
+        token = '';
+        continue;
+      }
+
+      token += s[i];
+    }
+
+    if (token != '') {
+      add(token);
+    }
+    return result;
+  }
+
+  public static normalizeSearch(s: string): string {
+    const c = Utils._parseSearch(s);
+
+    return c.map(s => `${s.operator}:"${s.operand}"`).join(' ');
   }
 }

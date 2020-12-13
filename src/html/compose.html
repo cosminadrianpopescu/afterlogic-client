@@ -7,7 +7,7 @@
     <input #file type="file" multiple="true" style="display: none"/>
   </div>
   <div class="p-grid p-fluid">
-    <div class="p-col-12" *ngIf="view._combinedView">
+    <div class="p-col-12" *ngIf="view._combinedView || composeType == 'edit-new'">
       <al-dropdown [options]="view._accounts$ | async" [(model)]="view._account" [disabled]="view._model?.Attachments.length > 0" optionLabel="Email"></al-dropdown>
     </div>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'To'}}"></ng-container>

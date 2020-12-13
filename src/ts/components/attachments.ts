@@ -3,7 +3,7 @@ import {FilesystemDirectory, FileWriteResult} from '@capacitor/core';
 import {WebIntent} from '@ionic-native/web-intent/ngx';
 import {BaseComponent} from '../base';
 import {NgInject, NgCycle} from '../decorators';
-import {Account, Attachment, MessageBody} from '../models';
+import {Account, Attachment, MessageBody, AttPreviewType} from '../models';
 import {Api} from '../services/api';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
@@ -29,16 +29,27 @@ export class Attachments extends BaseComponent {
   @NgInject(Platform) private _platform: Platform;
   protected _attDownloading: boolean = false;
   protected _isCloud: boolean = false;
+  private _previewType: AttPreviewType = 'local';
 
   @NgCycle('init')
-  protected _initMe() {
+  protected async initMe() {
     this._isCloud = this._nc.isNextcloud;
+    if (!this._isCloud) {
+      return ;
+    }
+
+    const previewInCloud = await this._settings.getCloudPreview();
+    if (!previewInCloud) {
+      return ;
+    }
+
+    this._previewType = 'cloud';
   }
 
   protected async _doDownload(a: Attachment, where: FilesystemDirectory, preview: boolean = false): Promise<FileWriteResult> {
     this._attDownloading = true;
     const fileName = this.message ? `${this.message.Uid}-${a.FileName}` : a.FileName;
-    const result = await this._api.downloadAttachment(this.account, a, fileName, where, this.message, preview);
+    const result = await this._api.downloadAttachment(this.account, a, fileName, where, this.message, preview ? this._previewType : null);
     this._attDownloading = false;
     return result;
   }

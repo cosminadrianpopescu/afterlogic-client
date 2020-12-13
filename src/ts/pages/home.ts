@@ -308,4 +308,9 @@ export class Home extends BaseComponent {
     const value: string = x['columnWidths'];
     this._localStorage.set(WIDTH_KEY, value.split(',').slice(0, 3).join(','));
   }
+
+  protected _messageClose() {
+    this._message = null;
+    this._list.unselect();
+  }
 }

@@ -15,43 +15,7 @@
       <div class="close">
       </div>
     </div>
-    <div class="col-12 flex max">
-      <div class="avatar">
-        <al-avatar [contact]="view._message | messageFrom"></al-avatar>
-      </div>
-      <div class="details">
-        <div>{{view._message | messageFrom | messageFromTxt}} at {{view._message | messageDate}}</div>
-        <div (click)="view._detailsHidden = !view._detailsHidden" class="extra">{{view._detailsHidden ? 'Show' : 'Hide'}} details</div>
-        <div [hidden]="view._detailsHidden" class="extra-details">
-          <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'From'}"></ng-container>
-          <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'To'}"></ng-container>
-          <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: 'Cc'}"></ng-container>
-          <ng-template #detailsTpl let-field>
-            <div [hidden]="!view._message[field]">{{field}}: 
-              <span
-                (click)="view._emailClick(contact)"
-                class="contact-detail"
-                *ngFor="let contact of (view._message[field] | contactsArray)"
-                [innerHTML]="contact | messageFromTxtFull | asHtml"></span>
-            </div>
-          </ng-template>
-        </div>
-        <div [hidden]="!view._hasImages" class="img-options">
-          <span (click)="view._showImages(false)"><i class="fa fa-picture-o"></i>&nbsp;Show images</span>
-          <span (click)="view._showImages(true)" *ngIf="!view._contact?.IsTrusted"><i class="fa fa-picture-o"></i>&nbsp;Always show images</span>
-        </div>
-        <div [hidden]="!view._contact?.IsTrusted">
-          <span (click)="view._untrust()"><i class="fa fa-minus-circle"></i>&nbsp;Don't show images</span>
-        </div>
-      </div>
-      <div class="actions" #actions>
-        <al-button label="Reply" *ngIf="!view._isDraft" icon="fa fa-reply" (notify)="view._action('reply')"></al-button>
-        <al-button #menuButton *ngIf="!view._isDraft" icon="fa fa-angle-down" (notify)="menu.toggle($event)"></al-button>
-        <!--p-slideMenu [appendTo]="actions" [model]="view._actions" [popup]="true"></p-slideMenu-->
-        <!--p-splitButton *ngIf="!view._isDraft" label="Reply" icon="fa fa-reply" (onClick)="view._action('reply')" [model]="view._actions"></p-splitButton-->
-        <i *ngIf="view._isDraft" (click)="view._action('from-draft')" class="fa fa-pencil"></i>
-      </div>
-    </div>
+    <ng-container [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: true}"></ng-container>
     <div class="attachments col-12" [hidden]="!view._message || (view._message | attachmentsList).length == 0">
       <al-attachments [attachments]="view._message | attachmentsList" [message]="view._message" [account]="view._account"></al-attachments>
     </div>
@@ -63,15 +27,64 @@
     <div (click)="view._showHiddenContent()" class="extra">Show quoted text</div>
   </div>
 </div>
+<p-dialog
+     *ngIf="view._message"
+     [header]="view._message?.Subject" #dialog
+     [closable]="true" (onShow)="dialog.maximize()" [(visible)]="view._maximized"
+     [closeOnEscape]="true">
+  <ng-container *ngIf="view._maximized" [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: false}"></ng-container>
+  <div *ngIf="view._maximized" class="message-body" [innerHTML]="view._html | asHtml"></div>
+</p-dialog>
 <p-overlayPanel #menu styleClass="max-width" [appendTo]="menuButton">
   <ng-template pTemplate>
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'reply-all', label: 'Reply all'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'share', label: 'Forward', action: 'forward'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'download', label: 'Download'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'pencil-square-o', label: 'Edit as new', action: 'edit-new'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'window-restore', label: 'Open in new window', action: 'open-window'}}"></ng-container>
   </ng-template>
 </p-overlayPanel>
 <ng-template #buttonTpl let-context>
-  <div class="p-col-12"><al-button icon="fa fa-{{context.icon}}" [label]="context.label" (notify)="view._action(context.action || context.icon)"></al-button></div>
+  <div class="p-col-12">
+    <al-button icon="fa fa-{{context.icon}}" [label]="context.label" (notify)="menu.hide(); view._action(context.action || context.icon)"></al-button>
+  </div>
 </ng-template>
-<ng-template #body>
+<ng-template #detailsTpl let-withActions>
+  <div class="col-12 flex max">
+    <div class="avatar">
+      <al-avatar [contact]="view._message | messageFrom"></al-avatar>
+    </div>
+    <div class="details">
+      <div>{{view._message | messageFrom | messageFromTxt}} at {{view._message | messageDate}}</div>
+      <div (click)="view._detailsHidden = !view._detailsHidden" class="link">{{view._detailsHidden ? 'Show' : 'Hide'}} details</div>
+      <div [hidden]="view._detailsHidden" class="extra-details">
+        <ng-container [ngTemplateOutlet]="contactsTpl" [ngTemplateOutletContext]="{$implicit: 'From'}"></ng-container>
+        <ng-container [ngTemplateOutlet]="contactsTpl" [ngTemplateOutletContext]="{$implicit: 'To'}"></ng-container>
+        <ng-container [ngTemplateOutlet]="contactsTpl" [ngTemplateOutletContext]="{$implicit: 'Cc'}"></ng-container>
+      </div>
+      <div [hidden]="!view._hasImages" class="img-options">
+        <span (click)="view._showImages(false)"><i class="fa fa-picture-o"></i>&nbsp;Show images</span>
+        <span (click)="view._showImages(true)" *ngIf="!view._contact?.IsTrusted"><i class="fa fa-picture-o"></i>&nbsp;Always show images</span>
+      </div>
+      <div [hidden]="!view._contact?.IsTrusted">
+        <span (click)="view._untrust()"><i class="fa fa-minus-circle"></i>&nbsp;Don't show images</span>
+      </div>
+    </div>
+    <div class="actions" #actions *ngIf="withActions">
+      <al-button label="Reply" *ngIf="!view._isDraft" icon="fa fa-reply" (notify)="view._action('reply')"></al-button>
+      <al-button #menuButton *ngIf="!view._isDraft" icon="fa fa-angle-down" (notify)="menu.toggle($event)"></al-button>
+      <!--p-slideMenu [appendTo]="actions" [model]="view._actions" [popup]="true"></p-slideMenu-->
+      <!--p-splitButton *ngIf="!view._isDraft" label="Reply" icon="fa fa-reply" (onClick)="view._action('reply')" [model]="view._actions"></p-splitButton-->
+      <al-button *ngIf="view._isDraft" (notify)="view._action('from-draft')" icon="fa fa-pencil-square-o" label="Edit"></al-button>
+    </div>
+  </div>
+</ng-template>
+<ng-template #contactsTpl let-field>
+  <div [hidden]="!view._message[field]">{{field}}: 
+    <span
+      (click)="view._emailClick(contact)"
+      class="contact-detail"
+      *ngFor="let contact of (view._message[field] | contactsArray)"
+      [innerHTML]="contact | messageFromTxtFull | asHtml"></span>
+  </div>
 </ng-template>

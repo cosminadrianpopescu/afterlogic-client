@@ -32,7 +32,7 @@
       <td class="valign">
         <p-tableCheckbox [value]="row"></p-tableCheckbox>
       </td>
-      <td [ngClass]="{unread: !row.IsSeen}" (click)="view._select(row)" [ngStyle]="row | borderRight | async">
+      <td double-click="true" (double)="view._dbl(row)" [ngClass]="{unread: !row.IsSeen}" (single)="view._select(row)" [ngStyle]="row | borderRight | async">
         <div class="p-grid">
           <div class="avatar" *ngIf="row.From.Collection?.length > 0">
             <al-avatar [contact]="row.From.Collection[0]"></al-avatar>
@@ -61,16 +61,15 @@
 
 <p-dialog header="Advanced search" [(visible)]="view._showSearch" [modal]="true">
   <div class="p-grid p-fluid adv-search">
-    <div class="p-col-12"><al-input #all [isFloatLabel]="false" (keyup)="view._keyup2($event)" [(model)]="view._search.all" label="All"></al-input></div>
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.from" label="From"></al-input></div>
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.to" label="To"></al-input></div>
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.subject" label="Subject"></al-input></div>
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.text" label="Text"></al-input></div>
     <div class="p-col-6">
-      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since"></p-calendar>
+      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="view._isMobile" [readonlyInput]="true" [(ngModel)]="view._search.since" placeholder="Since"></p-calendar>
     </div>
     <div class="p-col-6">
-      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="true" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till"></p-calendar>
+      <p-calendar [showButtonBar]="true" appendTo="body" [touchUI]="view._isMobile" [readonlyInput]="true" [(ngModel)]="view._search.till" placeholder="Till"></p-calendar>
     </div>
     <div class="p-col-12">
       <al-dropdown [isPrimitive]="true" *ngIf="view._account$" [options]="view._account$ | async | foldersFlatList | async" [(model)]="view._search.folder"></al-dropdown>

@@ -6,7 +6,7 @@ import {ReplaySubject} from 'rxjs';
 import {filter, map, take} from 'rxjs/operators';
 import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
-import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL} from '../models';
+import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL, AttPreviewType} from '../models';
 import {Settings} from './settings';
 import {Utils} from './utils';
 import {Nextcloud} from '../nextcloud/nextcloud';
@@ -520,7 +520,7 @@ export class Api extends BaseClass {
   // Patched
   public async downloadUrl(
     account: Account, url: string, fileName: string,
-    where: FilesystemDirectory, msg?: Message, preview: boolean = false
+    where: FilesystemDirectory, msg?: Message, preview: AttPreviewType = 'local'
   ): Promise<FileWriteResult> {
     this._checkReady();
     if (msg) {
@@ -530,7 +530,7 @@ export class Api extends BaseClass {
       throw {message: "ACCOUNT_NOT_FOUND", msg: msg};
     }
     const fileData = await this.getAttachmentContent(account, url);
-    if (preview && this._nc.isNextcloud) {
+    if (preview == 'cloud' && this._nc.isNextcloud) {
       const basePath = '/tmp';
       if (!(await this._nc.exists(basePath))) {
         const [err, ] = await to(this._nc.mkdir(basePath));
@@ -595,7 +595,7 @@ export class Api extends BaseClass {
   // Patched
   public async downloadAttachment(
     account: Account, att: Attachment, fileName: string,
-    where: FilesystemDirectory, msg?: Message, preview: boolean = false
+    where: FilesystemDirectory, msg?: Message, preview: AttPreviewType = null
   ): Promise<FileWriteResult> {
     this._checkReady();
     if (!att.Actions || !att.Actions.download) {

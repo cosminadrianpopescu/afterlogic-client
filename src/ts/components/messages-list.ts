@@ -13,6 +13,7 @@ import {Settings} from '../services/settings';
 import {Store} from '../services/store';
 import {Utils} from '../services/utils';
 import {TextInput} from './primeng-wrappers/input';
+import {Layout} from '../services/layout';
 
 const DEFAULT = 'Inbox';
 
@@ -29,6 +30,7 @@ export class MessagesList extends BaseComponent {
 
   @Output() public notify: EventEmitter<Message> = new EventEmitter<Message>();
   @Output() public selectionChanged: EventEmitter<Array<Message>> = new EventEmitter<Array<Message>>();
+  @Output() public maximize: EventEmitter<Message> = new EventEmitter<Message>();
 
   public get rows(): Array<Message> {
     return this._messages;
@@ -39,6 +41,7 @@ export class MessagesList extends BaseComponent {
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Api) private _api: Api;
   @NgInject(Background) private _background: Background;
+  @NgInject(Layout) private _layout: Layout;
   @ViewChild('table', {static: true}) private _table: Table;
   @ViewChild('all', {static: false}) private _all: TextInput;
 
@@ -52,6 +55,7 @@ export class MessagesList extends BaseComponent {
   protected _showSearch: boolean = false;
   protected _combinedView: boolean = false;
   protected _style: string = null;
+  protected _isMobile: boolean = false;
   private _oldestMessage: Message = null;
   private _folder: Folder;
   private _subscriptions: boolean = false;
@@ -63,6 +67,7 @@ export class MessagesList extends BaseComponent {
 
   @NgCycle('init')
   protected async _initMe(folder?: string) {
+    this._isMobile = this._layout.isMobile;
     this.connect(this._api.ready$.pipe(skip(1)), () => {
       this._subscriptions = false;
       this.softRefresh();
@@ -186,7 +191,7 @@ export class MessagesList extends BaseComponent {
   private async _fetch(first: number, auto: boolean = false): Promise<Array<Message>>{
     const [txt, searchFolder] = Utils.searchFolder(this._search.simple);
     const id = searchFolder || this._folder.Id;
-    let [err, result] = await to(this._api.getMessages(this.account, id, first, this._pageSize, txt, '', auto));
+    let [err, result] = await to(this._api.getMessages(this.account, id, first, this._pageSize, Utils.normalizeSearch(txt), '', auto));
     if (err) {
       this.alert('There was an error fetching the messages', err.message, 'error');
       return [];
@@ -276,5 +281,10 @@ export class MessagesList extends BaseComponent {
       return ;
     }
     this._advSearch();
+  }
+
+  protected _dbl(row: Message) {
+    this._select(row);
+    this.maximize.emit(row)
   }
 }
