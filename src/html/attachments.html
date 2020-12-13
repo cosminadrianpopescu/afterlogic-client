@@ -22,6 +22,6 @@
 <ng-template #headerTpl>
   <div class="flex">
     <div class="title"><span class="p-panel-title">Attachments</span> <span class="p-badge p-badge-info">{{attachments?.length}}</span></div>
-    <div class="size"><span class="p-tag p-tag-info">{{attachments | totalSize | humanFileSize}}</span></div>
+    <div class="size"><span class="p-tag p-tag-info">{{attachments | totalSize:attachments.length | humanFileSize}}</span></div>
   </div>
 </ng-template>

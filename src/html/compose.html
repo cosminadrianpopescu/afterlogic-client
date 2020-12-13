@@ -17,11 +17,11 @@
       <al-input [(model)]="view._model.Subject" label="Subject"></al-input>
     </div>
     <div class="p-col-12">
-      <al-editor [(model)]="view._model.Body" #editor *ngIf="view._type == 'HTML'"></al-editor>
-      <textarea pInputTextarea [(ngModel)]="view._model.Body" *ngIf="view._type != 'HTML'"></textarea>
+      <al-attachments [account]="view._account" [attachments]="view._model.Attachments" autoResize="autoResize"></al-attachments>
     </div>
     <div class="p-col-12">
-      <al-attachments [account]="view._account" [attachments]="view._model.Attachments" autoResize="autoResize"></al-attachments>
+      <al-editor [(model)]="view._model.Body" #editor *ngIf="view._type == 'HTML'"></al-editor>
+      <textarea pInputTextarea [(ngModel)]="view._model.Body" *ngIf="view._type != 'HTML'"></textarea>
     </div>
   </div>
 

@@ -16,8 +16,10 @@ const CHECK_INTERVAL = 'check-emails-interval';
 const NEXTCLOUD_CREDENTIALS = 'nextcloud-credentials';
 const CLOUD_PREVIEW = 'preview-in-cloud';
 const NEXTCLOUD_URL = 'nextcloud-url';
+const SHOW_AVATAR_KEY = 'show-avatar';
 const THEME = 'theme';
 const IMAGE = 'background-image';
+const COMPACT_KEY = 'compact';
 
 const EMAIL_INTERVAL_OPTIONS: Array<LabelValue> = [
   {label: '1 minute', value: 60 * 1000}, 
@@ -158,6 +160,32 @@ export class Settings extends BaseClass {
 
   public setCloudPreview(x: boolean): Promise<void> { return this._store.save(CLOUD_PREVIEW, x); }
 
+  public async getCompact(): Promise<boolean> {
+    const result = await (this._store.load(COMPACT_KEY) as Promise<boolean>);
+    if (result == null) {
+      return false;
+    }
+
+    return result;
+  }
+
+  public setCompact(x: boolean): Promise<void> {
+    return this._store.save(COMPACT_KEY, x);
+  }
+
+  public async getShowAvatar(): Promise<boolean> {
+    const result = await (this._store.load(SHOW_AVATAR_KEY) as Promise<boolean>);
+    if (result == null) {
+      return true;
+    }
+
+    return result;
+  }
+
+  public setShowAvatar(x: boolean) {
+    return this._store.save(SHOW_AVATAR_KEY, x);
+  }
+
   private _toAppSetting(x: number | string, options: Array<LabelValue>): AppSetting {
     const result = new AppSetting();
     result.model = options.find(o => o.value == x);
@@ -179,6 +207,8 @@ export class Settings extends BaseClass {
       p.push(this.getNextcloudUrl().then(x => model.nextcloudUrl = x));
       p.push(this.getCloudPreview().then(x => model.previewInCloud = x));
       p.push(this.getBackgroundImage().then(x => model.backgroundImage = x));
+      p.push(this.getCompact().then(x => model.compact = x));
+      p.push(this.getShowAvatar().then(x => model.showAvatar = x));
       p.push(this.getTheme().then(x => model.theme = this._toAppSetting(x, THEME_OPTIONS)));
 
       Promise.all(p).then(() => resolve(model));
@@ -194,7 +224,9 @@ export class Settings extends BaseClass {
     p.push(this.setPageSize(settings.pageSize.model.value as number));
     p.push(this.setNextcloudUrl(settings.nextcloudUrl));
     p.push(this.setCloudPreview(settings.previewInCloud));
+    p.push(this.setCompact(settings.compact));
     p.push(this.setBackgroundImage(settings.backgroundImage));
+    p.push(this.setShowAvatar(settings.showAvatar));
     p.push(this.setTheme(settings.theme.model.value as ThemeType));
     await Promise.all(p);
     if (current.theme != settings.theme || current.backgroundImage != settings.backgroundImage) {

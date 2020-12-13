@@ -1,6 +1,29 @@
 @import './variables.scss';
 
 al-messages-list {
+  --col-width: 3rem;
+}
+
+al-messages-list .compact {
+  --col-width: 2rem;
+}
+
+al-messages-list {
+  .compact .p-datatable .p-datatable-thead > tr > th, .compact .p-datatable .p-datatable-tbody > tr > td  {
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+  }
+
+  .center {
+    text-align: center !important;
+  }
+
+  tr > th:first-child {
+    width: var(--col-width);
+  }
+
   th {
     position: sticky;
     top: 0px;
@@ -33,8 +56,8 @@ al-messages-list {
   }
 
   .from, .subject {
-    flex-grow: 1;
-    max-width: 100%;
+    display: flex;
+    flex: 1;
     overflow: hidden;
     white-space: nowrap;
   }
@@ -76,13 +99,22 @@ al-messages-list {
      max-width: 100px;
   }
 
+  .display-flex {
+    width: 100%;
+    display: flex;
+  }
+
   .flex {
     flex: 1;
   }
 
   .message {
-    width: calc(100% - 48px);
-    margin-top: 8px;
+    overflow: hidden;
+    flex-flow: wrap;
+    flex: 1;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
   }
 
   .valign {
@@ -102,5 +134,11 @@ al-messages-list {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .msg-details {
+    width: 100%;
+    display: flex;
+    align-items: center;
   }
 }

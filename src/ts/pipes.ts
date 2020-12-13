@@ -80,13 +80,13 @@ export class MessageDate extends BaseClass {
       return dateFormat(d2, 'hh:MM');
     }
 
-    const d3 = new Date(d2.getTime() + 24 * 60 * 60 * 1000);
-    if (this._sameDay(d1, d3)) {
-      return 'Yesterday, ' + dateFormat(d2, 'hh:MM');
-    }
+    // const d3 = new Date(d2.getTime() + 24 * 60 * 60 * 1000);
+    // if (this._sameDay(d1, d3)) {
+    //   return 'Yesterday, ' + dateFormat(d2, 'hh:MM');
+    // }
 
     if (d1.getTime() - d2.getTime() <= 15 * 24 * 60 * 60 * 1000) {
-      return dateFormat(d2, 'mmm dd');
+      return dateFormat(d2, 'd mmm');
     }
 
     return dateFormat(d2, 'mmm dd, yyyy');

@@ -8,12 +8,11 @@ import {NgCycle, NgInject} from '../decorators';
 import {Account, COMBINED_ACCOUNT_ID, Folder, FolderType, Message, SearchConvertor, SearchModel, to} from '../models';
 import {Api} from '../services/api';
 import {Background} from '../services/background';
+import {Layout} from '../services/layout';
 import {Mails} from '../services/mails';
 import {Settings} from '../services/settings';
 import {Store} from '../services/store';
 import {Utils} from '../services/utils';
-import {TextInput} from './primeng-wrappers/input';
-import {Layout} from '../services/layout';
 
 const DEFAULT = 'Inbox';
 
@@ -43,7 +42,6 @@ export class MessagesList extends BaseComponent {
   @NgInject(Background) private _background: Background;
   @NgInject(Layout) private _layout: Layout;
   @ViewChild('table', {static: true}) private _table: Table;
-  @ViewChild('all', {static: false}) private _all: TextInput;
 
   protected _loading: boolean = true;
   protected _pageSize: number = 0;
@@ -56,6 +54,8 @@ export class MessagesList extends BaseComponent {
   protected _combinedView: boolean = false;
   protected _style: string = null;
   protected _isMobile: boolean = false;
+  protected _showAvatar: boolean = true;
+  protected _isCompact: boolean = false;
   private _oldestMessage: Message = null;
   private _folder: Folder;
   private _subscriptions: boolean = false;
@@ -67,7 +67,9 @@ export class MessagesList extends BaseComponent {
 
   @NgCycle('init')
   protected async _initMe(folder?: string) {
+    this._settings.getCompact().then(x => this._isCompact = x);
     this._isMobile = this._layout.isMobile;
+    this._settings.getShowAvatar().then(x => this._showAvatar = x);
     this.connect(this._api.ready$.pipe(skip(1)), () => {
       this._subscriptions = false;
       this.softRefresh();
@@ -233,6 +235,7 @@ export class MessagesList extends BaseComponent {
     this._totalRecords = this._api.lastSearchResults;
     this._loading = false;
     this._mails.refreshed$.emit();
+    this._table.el.nativeElement.querySelector('.p-datatable-wrapper').scroll(0, 0);
   }
 
   protected _keyup(ev: KeyboardEvent) {
@@ -273,7 +276,6 @@ export class MessagesList extends BaseComponent {
 
   protected _clickAdvSearch() {
     this._showSearch = true;
-    setTimeout(() => this._all.focus(), 151);
   }
 
   protected _keyup2(ev: KeyboardEvent) {

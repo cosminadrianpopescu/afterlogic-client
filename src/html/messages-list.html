@@ -1,10 +1,10 @@
 <p-table #table [value]="view._messages" [lazy]="true" selectionMode="single" (onLazyLoad)="view._loadMessages($event)" [paginator]="true"
   [loading]="view._loading" [rows]="view._pageSize" [totalRecords]="view._totalRecords" (onRowSelect)="view._selectionChanged()"
   (onRowUnselect)="view._selectionChanged()" (onHeaderCheckboxToggle)="view._selectionChanged()" [pageLinks]="view._combinedView ? 1 : 5"
-  [ngClass]="{'combined-view': view._combinedView}" [(selection)]="view._table.selection">
+  [ngClass]="{'combined-view': view._combinedView, compact: view._isCompact}" [(selection)]="view._table.selection">
   <ng-template pTemplate="header">
     <tr>
-      <th style="width: 3em">
+      <th class="center">
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
       <th>
@@ -29,25 +29,25 @@
   </ng-template>
   <ng-template pTemplate="body" let-row>
     <tr [ngClass]="{'ui-state-highlight': view._selected?.Uid == row.Uid}">
-      <td class="valign">
+      <td class="valign center">
         <p-tableCheckbox [value]="row"></p-tableCheckbox>
       </td>
       <td double-click="true" (double)="view._dbl(row)" [ngClass]="{unread: !row.IsSeen}" (single)="view._select(row)" [ngStyle]="row | borderRight | async">
-        <div class="p-grid">
-          <div class="avatar" *ngIf="row.From.Collection?.length > 0">
+        <div class="msg-details">
+          <div class="avatar" *ngIf="view._showAvatar && row.From.Collection?.length > 0">
             <al-avatar [contact]="row.From.Collection[0]"></al-avatar>
           </div>
           <div class="message">
-            <div class="flex">
+            <div class="display-flex">
               <div class="from">{{row | messageFrom | messageFromTxt}}</div>
-              <div class="flags">
+              <div class="flags" [hidden]="!row.IsForwarded && !row.IsAnswered && !row.HasAttachments">
                 <i *ngIf="row.IsForwarded" class="fa fa-share"></i>
                 <i *ngIf="row.IsAnswered" class="fa fa-reply"></i>
                 <i *ngIf="row.HasAttachments" class="fa fa-paperclip"></i>
               </div>
               <div class="date">{{row | messageDate}}</div>
             </div>
-            <div class="flex margin-top">
+            <div class="display-flex margin-top">
               <div class="subject">
                 <i *ngIf="row.IsFlagged" class="fa fa-star"></i>{{row.Subject}}
               </div>
@@ -59,7 +59,7 @@
   </ng-template>
 </p-table>
 
-<p-dialog header="Advanced search" [(visible)]="view._showSearch" [modal]="true">
+<p-dialog header="Advanced search" position="top" [(visible)]="view._showSearch" [modal]="true">
   <div class="p-grid p-fluid adv-search">
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.from" label="From"></al-input></div>
     <div class="p-col-6"><al-input [isFloatLabel]="false" [(model)]="view._search.to" label="To"></al-input></div>
