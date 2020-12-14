@@ -2,6 +2,7 @@ import {Type} from '@angular/core';
 import * as dateFormat from 'dateformat';
 import {ReplaySubject} from 'rxjs';
 import {Convertor, deserialize, deserializers} from './decorators';
+import {Platforms} from '@ionic/core'
 
 export const COMBINED_ACCOUNT_ID = "-1";
 
@@ -677,6 +678,13 @@ export class AppSettings {
 
 export class StringParsing {
   constructor(public operator: string, public operand?: string){}
+}
+
+export interface Platform {
+  is(name: Platforms): boolean;
+  ready(): Promise<string>;
+  width(): number;
+  height(): number;
 }
 
 export const ALL_MAIL = '[Gmail]/All Mail';

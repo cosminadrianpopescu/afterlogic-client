@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, ViewEncapsulation, NgZone} from '@angular/core';
 import {LazyLoadEvent} from 'primeng/api/public_api';
 import {Table} from 'primeng/table/table';
+import * as PullToRefresh from 'pulltorefreshjs';
 import {merge, Observable} from 'rxjs';
 import {filter, skip, tap} from 'rxjs/operators';
 import {BaseComponent} from '../base';
@@ -41,6 +42,7 @@ export class MessagesList extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Background) private _background: Background;
   @NgInject(Layout) private _layout: Layout;
+  @NgInject(NgZone) private _zone: NgZone;
   @ViewChild('table', {static: true}) private _table: Table;
 
   protected _loading: boolean = true;
@@ -84,6 +86,22 @@ export class MessagesList extends BaseComponent {
     this._messages = [];
     this._reset();
     this._initSubscriptions();
+  }
+
+  @NgCycle('afterViewInit')
+  protected _afterView() {
+    const el = this._table.el.nativeElement.querySelector('.p-datatable-wrapper');
+    PullToRefresh.init({
+      mainElement: el,
+      onRefresh: () =>  new Promise(resolve => {
+        this._zone.run(() => {
+          this._mails.refresh$.emit();
+          resolve();
+        });
+      }),
+      refreshTimeout: 0,
+      shouldPullToRefresh: () => el.scrollTop <= 3,
+    })
   }
 
   @NgCycle('change')
@@ -137,7 +155,6 @@ export class MessagesList extends BaseComponent {
     );
     this._background.configure(this._checkMailsAuto.bind(this));
     this._search.folder = await this._store.getFolderSearch();
-    console.log('search is', this._search);
   }
 
   private _waitNewMails(): boolean {

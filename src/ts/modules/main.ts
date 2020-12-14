@@ -1,4 +1,4 @@
-import { Injector, NgModule} from '@angular/core';
+import { Injector, NgModule, NgZone} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -8,7 +8,7 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { WebIntent } from '@ionic-native/web-intent/ngx';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, Platform } from '@ionic/angular';
 import { MessageService } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BlockUIModule } from 'primeng/blockui';
@@ -70,6 +70,16 @@ import {LocalStorage} from '../services/local-storage';
 import {PanelModule} from 'primeng/panel';
 import {Panel} from '../components/primeng-wrappers/panel';
 import {DoubleClick} from '../directives/double-click';
+import {Platform as PlatformInterface} from '../models';
+import {DummyPlatform} from '../services/dummy-platform';
+
+function PlatformFactory(zone: NgZone): PlatformInterface {
+  if (window.navigator.userAgent == 'desktop-touch') {
+    return new DummyPlatform();
+  }
+
+  return new Platform(window.document, zone);
+}
 
 Dropdown.prototype.getOptionValue = function(option: any) {
   return option;
@@ -103,6 +113,7 @@ Dropdown.prototype.getOptionValue = function(option: any) {
     SplashScreen, Api, Contacts, Layout, Navigation, Store,
     Mails, MessageService, FileService, 
     { provide: RouteReuseStrategy, useClass: DefaultRouteReuseStrategy },
+    { provide: Platform, useFactory: PlatformFactory, deps: [NgZone]},
     HTTP, FileChooser, Background, Nextcloud, DialogService, Webdav,
     WebIntent, LocalStorage,
     // {provide: WebIntent, useClass: MockWebIntent},
