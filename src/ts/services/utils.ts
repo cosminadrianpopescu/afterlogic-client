@@ -77,22 +77,6 @@ export class Utils {
       && !model.since && !model.simple && !model.subject && !model.attachments && !model.unseen;
   }
 
-  public static buildUserMenu(server: ServerSetting, callback: Function): Array<MenuItem> {
-    if (!server || !Array.isArray(server.users)) {
-      return [];
-    }
-    const f = (ev: any) => callback(ev.item);
-    const result = server.users.map(u => <MenuItem>{
-      label: u.email, icon: "fa fa-user", command: f, id: u.email,
-    });
-    if (server.users.length > 1) {
-      result.push({label: 'Combined view', icon: 'fa fa-users', command: f, id: COMBINED_ACCOUNT_ID});
-    }
-    result.push({label: 'Settings', icon: 'fa fa-cog', command: f, id: 'settings'});
-
-    return result;
-  }
-
   public static isComposedResult<T>(x: T): boolean {
     return Array.isArray(x) && x.length > 0 && x[0] instanceof ComposedResult;
   }

@@ -85,16 +85,45 @@ export class Mails extends BaseClass {
     );
   }
 
+  public async addToCurrentAccount(email: string) {
+    const selected = (await this._store.getSelectedEmails()).split(',').filter(e => !!e);
+    if (selected.indexOf(email) != -1) {
+      return ;
+    }
+
+    selected.push(email);
+    return this.setCurrentAccount(selected.join(','));
+  }
+
+  public async removeFromCurrentAccount(email: string) {
+    let selected = (await this._store.getSelectedEmails()).split(',').filter(e => !!e);
+    if (selected.indexOf(email) == -1) {
+      return ;
+    }
+
+    selected = selected.filter(x => x != email);
+    return this.setCurrentAccount(selected.join(','));
+  }
+
   public async setCurrentAccount(email: string) {
-    if (email != null) {
-      await this._store.setCurrentAccount(email);
+    const x = (email || '').match(/,/) ? COMBINED_ACCOUNT_ID : email;
+    if (x != null && x != '') {
+      await this._store.setCurrentAccount(x);
+    }
+    if (email != COMBINED_ACCOUNT_ID && email != null) {
+      await this._store.setSelectedEmails(email)
     }
 
     return new Promise(resolve => {
       combineLatest(from(this._store.getCurrentAccount()), this.accounts$).pipe(
         map(([email, accounts]) => accounts.length > 0 ? (accounts.find(a => a.Email == email || (email == COMBINED_ACCOUNT_ID && a.AccountID == email)) || accounts[0]) : null),
         take(1),
-        tap(account => this.currentAccount$.next(account)),
+        tap(account => {
+          if (account.AccountID == COMBINED_ACCOUNT_ID && email) {
+            account.Email = email;
+          }
+          this.currentAccount$.next(account);
+        }),
         tap(() => resolve()),
       ).toPromise();
     });

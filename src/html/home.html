@@ -26,7 +26,6 @@
         <th class="mail-col">
           <div class="content">
             <div class="profile">{{view._account | currentEmail}}</div>
-            <p-menu #menu [popup]="true" [model]="view._userMenu" styleClass="menuWidth"></p-menu>
             <al-button class="fix-button" styleClass="p-button-lg" icon="fa fa-user" (notify)="menu.toggle($event)"></al-button>
           </div>
         </th>
@@ -79,28 +78,13 @@
       <al-button icon="fa fa-times" label="Cancel" (notify)="view._cancelSettings()"></al-button>
     </ng-template>
   </p-dialog>
+  <p-overlayPanel #menu>
+    <ng-container [ngTemplateOutlet]="accounts" [ngTemplateOutletContext]="{$implicit: {withFolders: false, menu: menu}}"></ng-container>
+  </p-overlayPanel>
 </ng-template>
 <ng-template #mobile>
   <p-sidebar [style]="{width: '80%'}" [(visible)]="view._toolbarVisible" [baseZIndex]="10000">
-    <div class="p-grid ui-fluid">
-      <div class="flex p-col-12" *ngFor="let account of (view._accounts$ | async)">
-        <div class="avatar">
-          <al-avatar [contact]="account | accountToContact"></al-avatar>
-        </div>
-        <div class="account" [ngClass]="{selected: account.Email == view._account?.Email}" (click)="view._changeAccount(account.Email)">
-          <h3 class="name" *ngIf="account.FriendlyName">{{account.FriendlyName}}</h3>
-          <h4 class="email" *ngIf="!(account | isCombinedAccount)">{{account.Email}}</h4>
-          <h4 class="email" *ngIf="account | isCombinedAccount">{{(view._accounts$ | async | count) - 1}} accounts</h4>
-        </div>
-      </div>
-      <div class="p-col-12">
-        <al-folders-list [account]="view._account"></al-folders-list>
-      </div>
-      <div class="p-col-12" (click)="view._settingsClick()">
-        <i class="p40 fa fa-cog"></i> 
-        <span class="bigger-font">Settings</span>
-      </div>
-    </div>
+    <ng-container [ngTemplateOutlet]="accounts" [ngTemplateOutletContext]="{$implicit: {withFolders: true}}"></ng-container>
   </p-sidebar>
 
   <p-toolbar class="mobile-toolbar">
@@ -164,4 +148,31 @@
 </ng-template>
 <ng-template #actionButton let-context>
   <al-button (notify)="view._action(context.action)" styleClass="p-button-lg" [disabled]="view._selection?.length == 0 && !view._message" icon="fa fa-{{context.icon}}"></al-button>
+</ng-template>
+<ng-template #accounts let-ctx>
+  <div class="home-menu-container">
+    <div class="home-flex" *ngFor="let account of (view._accounts$ | async)">
+      <div class="check">
+        <al-checkbox
+          [withSwitch]="false"
+          [model]="account | isSelected:view._checkAccount | async"
+          (modelChange)="view._changeAccount(account.Email, $event)"></al-checkbox>
+      </div>
+      <div class="avatar">
+        <al-avatar [contact]="account | accountToContact"></al-avatar>
+      </div>
+      <div class="account" [ngClass]="{selected: (account | isSelected:view._checkAccount | async)}" (click)="ctx.menu && ctx.menu.hide(); view._changeAccount(account.Email, null)">
+        <h3 class="name" *ngIf="account.FriendlyName">{{account.FriendlyName}}</h3>
+        <h4 class="email" *ngIf="!(account | isCombinedAccount)">{{account.Email}}</h4>
+        <h4 class="email" *ngIf="account | isCombinedAccount">{{(view._accounts$ | async | count) - 1}} accounts</h4>
+      </div>
+    </div>
+    <div class="home-flex folders" *ngIf="ctx.withFolders">
+      <al-folders-list [account]="view._account"></al-folders-list>
+    </div>
+    <div class="home-flex" (click)="ctx.menu && ctx.menu.hide(); view._settingsClick()">
+      <i class="p40 fa fa-cog"></i> 
+      <span class="bigger-font">Settings</span>
+    </div>
+  </div>
 </ng-template>

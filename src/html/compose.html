@@ -6,9 +6,14 @@
     <al-button *ngIf="view._incloud" (notify)="view._cloudAttach()" icon="{{view._cloudAttaching ? 'fa fa-spinner fa-spin' : 'fa fa-cloud'}}" label="Attach"></al-button>
     <input #file type="file" multiple="true" style="display: none"/>
   </div>
-  <div class="p-grid p-fluid">
+  <div class="p-grid p-fluid spaced">
     <div class="p-col-12" *ngIf="view._combinedView || composeType == 'edit-new'">
-      <al-dropdown [options]="view._accounts$ | async" [(model)]="view._account" [disabled]="view._model?.Attachments.length > 0" optionLabel="Email"></al-dropdown>
+      <al-dropdown
+        label="From"
+        [options]="view._accounts$ | async"
+        [(model)]="view._account"
+        [disabled]="view._model?.Attachments.length > 0"
+        optionLabel="Email"></al-dropdown>
     </div>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'To'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="field" [ngTemplateOutletContext]="{$implicit: {field: 'Cc'}}"></ng-container>

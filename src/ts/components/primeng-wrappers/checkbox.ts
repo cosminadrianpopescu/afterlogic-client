@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {BaseComponent} from '../../base';
 
 @Component({
@@ -7,4 +7,5 @@ import {BaseComponent} from '../../base';
   styleUrls: ['../../../assets/scss/primeng-wrappers/checkbox.scss'],
 })
 export class Checkbox extends BaseComponent {
+  @Input() public withSwitch: boolean = true;
 }

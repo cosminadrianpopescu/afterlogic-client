@@ -14,6 +14,7 @@ import {Utils} from '../services/utils';
 import {Editor} from './editor';
 import {Nextcloud} from '../nextcloud/nextcloud';
 import {Platform} from '@ionic/angular';
+import {Store} from '../services/store';
 
 /**
  * * button for editing drafts.
@@ -42,6 +43,7 @@ export class Compose extends BaseComponent {
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(FileService) private _fileService: FileService;
+  @NgInject(Store) private _store: Store;
   @NgInject(Nextcloud) private _nc: Nextcloud;
   @NgInject(Platform) private _platform: Platform;
 
@@ -66,7 +68,10 @@ export class Compose extends BaseComponent {
   @NgCycle('init')
   protected _initMe() {
     this._accounts$ = this._mails.accounts$.pipe(
-      tap(accounts => !this._account && setTimeout(() => this._account = accounts[0])),
+      tap(accounts => !this._account && setTimeout(async () => {
+        const selected = (await this._store.getSelectedEmails()).split(',');
+        this._account = accounts.find(a => a.Email == selected[0]) || accounts[0];
+      })),
       map(accounts => accounts.filter(a => a.AccountID != COMBINED_ACCOUNT_ID)),
     );
     this.connect(this._mails.currentAccount$.pipe(take(1)), async account => {

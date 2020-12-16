@@ -59,6 +59,7 @@ al-message {
 
   .message-body {
     overflow-x: overlay;
+    overflow-y: hidden;
   }
 
   .hide-quote blockquote {

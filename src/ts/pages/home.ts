@@ -1,9 +1,8 @@
 import {Component, NgZone, ViewChild, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {MenuItem} from 'primeng/api';
 import {Table} from 'primeng/table';
 import {Observable} from 'rxjs';
-import {filter, map, debounceTime} from 'rxjs/operators';
+import {debounceTime, filter, map} from 'rxjs/operators';
 import {BaseComponent} from '../base';
 import {MessagesList} from '../components/messages-list';
 import {NgCycle, NgInject} from '../decorators';
@@ -15,7 +14,6 @@ import {LocalStorage} from '../services/local-storage';
 import {Mails} from '../services/mails';
 import {Navigation} from '../services/navigation';
 import {Settings} from '../services/settings';
-import {Utils} from '../services/utils';
 import {Settings as SettingsWidget} from './settings';
 
 type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam' | 'archive';
@@ -50,7 +48,6 @@ export class Home extends BaseComponent {
   protected _selection: Array<Message> = [];
   protected _message: Message = null;
   protected _spamFolder: boolean = false;
-  protected _userMenu: Array<MenuItem> = [];
   protected _compose: boolean = false;
   protected _composer: boolean = false;
   protected _composeType: ComposeType = 'new';
@@ -62,6 +59,7 @@ export class Home extends BaseComponent {
   protected _mobileViewType: 'list' | 'message' | 'compose' | 'settings' = 'list';
   protected _showSettings: boolean = false;
   protected _refreshing: boolean = false;
+  protected _checkAccount: number = 0;
   protected _themeLoading$: Observable<boolean> = this._settings.themeLoading$.pipe(
     debounceTime(500),
   );
@@ -76,7 +74,7 @@ export class Home extends BaseComponent {
   protected async _initMe() {
     console.log('init main component');
     this.showLoading();
-    this._accounts$ = this._mails.accounts$;
+    this._accounts$ = this._mails.accounts$.pipe(map(accounts => accounts.filter(a => a.AccountID != COMBINED_ACCOUNT_ID)));
     this.connect(this._mails.currentAccount$, async account => {
       this._account = account;
       this.hideLoading();
@@ -90,8 +88,6 @@ export class Home extends BaseComponent {
     })
 
     this.connect(this._mails.folderChanged$, f => this._folderNotify(f));
-    const server = await this._settings.getServer();
-    this._userMenu = Utils.buildUserMenu(server, this._onMenu.bind(this));
     this.connect(
       this._route.paramMap.pipe(
         filter(map => map.has('action')),
@@ -221,22 +217,29 @@ export class Home extends BaseComponent {
     this._mails.refresh$.emit();
   }
 
-  protected async _changeAccount(email: string) {
+  protected async _changeAccount(email: string, x: boolean) {
+    this._checkAccount++;
     this._toolbarVisible = false;
-    this._account = null;
+    // this._account = null;
     this.showLoading();
-    await this._mails.setCurrentAccount(email.match(/,/) ? COMBINED_ACCOUNT_ID : email);
+    let refresh: boolean = true;
+    if (x === true) {
+      await this._mails.addToCurrentAccount(email);
+    }
+    else if (x === false) {
+      await this._mails.removeFromCurrentAccount(email);
+    }
+    else {
+      this._account = null;
+      refresh = false;
+      await this._mails.setCurrentAccount(email);
+    }
+    // await this._mails.setCurrentAccount(email);
     this._message = null;
     this.hideLoading();
-  }
-
-  protected async _onMenu(item: MenuItem) {
-    if (item.id != 'settings') {
-      await this._changeAccount(item.id);
-      return ;
+    if (refresh) {
+      this._mails.refresh$.emit();
     }
-
-    this._showSettings = true;
   }
 
   protected _newMessage(type: ComposeType, msg?: MessageBody, to?: Array<Contact>) {
@@ -285,6 +288,7 @@ export class Home extends BaseComponent {
   protected _settingsClick() {
     this._mobileViewType = 'settings';
     this._toolbarVisible = false;
+    this._showSettings = true;
   }
 
   protected _draftSaved() {

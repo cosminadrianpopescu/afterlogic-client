@@ -196,7 +196,6 @@ app-home {
     font-size: 1.17em;
     position: relative;
     left: 4px;
-    bottom: 6px;
   }
 
   td.no-padding {
@@ -220,5 +219,27 @@ app-home {
 
   .light .fix-button {
     background-color: $light-bg;
+  }
+
+  .home-flex {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.1rem;
+  }
+
+  .folders {
+    margin-bottom: 0.5rem;
+    margin-top: 0.4rem;
+  }
+
+  .check {
+    margin-right: 0.5rem;
+  }
+
+  .home-menu-container {
+    display: flex;
+    flex-direction: column;
+    min-width: auto;
   }
 }

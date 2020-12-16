@@ -100,7 +100,13 @@ export class MessagesList extends BaseComponent {
         });
       }),
       refreshTimeout: 0,
-      shouldPullToRefresh: () => el.scrollTop <= 3,
+      shouldPullToRefresh: () => {
+        const parent = this._table.el.nativeElement.parentElement;
+        if (parent.getAttribute('hidden') !== null) {
+          return false;
+        }
+        return el.scrollTop <= 3;
+      },
     })
   }
 
@@ -212,6 +218,7 @@ export class MessagesList extends BaseComponent {
     const id = searchFolder || this._folder.Id;
     let [err, result] = await to(this._api.getMessages(this.account, id, first, this._pageSize, Utils.normalizeSearch(txt), '', auto));
     if (err) {
+      console.error(err);
       this.alert('There was an error fetching the messages', err.message, 'error');
       return [];
     }

@@ -1,16 +1,17 @@
 import {Pipe} from '@angular/core';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import * as dateFormat from 'dateformat';
-import {TreeNode, SelectItem} from 'primeng/api';
+import {SelectItem, TreeNode} from 'primeng/api';
 import {merge, Observable, of} from 'rxjs';
-import {map, filter} from 'rxjs/operators';
+import {filter, map} from 'rxjs/operators';
 import {BaseClass} from './base';
 import {NgInject} from './decorators';
-import {Account, Folder, Message, Contact, Contacts, MessageBody, Attachment, COMBINED_ACCOUNT_ID, ModelFactory, ALL_MAIL, LabelValue} from './models';
+import {Account, ALL_MAIL, Attachment, COMBINED_ACCOUNT_ID, Contact, Contacts, Folder, Message, MessageBody, ModelFactory} from './models';
+import {NextcloudItem} from './nextcloud/models';
 import {Api} from './services/api';
-import {Utils} from './services/utils';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {Mails} from './services/mails';
-import { NextcloudItem } from './nextcloud/models';
+import {Store} from './services/store';
+import {Utils} from './services/utils';
 
 @Pipe({name: 'foldersTree'})
 export class FoldersTree extends BaseClass {
@@ -313,5 +314,14 @@ export class IsOfType extends BaseClass {
 export class TotalSize {
   public transform(a: Array<Attachment>): number {
     return a.reduce((acc, v) => acc + (v.EstimatedSize || v.Size || 0), 0);
+  }
+}
+
+@Pipe({name: 'isSelected'})
+export class IsSelected extends BaseClass {
+  @NgInject(Store) private _store: Store;
+  public async transform(a: Account): Promise<boolean> {
+    const selectedMails = (await this._store.getSelectedEmails()).split(',');
+    return selectedMails.indexOf(a.Email) != -1;
   }
 }

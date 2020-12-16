@@ -9,6 +9,10 @@
 }
 
 al-compose {
+  .spaced {
+    margin-top: 15px !important;
+  }
+
   .flex-right {
     display: flex;
     width: 100%;
@@ -28,7 +32,7 @@ al-compose {
     }
   }
 
-  .p-float-label .p-inputwrapper-focus ~ label, .p-float-label .p-inputwrapper-filled ~ label {
+  .field.p-float-label .p-inputwrapper-focus ~ label, .field.p-float-label .p-inputwrapper-filled ~ label {
     top: 0.25rem !important;
   }
 

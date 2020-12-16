@@ -10,6 +10,7 @@ import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Fo
 import {Settings} from './settings';
 import {Utils} from './utils';
 import {Nextcloud} from '../nextcloud/nextcloud';
+import {Store} from './store';
 
 const {Filesystem} = Plugins;
 type PayloadInfoType = {account: Account, folder: string, msgs: Array<Message>};
@@ -18,6 +19,7 @@ type PayloadInfoType = {account: Account, folder: string, msgs: Array<Message>};
 @Injectable()
 export class Api extends BaseClass {
   @NgInject(Settings) private _settings: Settings;
+  @NgInject(Store) private _store: Store;
   @NgInject(Platform) private _platform: Platform;
   @NgInject(HTTP) private _http: HTTP;
   @NgInject(Nextcloud) private _nc: Nextcloud;
@@ -198,7 +200,9 @@ export class Api extends BaseClass {
     const r = result.reduce((acc, v) => acc.concat(v), []);
     if (accounts.length > 1) {
       const a = new Account();
-      a.Email = accounts.reduce((acc, v) => acc.concat(v), []).map(a => a.Email).join(",");
+      a.Email = await this._store.getSelectedEmails();
+      console.log('email is', a.Email);
+      // a.Email = accounts.reduce((acc, v) => acc.concat(v), []).map(a => a.Email).join(",");
       a.AccountID = COMBINED_ACCOUNT_ID;
       a.FriendlyName = 'Composed view';
       a.FoldersOrder = [
