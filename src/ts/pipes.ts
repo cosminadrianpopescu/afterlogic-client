@@ -325,3 +325,14 @@ export class IsSelected extends BaseClass {
     return selectedMails.indexOf(a.Email) != -1;
   }
 }
+
+@Pipe({name: 'source'})
+export class Source {
+  public transform(m: MessageBody): string {
+    return `
+${m.Headers}
+
+${m.PlainRaw || m.Plain || m.Html}
+`;
+  }
+}

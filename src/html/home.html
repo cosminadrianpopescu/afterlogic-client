@@ -96,7 +96,7 @@
       <al-button (click)="view._cancelSettings()" [hidden]="view._mobileViewType != 'settings'" icon="fa fa-times" styleClass="p-button-lg"></al-button>
       <ng-container [ngTemplateOutlet]="toolbarButtons" [ngTemplateOutletContext]="{$implicit: actionIcon}"></ng-container>
       <div class="rest">&nbsp;</div>
-      <al-button (click)="view._refresh()" [hidden]="view._mobileViewType != 'list'" icon="{{view._refreshing ? 'fa fa-spinner fa-spin' : 'fa fa-refresh'}}" styleClass="p-button-lg"></al-button>
+      <!--al-button (click)="view._refresh()" [hidden]="view._mobileViewType != 'list'" icon="{{view._refreshing ? 'fa fa-spinner fa-spin' : 'fa fa-refresh'}}" styleClass="p-button-lg"></al-button-->
     </div>
   </p-toolbar>
 
@@ -161,7 +161,7 @@
       <div class="avatar">
         <al-avatar [contact]="account | accountToContact"></al-avatar>
       </div>
-      <div class="account" [ngClass]="{selected: (account | isSelected:view._checkAccount | async)}" (click)="ctx.menu && ctx.menu.hide(); view._changeAccount(account.Email, null)">
+      <div class="account home-no-wrap" [ngClass]="{selected: (account | isSelected:view._checkAccount | async)}" (click)="ctx.menu && ctx.menu.hide(); view._changeAccount(account.Email, null)">
         <h3 class="name" *ngIf="account.FriendlyName">{{account.FriendlyName}}</h3>
         <h4 class="email" *ngIf="!(account | isCombinedAccount)">{{account.Email}}</h4>
         <h4 class="email" *ngIf="account | isCombinedAccount">{{(view._accounts$ | async | count) - 1}} accounts</h4>

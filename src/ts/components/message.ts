@@ -20,10 +20,6 @@ import {MessageFrom} from '../pipes';
   encapsulation: ViewEncapsulation.None,
 })
 export class Message extends BaseComponent {
-  @Input() public set maximized(x: boolean) {
-    this._maximized = x;
-  }
-
   @NgInject(Api) private _api: Api;
   @NgInject(Mails) private _mails: Mails;
   @NgInject(Settings) private _settings: Settings;
@@ -70,7 +66,7 @@ export class Message extends BaseComponent {
   @Output() public close = new EventEmitter();
 
   protected _originalMessage: Model;
-  protected _maximized: boolean = false;
+  protected _maximized: 'body' | 'source' = null;
   protected _quotedText: boolean = false;
   protected _isDraft: boolean = false;
   protected _detailsHidden: boolean = true;
@@ -183,14 +179,19 @@ export class Message extends BaseComponent {
     this.notify.emit(ev);
   }
 
-  protected _action(type: ComposeType | 'download' | 'open-window') {
+  protected _action(type: ComposeType | 'download' | 'open-window' | 'code') {
     if (type == 'download') {
       this._download();
       return ;
     }
 
     if (type == 'open-window') {
-      this._maximized = true;
+      this._maximized = 'body';
+      return ;
+    }
+
+    if (type == 'code') {
+      this._maximized = 'source';
       return ;
     }
 

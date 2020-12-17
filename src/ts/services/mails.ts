@@ -107,11 +107,11 @@ export class Mails extends BaseClass {
 
   public async setCurrentAccount(email: string) {
     const x = (email || '').match(/,/) ? COMBINED_ACCOUNT_ID : email;
-    if (x != null && x != '') {
-      await this._store.setCurrentAccount(x);
-    }
     if (email != COMBINED_ACCOUNT_ID && email != null) {
       await this._store.setSelectedEmails(email)
+    }
+    if (x != null && x != '') {
+      await this._store.setCurrentAccount(x);
     }
 
     return new Promise(resolve => {

@@ -242,4 +242,10 @@ app-home {
     flex-direction: column;
     min-width: auto;
   }
+
+  .home-no-wrap {
+    overflow-x: hidden;
+    width: 100%;
+    white-space: nowrap;
+  }
 }

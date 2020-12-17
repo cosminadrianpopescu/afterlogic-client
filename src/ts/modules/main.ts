@@ -95,7 +95,7 @@ Dropdown.prototype.getOptionValue = function(option: any) {
     pipes.BorderRight, pipes.AccountToContact, pipes.IsCombinedAccount, pipes.Count,
     Filepick, pipes.HasArchive, pipes.FoldersFlatList, pipes.IsOfType, Button,
     BaseComponent, TextInput, MyDropdown, Checkbox, Panel, pipes.TotalSize,
-    DoubleClick, pipes.IsSelected, 
+    DoubleClick, pipes.IsSelected, pipes.Source,
   ],
   entryComponents: [Loading, Filepick],
   imports: [

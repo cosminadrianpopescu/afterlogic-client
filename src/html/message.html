@@ -30,10 +30,12 @@
 <p-dialog
      *ngIf="view._message"
      [header]="view._message?.Subject" #dialog
-     [closable]="true" (onShow)="dialog.maximize()" [(visible)]="view._maximized"
+     [closable]="true" (onShow)="dialog.maximize()" [visible]="view._maximized"
+     (visibleChange)="view._maximized = null"
      [closeOnEscape]="true">
-  <ng-container *ngIf="view._maximized" [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: false}"></ng-container>
-  <div *ngIf="view._maximized" class="message-body" [innerHTML]="view._html | asHtml"></div>
+  <ng-container *ngIf="view._maximized == 'body'" [ngTemplateOutlet]="detailsTpl" [ngTemplateOutletContext]="{$implicit: false}"></ng-container>
+  <div *ngIf="view._maximized == 'body'" class="message-body" [innerHTML]="view._html | asHtml"></div>
+  <pre cols="140" *ngIf="view._maximized == 'source'" class="message-body">{{view._message | source}}</pre>
 </p-dialog>
 <p-overlayPanel #menu styleClass="max-width" [appendTo]="menuButton">
   <ng-template pTemplate>
@@ -42,6 +44,7 @@
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'download', label: 'Download'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'pencil-square-o', label: 'Edit as new', action: 'edit-new'}}"></ng-container>
     <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'window-restore', label: 'Open in new window', action: 'open-window'}}"></ng-container>
+    <ng-container [ngTemplateOutlet]="buttonTpl" [ngTemplateOutletContext]="{$implicit: {icon: 'code', label: 'Show source'}}"></ng-container>
   </ng-template>
 </p-overlayPanel>
 <ng-template #buttonTpl let-context>

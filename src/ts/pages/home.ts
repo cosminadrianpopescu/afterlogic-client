@@ -218,7 +218,6 @@ export class Home extends BaseComponent {
   }
 
   protected async _changeAccount(email: string, x: boolean) {
-    this._checkAccount++;
     this._toolbarVisible = false;
     // this._account = null;
     this.showLoading();
@@ -240,6 +239,7 @@ export class Home extends BaseComponent {
     if (refresh) {
       this._mails.refresh$.emit();
     }
+    setTimeout(() => this._checkAccount++);
   }
 
   protected _newMessage(type: ComposeType, msg?: MessageBody, to?: Array<Contact>) {
