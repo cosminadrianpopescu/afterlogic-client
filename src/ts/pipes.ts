@@ -78,7 +78,7 @@ export class MessageDate extends BaseClass {
     const d1 = new Date();
     const d2 = new Date(message.TimeStampInUTC * 1000);
     if (this._sameDay(d1, d2)) {
-      return dateFormat(d2, 'hh:MM');
+      return dateFormat(d2, 'HH:MM');
     }
 
     // const d3 = new Date(d2.getTime() + 24 * 60 * 60 * 1000);

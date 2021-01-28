@@ -119,7 +119,7 @@ export class Mails extends BaseClass {
         map(([email, accounts]) => accounts.length > 0 ? (accounts.find(a => a.Email == email || (email == COMBINED_ACCOUNT_ID && a.AccountID == email)) || accounts[0]) : null),
         take(1),
         tap(account => {
-          if (account.AccountID == COMBINED_ACCOUNT_ID && email) {
+          if (account && account.AccountID == COMBINED_ACCOUNT_ID && email) {
             account.Email = email;
           }
           this.currentAccount$.next(account);

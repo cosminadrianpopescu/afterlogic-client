@@ -15,6 +15,7 @@ import {Mails} from '../services/mails';
 import {Navigation} from '../services/navigation';
 import {Settings} from '../services/settings';
 import {Settings as SettingsWidget} from './settings';
+import {Utils} from '../services/utils';
 
 type ActionType = 'mark-read' | 'mark-unread' | 'delete' | 'spam' | 'archive';
 
@@ -68,6 +69,9 @@ export class Home extends BaseComponent {
     super();
     this._contacts.add([]);
     this._isMobile = this._layout.isMobile;
+    if (!this._isMobile) {
+      Utils.addThemeToBody('is-desktop');
+    }
   }
 
   @NgCycle('init')
@@ -297,8 +301,9 @@ export class Home extends BaseComponent {
 
   protected async _saveSettings() {
     console.log('save settings');
-    await this._settingsWidget.save();
-    this._cancelSettings();
+    if (await this._settingsWidget.save()) {
+      this._cancelSettings();
+    }
   }
 
   protected _cancelSettings() {

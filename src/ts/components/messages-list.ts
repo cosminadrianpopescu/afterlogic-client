@@ -102,7 +102,7 @@ export class MessagesList extends BaseComponent {
       refreshTimeout: 0,
       shouldPullToRefresh: () => {
         const parent = this._table.el.nativeElement.parentElement;
-        if (parent.getAttribute('hidden') !== null) {
+        if (parent.getAttribute('hidden') !== null || document.querySelector('p-sidebar[ng-reflect-visible="true"]') != null) {
           return false;
         }
         return el.scrollTop <= 3;

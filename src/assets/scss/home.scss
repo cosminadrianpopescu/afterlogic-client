@@ -1,6 +1,6 @@
 @import './variables.scss';
 
-::-webkit-scrollbar {
+.is-desktop ::-webkit-scrollbar {
   width: 8px;
 }
 
@@ -14,7 +14,7 @@ body.dark {
   color: rgba(255, 255, 255, 0.87);
 }
 
-::-webkit-scrollbar-thumb {
+.is-desktop ::-webkit-scrollbar-thumb {
   background-color: var(--surface-d);
   width: 8px;
   border-radius: 20px;
@@ -247,5 +247,10 @@ app-home {
     overflow-x: hidden;
     width: 100%;
     white-space: nowrap;
+  }
+
+  .p-sidebar-content {
+    overflow-y: auto;
+    height: calc(100vh - 2rem);
   }
 }

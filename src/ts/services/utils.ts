@@ -1,5 +1,4 @@
-import {MenuItem} from 'primeng/api';
-import {Collection, COMBINED_ACCOUNT_ID, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, ServerSetting, UserSetting, StringParsing} from '../models';
+import {Collection, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, StringParsing, UserSetting} from '../models';
 
 const EXTRA_STYLES_ID = 'extra-styles';
 
@@ -236,5 +235,9 @@ export class Utils {
     const c = Utils._parseSearch(s);
 
     return c.map(s => `${s.operator}:"${s.operand}"`).join(' ');
+  }
+
+  public static addThemeToBody(t: string) {
+    document.body.className = `${document.body.className || ''} ${t}`;
   }
 }

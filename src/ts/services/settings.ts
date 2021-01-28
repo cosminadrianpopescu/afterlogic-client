@@ -58,7 +58,7 @@ export class Settings extends BaseClass {
     const p = [this.getTheme(), this.getBackgroundImage()];
     const [theme, image] = await Promise.all(<any>p);
     Utils.parseThemeStyles(theme as string, image as boolean, this._layout.isMobile);
-    document.body.className = <any>theme;
+    Utils.addThemeToBody(theme as string);
     document.querySelector('#theme-link').setAttribute('href', `assets/themes/${theme == 'dark' ? 'vela' : 'saga'}-blue/theme.css`)
     this.themeLoading$.next(false);
   }

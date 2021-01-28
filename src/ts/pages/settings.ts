@@ -54,21 +54,24 @@ export class Settings extends BaseComponent {
     return this._api.ready$.pipe(take(1)).toPromise();
   }
 
-  public async save() {
+  public async save(): Promise<boolean> {
     if (!this._model.server && !Array.isArray(this._model.server.users) || this._model.server.users.length == 0) {
       this.alert('You have to have at least one account', '');
-      return ;
+      return false;
     }
     const users = await this._settings.needAuthenticating(this._model.server);
     if (users.length > 0) {
       this.showLoading();
-      // To be able to do anything with the API we need a server url, at least.
-      // So, we set this before.
-      const server = new ServerSetting();
-      server.url = this._model.server.url;
-      server.users = [];
-      await this._settings.setServer(server);
-      await this._waitApiReady();
+      const currentServer = await this._settings.getServer();
+      if (!currentServer) {
+        // To be able to do anything with the API we need a server url, at least.
+        // So, we set this before.
+        const server = new ServerSetting();
+        server.url = this._model.server.url;
+        server.users = [];
+        await this._settings.setServer(server);
+        await this._waitApiReady();
+      }
       const [err, result] = await to(this._api.login(users));
       this._validate = true;
       this.hideLoading();
@@ -76,7 +79,9 @@ export class Settings extends BaseComponent {
       if (err || !result) {
         this.alert('Some accounts could not be logged in', '');
         console.log('err is', err);
-        return ;
+        console.log('result is', result);
+        this.hideLoading();
+        return false;
       }
 
       await this._waitApiReady();
@@ -94,6 +99,7 @@ export class Settings extends BaseComponent {
     }
     await this._mails.setCurrentAccount(null);
     this.navigate('settings:saved');
+    return true;
     // window.location.reload();
     // this.navigate('settings:' + op);
   }

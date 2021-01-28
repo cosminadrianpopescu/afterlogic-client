@@ -104,7 +104,6 @@ export class Api extends BaseClass {
     const response = ModelFactory.instance(json, HttpResponse) as HttpResponse;
 
     if (typeof(response.ErrorCode) != 'undefined' && response.ErrorCode != null) {
-      console.log("throwing", `${[102, 108].indexOf(response.ErrorCode) != -1 ? 'AUTH_ERROR' : 'HTTP_ERROR'} ${response.ErrorMessage || response.ErrorCode}`);
       throw Error(`${[102, 108].indexOf(response.ErrorCode) != -1 ? 'AUTH_ERROR' : 'HTTP_ERROR'} ${response.ErrorMessage || response.ErrorCode}`);
     }
 
@@ -112,8 +111,11 @@ export class Api extends BaseClass {
   }
 
   private async _login(u: UserSetting): Promise<boolean> {
-    const result: Authentication = await this._passRequest(null, 'Core', 'Login', {Login: u.email, Password: u.pass, SignMe: false}, Authentication);
-    if (!result || !result.AuthToken) {
+    const [err, result] = await to(this._passRequest(null, 'Core', 'Login', {Login: u.email, Password: u.pass, SignMe: false}, Authentication));
+    if (err) {
+      console.log('got error trying to login', err);
+    }
+    if (err || !result || !result.AuthToken) {
       return false;
     }
     u.token = result.AuthToken;
@@ -535,31 +537,7 @@ export class Api extends BaseClass {
     }
     const fileData = await this.getAttachmentContent(account, url);
     if (preview == 'cloud' && this._nc.isNextcloud) {
-      const basePath = '/tmp';
-      if (!(await this._nc.exists(basePath))) {
-        const [err, ] = await to(this._nc.mkdir(basePath));
-        if (err) {
-          console.error(basePath);
-          throw "COULD_NOT_CREATE_PREVIEW_FOLDER";
-        }
-      }
-
-      const path = `${basePath}/${fileName}`;
-      const [err, ] = await to(this._nc.upload(path, fileData));
-      if (err) {
-        console.error('Path is', path);
-        throw `ERROR_UPLOADING_FOR_PREVIEW`;
-      }
-
-      const [shareErr, share] = await to(this._nc.share(path));
-      if (shareErr) {
-        console.error(shareErr);
-        throw 'ERROR_SHARE';
-      }
-
-      setTimeout(() => this._nc.unshare(share.id), 60 * 1000);
-
-      Api.openUrl(share.url);
+      this._nc.preview(fileData, fileName);
       return null;
     }
 
@@ -654,8 +632,8 @@ export class Api extends BaseClass {
     const draft = await this.folderByType(FolderType.Drafts, account);
     const params = <Object>msg;
     params['AccountID'] = account.AccountID;
-    params['DraftFolder'] = draft.Id;
-    params['SentFolder'] = sent.Id;
+    params['DraftFolder'] = (draft && draft.Id) || null;
+    params['SentFolder'] = (sent && sent.Id) || null;
     return this._request(account.Email, 'Mail', 'SendMessage', params) as Promise<boolean>;
   }
 

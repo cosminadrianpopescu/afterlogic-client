@@ -82,6 +82,8 @@ export class Nextcloud extends BaseClass {
       styleClass: 'content', footer: ' ', 
     }
 
+    console.log('maximized is', maximized);
+
     if (maximized) {
       options.styleClass = 'p-dialog-maximized';
     }
@@ -247,5 +249,45 @@ export class Nextcloud extends BaseClass {
       `${c.server}/ocs/v2.php/apps/files_sharing/api/v1/shares/${id}`,
       options, Object,
     );
+  }
+
+  public static openUrl(url: string, fileName?: string) {
+    const a = document.createElement('a');
+    if (fileName) {
+      a.download = fileName;
+    }
+    a.target = '_blank';
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  public async preview(data: Blob, fileName?: string) {
+    const basePath = '/tmp';
+    if (!(await this.exists(basePath))) {
+      const [err, ] = await to(this.mkdir(basePath));
+      if (err) {
+        console.error(basePath);
+        throw "COULD_NOT_CREATE_PREVIEW_FOLDER";
+      }
+    }
+
+    const path = `${basePath}/${fileName || '__for_preview__'}`;
+    const [err, ] = await to(this.upload(path, data));
+    if (err) {
+      console.error('Path is', path);
+      throw `ERROR_UPLOADING_FOR_PREVIEW`;
+    }
+
+    const [shareErr, share] = await to(this.share(path));
+    if (shareErr) {
+      console.error(shareErr);
+      throw 'ERROR_SHARE';
+    }
+
+    setTimeout(() => this.unshare(share.id), 60 * 1000);
+
+    Nextcloud.openUrl(share.url);
   }
 }
