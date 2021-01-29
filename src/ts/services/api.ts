@@ -202,7 +202,6 @@ export class Api extends BaseClass {
     if (accounts.length > 1) {
       const a = new Account();
       a.Email = await this._store.getSelectedEmails();
-      console.log('email is', a.Email);
       // a.Email = accounts.reduce((acc, v) => acc.concat(v), []).map(a => a.Email).join(",");
       a.AccountID = COMBINED_ACCOUNT_ID;
       a.FriendlyName = 'Composed view';
@@ -225,7 +224,7 @@ export class Api extends BaseClass {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       return this._request(
         account.Email, 'Mail', 'GetRelevantFoldersInformation',
-        {AccountID: account.AccountID, Folders: list.map(x => Utils.toAscii(x.Id))}, FoldersInfoResult,
+        {AccountID: account.AccountID, Folders: list.map(x => x.Id)}, FoldersInfoResult,
         undefined,
       ) as Promise<FoldersInfoResult>;
     }
@@ -286,7 +285,7 @@ export class Api extends BaseClass {
   ): Promise<Messages> {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       const params = {
-        AccountID: account.AccountID, Folder: Utils.toAscii(folder), Offset: offset,
+        AccountID: account.AccountID, Folder: folder, Offset: offset,
         Limit: pageSize, Search: search, Filters: filters, UseThreading: withThreads
       };
       if (lastUid) {
@@ -346,6 +345,7 @@ export class Api extends BaseClass {
     if (pageSize != 1) account.Folders$.pipe(take(1)).subscribe(async folders => {
       const list: Array<Folder> = [];
       Utils.foldersFlatList(folders, list);
+      await this._waitFoldersLoaded();
       const result = await this.getFoldersInfo(account, list, auto);
       if (Array.isArray(result)) {
         await this._combinedFoldersResult(account, result);
@@ -380,7 +380,7 @@ export class Api extends BaseClass {
     }
     const result: Array<MessageBody> = await this._request(
       a.Email, 'Mail', 'GetMessagesBodies', 
-      {AccountID: a.AccountID, Folder: Utils.toAscii(msg.Folder), Uids: [msg.Uid]}, MessageBody
+      {AccountID: a.AccountID, Folder: msg.Folder, Uids: [msg.Uid]}, MessageBody
     ) as Array<MessageBody>
 
     if (!Array.isArray(result) || result.length != 1) {
@@ -429,7 +429,7 @@ export class Api extends BaseClass {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       await this._request(
         account.Email, 'Mail', flag,
-        {AccountID: account.AccountID, Folder: Utils.toAscii(folder), Uids: msgs.map(m => m.Uid).join(","), SetAction: action}
+        {AccountID: account.AccountID, Folder: folder, Uids: msgs.map(m => m.Uid).join(","), SetAction: action}
       );
       return ;
     }
@@ -468,7 +468,7 @@ export class Api extends BaseClass {
       return this._request(
         account.Email,
         'Mail', 'DeleteMessages',
-        {AccountID: account.AccountID, Folder: Utils.toAscii(folder), Uids: messages.map(m => m.Uid).join(",")}
+        {AccountID: account.AccountID, Folder: folder, Uids: messages.map(m => m.Uid).join(",")}
       );
     }
 
@@ -481,7 +481,7 @@ export class Api extends BaseClass {
 
   public async _doMoveMessages(account: Account, folder: string, toFolder: string, messages: Array<Message>) {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
-      const params = {AccountID: account.AccountID, Folder: Utils.toAscii(folder), ToFolder: toFolder, Uids: messages.map(m => m.Uid).join(',')};
+      const params = {AccountID: account.AccountID, Folder: folder, ToFolder: toFolder, Uids: messages.map(m => m.Uid).join(',')};
       await this._request(account.Email, 'Mail', 'MoveMessages', params);
       return ;
     }
@@ -596,6 +596,7 @@ export class Api extends BaseClass {
 
   private async _setFolders(account: Account) {
     const result = await this._request(account.Email, 'Mail', 'GetFolders', {AccountID: account.AccountID}, FoldersResponse) as FoldersResponse;
+    Utils.setFoldersAccounts(account.AccountID, result.Folders);
     account.FoldersOrder = result.Folders;
     account.TypesSet = true;
     account.Folders$.next(result.Folders);
@@ -660,7 +661,7 @@ export class Api extends BaseClass {
 
   // Patched
   public getOriginalDraftReply(account: Account, msg: MessageCompose): Promise<MessageBody> {
-    const m = ModelFactory.instance({Uid: msg.DraftInfo[1], Folder: Utils.toAscii(msg.DraftInfo[2] as string)}, Message);
+    const m = ModelFactory.instance({Uid: msg.DraftInfo[1], Folder: msg.DraftInfo[2]}, Message);
     return this.getMessageBody(account, m as Message);
   }
 

@@ -218,12 +218,186 @@ export class Utils {
   public static addThemeToBody(t: string) {
     document.body.className = `${document.body.className || ''} ${t}`;
   }
+/*
+  public static toAscii(sStr: string): string {
+    const sArray = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S',
+      'T','U','V','W','X','Y','Z', 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
+      'p','q','r','s','t','u','v','w','x','y','z', '0','1','2','3','4','5','6','7','8','9','+',','];
 
-  public static toAscii(s: string): string {
-    let result = '';
-    for (let i = 0; i < s.length; i++) {
-      result += AsciiMap[s.charCodeAt(i)] || s.charAt(i);
+    let sLen = sStr.length;
+    let bIsB = false;
+    let iIndex = 0, iN = 0;
+    let sReturn = '';
+    let iCh = 0, iB = 0, iK = 0;
+    let iC: number, iO: number;
+
+    while (sLen)
+    {
+      iC = sStr.charCodeAt(iIndex);
+      if (iC < 0x80)
+      {
+        iCh = iC;
+        iN = 0;
+      }
+      else if (iC < 0xc2)
+      {
+        throw new Error('ENCODING');
+      }
+      else if (iC < 0xe0)
+      {
+        iCh = iC & 0x1f;
+        iN = 1;
+      }
+      else if (iC < 0xf0)
+      {
+        iCh = iC & 0x0f;
+        iN = 2;
+      }
+      else if (iC < 0xf8)
+      {
+        iCh = iC & 0x07;
+        iN = 3;
+      }
+      else if (iC < 0xfc)
+      {
+        iCh = iC & 0x03;
+        iN = 4;
+      }
+      else if (iC < 0xfe)
+      {
+        iCh = iC & 0x01;
+        iN = 5;
+      }
+      else
+      {
+        throw new Error('ENCODING');
+      }
+
+      iIndex++;
+      sLen--;
+
+      if (iN > sLen)
+      {
+        throw new Error('ENCODING');
+      }
+
+      for (let iJ = 0; iJ < iN; iJ++)
+      {
+        iO = sStr.charCodeAt(iIndex + iJ);
+        if ((iO & 0xc0) != 0x80)
+        {
+          throw new Error('ENCODING');
+        }
+
+        iCh = (iCh << 6) | (iO & 0x3f);
+      }
+
+      if (iN > 1 && !(iCh >> (iN * 5 + 1)))
+      {
+        throw new Error('ENCODING');
+      }
+
+      iIndex += iN;
+      sLen -= iN;
+
+      if (iCh < 0x20 || iCh >= 0x7f)
+      {
+        if (!bIsB)
+        {
+          sReturn += '&';
+          bIsB = true;
+          iB = 0;
+          iK = 10;
+        }
+
+        if (iCh & ~0xffff)
+        {
+          iCh = 0xfffe;
+        }
+
+        sReturn += sArray[(iB | iCh >> iK)];
+        iK -= 6;
+        for (; iK >= 0; iK -= 6)
+        {
+          sReturn += sArray[((iCh >> iK) & 0x3f)];
+        }
+
+        iB = (iCh << (-iK)) & 0x3f;
+        iK += 16;
+      }
+      else
+      {
+        if (bIsB)
+        {
+          if (iK > 10)
+          {
+            sReturn += sArray[iB];
+          }
+          sReturn += '-';
+          bIsB = false;
+        }
+
+        sReturn += String.fromCharCode(iCh);
+        if ('&' === String.fromCharCode(iCh))
+        {
+          sReturn += '-';
+        }
+      }
     }
+
+    if (bIsB)
+    {
+      if (iK > 10)
+      {
+        sReturn += sArray[iB];
+      }
+
+      sReturn += '-';
+    }
+
+    return sReturn;
+  }
+
+  public static fromAscii(s: string): string {
+    let result = '';
+    let i = 0;
+    const entries = Object.entries(AsciiMap);
+    while (i < s.length) {
+      if (s[i] != '&') {
+        result += s[i];
+        i++;
+        continue;
+      }
+
+      if (i + 1 < s.length && s[i + 1] == '-') {
+        result += String.fromCharCode(43);
+        i += 2;
+        continue;
+      }
+
+      if (i + 4 < s.length && s[i + 4] == '-') {
+        const value = `${s[i]}${s[i + 1]}${s[i + 2]}${s[i + 3]}${s[i + 4]}`;
+        const idx = entries.map(e => e[1]).indexOf(value);
+        result += idx == -1 ? s[i] : String.fromCharCode(parseInt(entries[idx][0]));
+        i += idx == -1 ? 1 : 5;
+        continue;
+      }
+
+      result += s[i];
+      i++;
+      continue;
+    }
+
     return result;
+  }
+*/
+  public static setFoldersAccounts(id: string, folders: Array<Folder>) {
+    folders.forEach(f => {
+      f.AccountID = id;
+      if (!Array.isArray(f.SubFolders)) {
+        return ;
+      }
+      Utils.setFoldersAccounts(id, f.SubFolders);
+    });
   }
 }

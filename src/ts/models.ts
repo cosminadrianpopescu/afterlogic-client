@@ -271,10 +271,9 @@ export class SearchConvertor implements Convertor<string> {
 }
 
 export class FoldersResultConvertor implements Convertor<Array<Folder>> {
-
   private _doConvert(src: Object): Folder {
     const f = new Folder();
-    f.Id = src['FullName'];
+    f.Id = src['FullNameRaw'];
     f.Name = src['Name'];
     f.Type = src['Type'];
     f.SubFolders = (src['SubFolders'] && src['SubFolders']['@Collection'] || []).map((s: Object) => this._doConvert(s));
