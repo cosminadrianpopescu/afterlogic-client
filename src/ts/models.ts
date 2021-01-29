@@ -270,6 +270,22 @@ export class SearchConvertor implements Convertor<string> {
   }
 }
 
+export class FoldersResultConvertor implements Convertor<Array<Folder>> {
+
+  private _doConvert(src: Object): Folder {
+    const f = new Folder();
+    f.Id = src['FullName'];
+    f.Name = src['Name'];
+    f.Type = src['Type'];
+    f.SubFolders = (src['SubFolders'] && src['SubFolders']['@Collection'] || []).map((s: Object) => this._doConvert(s));
+    return f;
+  }
+
+  public convert(src: Object): Folder[] {
+    return (src['@Collection'] || []).map((f: Object) => this._doConvert(f));
+  }
+}
+
 export class FoldersConvertor implements Convertor<Array<Folder>> {
   private _addNewFolder(x: string, possibleParents: Array<Folder>) {
     const parts = x.split('/');
@@ -351,6 +367,11 @@ export class Attachments {
   Count: number;
   @deserialize(Attachment)
   Collection: Array<Attachment>;
+}
+
+export class FoldersResponse {
+  @deserialize(FoldersResultConvertor)
+  Folders: Array<Folder>;
 }
 
 export class MessageBody extends Message {

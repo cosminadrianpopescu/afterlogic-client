@@ -1,4 +1,5 @@
 import {Collection, ComposedResult, Contact, Folder, FolderType, MessageCompose, SearchModel, StringParsing, UserSetting} from '../models';
+import {AsciiMap} from '../map';
 
 const EXTRA_STYLES_ID = 'extra-styles';
 
@@ -38,29 +39,6 @@ export class Utils {
 
   public static folderByType(type: FolderType, folders: Array<Folder>): Folder {
     return Utils._searchFolder(folders, (f => f.Type == type));
-  }
-
-  public static setFolderTypes(data: Array<Object>, folders: Array<Folder>) {
-    if (data.length == 0) {
-      return ;
-    }
-
-    data.forEach(_f => {
-      const f = Utils.folderById(folders, _f['FullName']);
-      if (!f) {
-        return ;
-      }
-
-      f.Type = _f['Type'];
-    });
-
-    this.setFolderTypes(
-      data
-        .filter(d => !!d['SubFolders'] && Array.isArray(d['SubFolders']['@Collection']))
-        .map(d => d['SubFolders']['@Collection'])
-        .reduce((acc, v) => acc.concat(v), []),
-      folders
-    );
   }
 
   public static folderById(folders: Array<Folder>, id: string): Folder {
@@ -239,5 +217,13 @@ export class Utils {
 
   public static addThemeToBody(t: string) {
     document.body.className = `${document.body.className || ''} ${t}`;
+  }
+
+  public static toAscii(s: string): string {
+    let result = '';
+    for (let i = 0; i < s.length; i++) {
+      result += AsciiMap[s.charCodeAt(i)] || s.charAt(i);
+    }
+    return result;
   }
 }

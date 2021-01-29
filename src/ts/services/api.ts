@@ -6,7 +6,7 @@ import {ReplaySubject} from 'rxjs';
 import {filter, map, take} from 'rxjs/operators';
 import {BaseClass} from '../base';
 import {NgInject} from '../decorators';
-import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL, AttPreviewType} from '../models';
+import {Account, Attachment, Authentication, COMBINED_ACCOUNT_ID, FileResult, Folder, FoldersInfoResult, FolderType, HttpResponse, Message, MessageBody, MessageCompose, Messages, MessageSave, ModelFactory, ObjectType, SaveMessageResponse, ServerSetting, to, UploadResult, UserSetting, ALL_MAIL, AttPreviewType, FoldersResponse} from '../models';
 import {Settings} from './settings';
 import {Utils} from './utils';
 import {Nextcloud} from '../nextcloud/nextcloud';
@@ -195,9 +195,8 @@ export class Api extends BaseClass {
       }
       const list: Array<Folder> = [];
       Utils.foldersFlatList(a.FoldersOrder, list);
-      await this._setFoldersTypes(a, a.FoldersOrder);
+      await this._setFolders(a);
       list.forEach(l => l.AccountID = a.AccountID);
-      a.Folders$.next(a.FoldersOrder);
     });
     const r = result.reduce((acc, v) => acc.concat(v), []);
     if (accounts.length > 1) {
@@ -226,7 +225,7 @@ export class Api extends BaseClass {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       return this._request(
         account.Email, 'Mail', 'GetRelevantFoldersInformation',
-        {AccountID: account.AccountID, Folders: list.map(x => x.Id)}, FoldersInfoResult,
+        {AccountID: account.AccountID, Folders: list.map(x => Utils.toAscii(x.Id))}, FoldersInfoResult,
         undefined,
       ) as Promise<FoldersInfoResult>;
     }
@@ -287,7 +286,7 @@ export class Api extends BaseClass {
   ): Promise<Messages> {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       const params = {
-        AccountID: account.AccountID, Folder: folder, Offset: offset,
+        AccountID: account.AccountID, Folder: Utils.toAscii(folder), Offset: offset,
         Limit: pageSize, Search: search, Filters: filters, UseThreading: withThreads
       };
       if (lastUid) {
@@ -381,7 +380,7 @@ export class Api extends BaseClass {
     }
     const result: Array<MessageBody> = await this._request(
       a.Email, 'Mail', 'GetMessagesBodies', 
-      {AccountID: a.AccountID, Folder: msg.Folder, Uids: [msg.Uid]}, MessageBody
+      {AccountID: a.AccountID, Folder: Utils.toAscii(msg.Folder), Uids: [msg.Uid]}, MessageBody
     ) as Array<MessageBody>
 
     if (!Array.isArray(result) || result.length != 1) {
@@ -430,7 +429,7 @@ export class Api extends BaseClass {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
       await this._request(
         account.Email, 'Mail', flag,
-        {AccountID: account.AccountID, Folder: folder, Uids: msgs.map(m => m.Uid).join(","), SetAction: action}
+        {AccountID: account.AccountID, Folder: Utils.toAscii(folder), Uids: msgs.map(m => m.Uid).join(","), SetAction: action}
       );
       return ;
     }
@@ -469,7 +468,7 @@ export class Api extends BaseClass {
       return this._request(
         account.Email,
         'Mail', 'DeleteMessages',
-        {AccountID: account.AccountID, Folder: folder, Uids: messages.map(m => m.Uid).join(",")}
+        {AccountID: account.AccountID, Folder: Utils.toAscii(folder), Uids: messages.map(m => m.Uid).join(",")}
       );
     }
 
@@ -482,7 +481,7 @@ export class Api extends BaseClass {
 
   public async _doMoveMessages(account: Account, folder: string, toFolder: string, messages: Array<Message>) {
     if (account.AccountID != COMBINED_ACCOUNT_ID) {
-      const params = {AccountID: account.AccountID, Folder: folder, ToFolder: toFolder, Uids: messages.map(m => m.Uid).join(',')};
+      const params = {AccountID: account.AccountID, Folder: Utils.toAscii(folder), ToFolder: toFolder, Uids: messages.map(m => m.Uid).join(',')};
       await this._request(account.Email, 'Mail', 'MoveMessages', params);
       return ;
     }
@@ -595,10 +594,11 @@ export class Api extends BaseClass {
     return this._request(account.Email, 'Mail', 'UploadAttachment', {AccountID: account.AccountID}, UploadResult, data) as Promise<UploadResult>;
   }
 
-  private async _setFoldersTypes(account: Account, folders: Array<Folder>) {
-    const result = await this._request(account.Email, 'Mail', 'GetFolders', {AccountID: account.AccountID}, Object) as Object;
-    Utils.setFolderTypes(result['Folders']['@Collection'], folders);
+  private async _setFolders(account: Account) {
+    const result = await this._request(account.Email, 'Mail', 'GetFolders', {AccountID: account.AccountID}, FoldersResponse) as FoldersResponse;
+    account.FoldersOrder = result.Folders;
     account.TypesSet = true;
+    account.Folders$.next(result.Folders);
   }
 
   private _getFolders(account: Account): Promise<Array<Folder>> {
@@ -608,7 +608,7 @@ export class Api extends BaseClass {
   public async folderByType(type: FolderType, account: Account): Promise<Folder> {
     const folders = await this._getFolders(account);
     if (!account.TypesSet) {
-      await this._setFoldersTypes(account, folders);
+      await this._setFolders(account);
     }
     return Utils.folderByType(type, folders);
   }
@@ -660,7 +660,7 @@ export class Api extends BaseClass {
 
   // Patched
   public getOriginalDraftReply(account: Account, msg: MessageCompose): Promise<MessageBody> {
-    const m = ModelFactory.instance({Uid: msg.DraftInfo[1], Folder: msg.DraftInfo[2]}, Message);
+    const m = ModelFactory.instance({Uid: msg.DraftInfo[1], Folder: Utils.toAscii(msg.DraftInfo[2] as string)}, Message);
     return this.getMessageBody(account, m as Message);
   }
 
